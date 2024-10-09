@@ -1,13 +1,10 @@
-tst_rast: tst_rast.o raster.o clear_qk.o
-	cc68x -g tst_rast.o raster.o clear_qk.o -o tst_rast
+tst_rast: tst_rast.o raster.o
+	cc68x -g tst_rast.o raster.o -o tst_rast
 
 tst_rast.o: tst_rast.c raster.h
 	cc68x -g -c tst_rast.c
 
 raster.o: raster.c raster.h
 	cc68x -g -c raster.c
-
-clear_qk.o: clear_qk.s
-	gen -D -L2 clear_qk.s
 clean:
 	$(RM) *.o *.tos
