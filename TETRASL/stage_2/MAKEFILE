@@ -1,0 +1,13 @@
+tst_rast: tst_rast.o raster.o font.o
+	cc68x -g tst_rast.o raster.o font.o -o tst_rast
+
+tst_rast.o: tst_rast.c raster.h
+	cc68x -g -c tst_rast.c
+
+raster.o: raster.c raster.h
+	cc68x -g -c raster.c
+
+font.o: font.c font.h
+	cc68x -g -c font.c
+clean:
+	$(RM) *.o *.tos
