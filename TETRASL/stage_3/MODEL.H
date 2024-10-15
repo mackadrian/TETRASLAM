@@ -1,33 +1,34 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+
+#define FIELD_WIDTH 153 
+#define FIELD_HEIGHT 303
+
 typedef struct
 {
   unsigned int x, y;
-  unsigned int tile_count, cycle_count;
+  unsigned int width, height;
+  unsigned int tile_count;
   int delta_x, delta_y;
-  bool merge, dropped, cycled;
+  int merged, dropped;
 } Tetromino;
 
-typedef struct
+typedef struct 
 {
-  Tetromino pieces[7];
-} Player;
+  unsigned int x, y;
+  unsigned int width, height;
+  unsigned int tile_count;
+  int merged, row_cleared, collided;
+} Field;
 
 typedef struct 
 {
   unsigned int x, y;
   unsigned int tile_count;
   int delta_x, delta_y;
-  bool merge, row_cleared, collided;
+  int merged, row_cleared, collided;
 } Tower;
-
-typedef struct 
-{
-  unsigned x, y;
-  unsigned int tile_count;
-}Field;
-
 
 typedef struct 
 {
@@ -37,13 +38,18 @@ typedef struct
 
 typedef struct
 {
-  Player player_piece;
-  Tower tower;
+  Tetromino player_pieces[7];
   Field playing_field;
-  Tile counter; 
+  Tower tower;
+  Tile counter;
 } Model;
 
-void move_piece(Player *piece);
+/*
+bool check_collision(Tetromino *piece, Tower *tower,
+                       Field *field, int new_x, int new_y);
+void move_piece(Player *piece, Tower *tower,
+                 Field *field, Direction dir);
+*/
 
 
 #endif

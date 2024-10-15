@@ -1,10 +1,11 @@
 t_model: t_model.o model.o
-	cc68x -g t_model.o model.o-o t_model
+	cc68x -g t_model.o model.o -o t_model
 
 t_model.o: t_model.c model.h
 	cc68x -g -c t_model.c
 
 model.o: model.c model.h
 	cc68x -g -c model.c
+
 clean:
-	$(RM)*.o *.tos
+	$(RM) *.o *.tos
