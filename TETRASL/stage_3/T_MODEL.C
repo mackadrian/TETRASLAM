@@ -40,7 +40,7 @@ Model testSnapshot = {
         10, /* Number of tiles in the tower */
         0},
     /* counter */
-    {329 + (48 * 2), 40, 100}};
+    {329 + (48 * 2), 40, 10}};
 
 int main()
 {
@@ -67,6 +67,7 @@ int main()
     print_active_piece(&testSnapshot.active_piece);
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
+    print_tower(&testSnapshot.tower);
 
     Cnecin();
     printf("\033E\033f\n");
@@ -85,15 +86,42 @@ int main()
     print_active_piece(&testSnapshot.active_piece);
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
+    print_tower(&testSnapshot.tower);
 
     Cnecin();
     printf("\033E\033f\n");
-    printf("Test 5: Dropping active piece at the centre column... press any key to continue.\n");
+    printf("Test 4: Dropping active piece at the centre column... press any key to continue.\n");
     drop_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
                       &testSnapshot.tower);
     print_active_piece(&testSnapshot.active_piece);
+    printf("Adding next active piece... press any key to continue.\n");
+    Cnecin();
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
+    print_tower(&testSnapshot.tower);
+
+    Cnecin();
+    printf("\033E\033f\n");
+    printf("Test 5: Shifted piece to right and fill column... press any key to continue.\n");
+    drop_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
+                      &testSnapshot.tower);
+    print_active_piece(&testSnapshot.active_piece);
+    printf("Adding next active piece... press any key to continue.\n");
+    Cnecin();
+    reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
+                     &testSnapshot.playing_field, &testSnapshot.tower);
+    print_tower(&testSnapshot.tower);
+    printf("Filiing column to max... press any key to continue.\n");
+    Cnecin();
+    for (i = 0; i < 4; i++)
+    {
+        drop_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
+                          &testSnapshot.tower);
+        print_active_piece(&testSnapshot.active_piece);
+        reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
+                         &testSnapshot.playing_field, &testSnapshot.tower);
+        print_tower(&testSnapshot.tower);
+    }
 
     Cnecin();
     printf("\033E\033f\n");
@@ -124,6 +152,31 @@ int main()
         print_active_piece(&testSnapshot.active_piece);
         Cnecin();
     }
+    printf("Dropping I-piece... press any key to continue.\n");
+    drop_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
+                      &testSnapshot.tower);
+    print_active_piece(&testSnapshot.active_piece);
+    printf("Adding next active piece... press any key to continue.\n");
+    reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
+                     &testSnapshot.playing_field, &testSnapshot.tower);
 
+    Cnecin();
+    printf("\033E\033f\n");
+    printf("Test 8: From I-piece to J-piece again and create a complete column... press any key to continue.\n");
+    Cnecin();
+    cycle_active_piece(&testSnapshot.active_piece, testSnapshot.player_pieces,
+                       &testSnapshot.playing_field, &testSnapshot.tower);
+    print_active_piece(&testSnapshot.active_piece);
+    move_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
+                      &testSnapshot.tower, LEFT);
+    print_active_piece(&testSnapshot.active_piece);
+    drop_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
+                      &testSnapshot.tower);
+    print_active_piece(&testSnapshot.active_piece);
+    printf("Printing tiles... press any key to continue.\n");
+    Cnecin();
+    reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
+                     &testSnapshot.playing_field, &testSnapshot.tower);
+    print_active_piece(&testSnapshot.active_piece);
     return 0;
 }

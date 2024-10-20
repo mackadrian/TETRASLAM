@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <stdio.h> /*print collisions remove once done testing*/
 
-#define MAX_COLUMNS 10
-#define OFFSET 1
 /*NOTE: Remove print statements if the implementation is complete.*/
 
 /*
@@ -34,7 +32,7 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
         {
             premove_x = active_piece->x - (TILE_WIDTH - 1);
 
-            if (premove_x >= playing_field->x)
+            if (premove_x > playing_field->x)
             {
                 active_piece->x = premove_x;
                 if (check_tower_collision(active_piece, tower))
@@ -52,21 +50,23 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
         break;
 
     case RIGHT:
-        if (active_piece->x + active_piece->width < (playing_field->x + playing_field->width) - TILE_WIDTH)
+        if (active_piece->x + active_piece->width < playing_field->x + playing_field->width)
         {
-            active_piece->x += TILE_WIDTH - 1;
-
-            /* Check for tower collision after moving */
-            if (check_tower_collision(active_piece, tower))
+            premove_x = active_piece->x + (TILE_WIDTH - 1);
+            if (premove_x + active_piece->width < playing_field->x + playing_field->width)
             {
-                active_piece->x -= (TILE_WIDTH - 1);
-                printf("Tower collision detected on the right. Reverting to x: %d\n", active_piece->x);
+                active_piece->x = premove_x;
+                if (check_tower_collision(active_piece, tower))
+                {
+                    active_piece->x -= (TILE_WIDTH - 1);
+                    printf("Tower collision detected on the right. Reverting to x: %d\n", active_piece->x);
+                }
             }
-        }
-        else
-        {
-            playing_field->collided = 1;
-            printf("Right boundary collision detected for Tetromino at x: %d\n", active_piece->x);
+            else
+            {
+                playing_field->collided = 1;
+                printf("Right boundary collision detected for Tetromino at x: %d\n", active_piece->x);
+            }
         }
         break;
     }
@@ -89,14 +89,15 @@ void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
 
     while (active_piece->dropped)
     {
-        premove_y = active_piece->y - (TILE_HEIGHT - 1);
-        if (active_piece->y + TILE_HEIGHT < playing_field->y + playing_field->height)
+        premove_y = active_piece->y + (TILE_HEIGHT - 1);
+        if (active_piece->y + active_piece->height < (playing_field->y + playing_field->height - TILE_HEIGHT))
         {
-            active_piece->y += TILE_HEIGHT - 1;
+            active_piece->y += (TILE_HEIGHT - 1);
             printf("Dropping piece to y: %d, x: %d\n", active_piece->y, active_piece->x);
 
             if (check_tower_collision(active_piece, tower))
             {
+                active_piece->y -= (TILE_HEIGHT - 1);
                 active_piece->merged = 1;
                 tower->collided = 1;
                 active_piece->dropped = 0;
@@ -106,7 +107,7 @@ void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
         }
         else
         {
-            active_piece->y = playing_field->y + playing_field->height - active_piece->height;
+            active_piece->y = (playing_field->y + playing_field->height - active_piece->height) - 1;
             active_piece->merged = 1;
             playing_field->collided = 1;
             active_piece->dropped = 0;
@@ -142,11 +143,11 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     *active_piece = pieces[next_index];
     active_piece->curr_index = next_index;
 
-    if (prev_x + active_piece->width > (playing_field->x + playing_field->width) - TILE_WIDTH)
+    if (prev_x + active_piece->width > playing_field->x + playing_field->width - TILE_WIDTH)
     {
         printf("Cycled active piece is out of bounds at x:%u, y:%u\n",
                prev_x + active_piece->width, prev_y + active_piece->height);
-        active_piece->x = (playing_field->x + playing_field->width - OFFSET) - active_piece->width;
+        active_piece->x = (playing_field->x + playing_field->width - 1) - active_piece->width;
         printf("Adjust active piece at x:%u, y:%u, width: %u, height: %u,\n",
                active_piece->x, active_piece->y, active_piece->width, active_piece->height);
     }
@@ -161,17 +162,10 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     {
         printf("Collision detected with the tower after cycling at x:%u, y:%u\n", active_piece->x, active_piece->y);
 
-        while (check_tower_collision(active_piece, tower) && active_piece->x + active_piece->width <= playing_field->x + playing_field->width)
+        while (check_tower_collision(active_piece, tower) && active_piece->x + active_piece->width < playing_field->x + playing_field->width)
         {
-            active_piece->x -= TILE_WIDTH;
+            active_piece->x -= TILE_WIDTH - 1;
             printf("Adjusted active piece to avoid collision. New x: %u\n", active_piece->x);
-        }
-
-        if (check_tower_collision(active_piece, tower))
-        {
-            printf("Unable to resolve tower collision. Resetting to previous position.\n");
-            active_piece->x = prev_x;
-            active_piece->y = prev_y;
         }
     }
 }
@@ -190,13 +184,36 @@ Limitations: - Resets the active piece to the original starting position.
 */
 void reset_active_pos(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
+    int shift_x = 0;
     int reload_index = active_piece->curr_index;
     merge_active_piece_to_tower(active_piece, tower);
 
+    *active_piece = pieces[reload_index];
+    active_piece->curr_index = reload_index;
+
+    while (check_tower_collision(active_piece, tower))
+    {
+        active_piece->x += TILE_WIDTH - 1;
+        shift_x++;
+
+        if (active_piece->x + active_piece->width > playing_field->x + playing_field->width - TILE_WIDTH)
+        {
+            printf("No available space for the new active piece. Game over or handle this case.\n");
+            return;
+        }
+
+        if (shift_x * (TILE_WIDTH - 1) >= playing_field->width)
+        {
+            printf("Unable to place the piece within the field. Game over or handle this case.\n");
+            return;
+        }
+    }
+
     playing_field->collided = 0;
     tower->collided = 0;
-    *active_piece = pieces[reload_index];
-    printf("Loaded next active piece. x: %d, y: %d\n", active_piece->x, active_piece->y);
+
+    printf("Loaded next active piece. x: %d, y: %d, width: %d, height: %d\n",
+           active_piece->x, active_piece->y, active_piece->width, active_piece->height);
 }
 
 /*
@@ -219,9 +236,9 @@ void merge_active_piece_to_tower(Tetromino *active_piece, Tower *tower)
         new_tile_index = tower->tile_count;
 
         tower->tile[new_tile_index].x = active_piece->x;
-        tower->tile[new_tile_index].y = active_piece->y + (i * TILE_HEIGHT);
-        tower->tile[new_tile_index].width = TILE_WIDTH;
-        tower->tile[new_tile_index].height = TILE_HEIGHT;
+        tower->tile[new_tile_index].y = active_piece->y + (i * (TILE_HEIGHT - 1));
+        tower->tile[new_tile_index].width = TILE_WIDTH - 1;
+        tower->tile[new_tile_index].height = TILE_HEIGHT - 1;
 
         tower->tile_count++;
     }
