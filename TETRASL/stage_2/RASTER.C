@@ -72,41 +72,6 @@ void plot_bitmap_16(UINT16 *base, int x, int y,
 }
 
 /*
------ FUNCTION: plot_bitmap_8 -----
-Purpose: plots an unsigned char bitmap size onto the screen
-		 with a given (x,y) coordinate
-
-Parameters: UINT8 base 				unsigned char pointer to frame buffer
-			int x 					user horizontal position
-			int y 					user vertical position
-			const UINT8 bitmap 		bitmap array address
-			unsigned char height 	height of the bitmap array
-			unsigned int width 		width of the bitmap array
-
-Assumptions: - Can only pass a bitmap, height, and frame buffer pointer that is
-			 strictly for unsigned char size.
-			 - Plot within 640 x 400 screen size.
-*/
-void plot_bitmap_8(UINT8 *base, int x, int y,
-				   const UINT8 *bitmap,
-				   unsigned char height, unsigned char width)
-{
-	int i, j, shift;
-	UINT8 *loc = base + y * 80 + (x >> 3);
-	shift = x & 7;
-	for (i = 0; i < height; i++)
-	{
-		const UINT8 *current_row = bitmap + (i * width);
-		for (j = 0; j < width; j++)
-		{
-			loc[j] |= (current_row[j] >> shift);
-			loc[j + 1] |= (current_row[j] << (8 - shift));
-		}
-		loc += 80;
-	}
-}
-
-/*
 ----- FUNCTION: plot_char -----
 Purpose: plots a desired character text to the screen
 
@@ -159,4 +124,47 @@ void plot_text(UINT8 *base, int x, int y,
 		x += 8;
 		text++;
 	}
+}
+
+/*
+----- FUNCTION: clear_tile -----
+Purpose: clears a 16x16 tile on the screen
+
+Parameters: UINT16 base 			unsigned char pointer to frame buffer
+			int x 					user horizontal position
+			int y 					user vertical position
+
+Assumptions: - Can only pass a font, height, and frame buffer pointer that is
+			 strictly for unsigned char size.
+			 - Must be plotted within the 640 x 400 boundaries otherwise doesn't plot anything.
+*/
+void clear_tile(UINT16 *base, int x, int y, unsigned int height)
+{
+	int i, shift;
+	UINT16 *loc = base + y * 40 + (x >> 4);
+	shift = x & 15;
+
+	for (i = 0; i < height; i++)
+	{
+		*loc &= ~(0xFFFF >> shift);
+		if (shift > 0)
+		{
+			*(loc + 1) &= ~(0xFFFF << (16 - shift));
+		}
+		loc += 40;
+	}
+}
+
+/*
+----- FUNCTION: clear_row_bitmap_16 -----
+Purpose: clears a row of 16 width size bitmap at a specified coordinate.
+
+Parameters: UINT8 base 				unsigned char pointer to frame buffer
+			int x 					user horizontal position
+			int y 					user vertical position
+
+Assumptions: - Size is 16 but due to overlap it will clear all 15 out of 16 pixels.
+*/
+void clear_row(UINT16 *base, int x, int y, unsigned int width)
+{
 }

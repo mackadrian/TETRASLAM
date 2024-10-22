@@ -9,14 +9,14 @@ void plot_bitmap_16(UINT16 *base, int x, int y,
                     const UINT16 *bitmap,
                     unsigned int height, unsigned int width);
 
-void plot_bitmap_8(UINT8 *base, int x, int y,
-                   const UINT8 *bitmap,
-                   unsigned char height, unsigned char width);
-
 void plot_char(UINT8 *base, int x, int y,
                const UINT8 *font, int ascii);
 
 void plot_text(UINT8 *base, int x, int y,
                const UINT8 *font, const char *text);
+
+void clear_tile(UINT16 *base, int x, int y, unsigned int height);
+
+void clear_row(UINT16 *base, int x, int y, unsigned int width);
 
 #endif
