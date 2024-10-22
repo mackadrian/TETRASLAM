@@ -9,6 +9,9 @@
 #include <stdio.h> /*print collisions remove once done testing*/
 
 /*NOTE: Remove print statements if the implementation is complete.*/
+#define OFFSET 1
+#define TRUE 1
+#define FALSE 0
 
 /*
 ----- FUNCTION: move_player_piece -----
@@ -30,20 +33,20 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
     case LEFT:
         if (active_piece->x > playing_field->x)
         {
-            premove_x = active_piece->x - (TILE_WIDTH - 1);
+            premove_x = active_piece->x - active_piece->velocity_x;
 
             if (premove_x > playing_field->x)
             {
                 active_piece->x = premove_x;
                 if (check_tower_collision(active_piece, tower))
                 {
-                    active_piece->x += (TILE_WIDTH - 1);
+                    active_piece->x += active_piece->velocity_x;
                     printf("Tower collision detected on the left. Reverting to x: %d\n", active_piece->x);
                 }
             }
             else
             {
-                playing_field->collided = 1;
+                playing_field->collided = TRUE;
                 printf("Left boundary collision detected for Tetromino at x: %d\n", active_piece->x);
             }
         }
@@ -52,19 +55,19 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
     case RIGHT:
         if (active_piece->x + active_piece->width < playing_field->x + playing_field->width)
         {
-            premove_x = active_piece->x + (TILE_WIDTH - 1);
+            premove_x = active_piece->x + active_piece->velocity_x;
             if (premove_x + active_piece->width < playing_field->x + playing_field->width)
             {
                 active_piece->x = premove_x;
                 if (check_tower_collision(active_piece, tower))
                 {
-                    active_piece->x -= (TILE_WIDTH - 1);
+                    active_piece->x -= active_piece->velocity_x;
                     printf("Tower collision detected on the right. Reverting to x: %d\n", active_piece->x);
                 }
             }
             else
             {
-                playing_field->collided = 1;
+                playing_field->collided = TRUE;
                 printf("Right boundary collision detected for Tetromino at x: %d\n", active_piece->x);
             }
         }
@@ -85,22 +88,22 @@ Limitations: - Model needs to be initialized with the proper active_piece, playi
 void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower)
 {
     int premove_y;
-    active_piece->dropped = 1;
+    active_piece->dropped = TRUE;
 
     while (active_piece->dropped)
     {
-        premove_y = active_piece->y + (TILE_HEIGHT - 1);
+        premove_y = active_piece->y + active_piece->velocity_x;
         if (active_piece->y + active_piece->height < (playing_field->y + playing_field->height - TILE_HEIGHT))
         {
-            active_piece->y += (TILE_HEIGHT - 1);
+            active_piece->y += active_piece->velocity_y;
             printf("Dropping piece to y: %d, x: %d\n", active_piece->y, active_piece->x);
 
             if (check_tower_collision(active_piece, tower))
             {
-                active_piece->y -= (TILE_HEIGHT - 1);
-                active_piece->merged = 1;
-                tower->collided = 1;
-                active_piece->dropped = 0;
+                active_piece->y -= active_piece->velocity_y;
+                active_piece->merged = TRUE;
+                tower->collided = TRUE;
+                active_piece->dropped = FALSE;
                 printf("Collision with tower detected, Tetromino merged at y: %d\n", active_piece->y);
                 break;
             }
@@ -108,9 +111,9 @@ void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
         else
         {
             active_piece->y = (playing_field->y + playing_field->height - active_piece->height) - 1;
-            active_piece->merged = 1;
-            playing_field->collided = 1;
-            active_piece->dropped = 0;
+            active_piece->merged = TRUE;
+            playing_field->collided = TRUE;
+            active_piece->dropped = FALSE;
             printf("Collision with playing field bottom border detected at y: %d\n", active_piece->y);
             break;
         }
@@ -164,7 +167,7 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
 
         while (check_tower_collision(active_piece, tower) && active_piece->x + active_piece->width < playing_field->x + playing_field->width)
         {
-            active_piece->x -= TILE_WIDTH - 1;
+            active_piece->x -= active_piece->velocity_x;
             printf("Adjusted active piece to avoid collision. New x: %u\n", active_piece->x);
         }
     }
@@ -193,7 +196,7 @@ void reset_active_pos(Tetromino *active_piece, Tetromino pieces[], Field *playin
 
     while (check_tower_collision(active_piece, tower))
     {
-        active_piece->x += TILE_WIDTH - 1;
+        active_piece->x += active_piece->velocity_x;
         shift_x++;
 
         if (active_piece->x + active_piece->width > playing_field->x + playing_field->width - TILE_WIDTH)
@@ -202,15 +205,15 @@ void reset_active_pos(Tetromino *active_piece, Tetromino pieces[], Field *playin
             return;
         }
 
-        if (shift_x * (TILE_WIDTH - 1) >= playing_field->width)
+        if (shift_x * active_piece->velocity_x >= playing_field->width)
         {
             printf("Unable to place the piece within the field. Game over or handle this case.\n");
             return;
         }
     }
 
-    playing_field->collided = 0;
-    tower->collided = 0;
+    playing_field->collided = FALSE;
+    tower->collided = FALSE;
 
     printf("Loaded next active piece. x: %d, y: %d, width: %d, height: %d\n",
            active_piece->x, active_piece->y, active_piece->width, active_piece->height);
@@ -236,141 +239,14 @@ void merge_active_piece_to_tower(Tetromino *active_piece, Tower *tower)
         new_tile_index = tower->tile_count;
 
         tower->tile[new_tile_index].x = active_piece->x;
-        tower->tile[new_tile_index].y = active_piece->y + (i * (TILE_HEIGHT - 1));
-        tower->tile[new_tile_index].width = TILE_WIDTH - 1;
-        tower->tile[new_tile_index].height = TILE_HEIGHT - 1;
+        tower->tile[new_tile_index].y = active_piece->y + (i * active_piece->velocity_y);
+        tower->tile[new_tile_index].width = active_piece->velocity_x;
+        tower->tile[new_tile_index].height = active_piece->velocity_y;
 
         tower->tile_count++;
     }
 
     printf("Merged active piece into tower. Tower now has %d tiles.\n", tower->tile_count);
-}
-
-/*
------ FUNCTION: clear_row -----
-Purpose: playing field scans for complete columns and clears the column in that row
-
-Parameters: Tetromino playing_field  (playing_field address)
-            Tower tower              (tower address)
-
-Limitations: - Checks the collision between the active piece and the tower object.
-             - Occurs when the player chooses to drop the piece as it checks for height.
-
-*/
-void clear_row(Field *playing_field, Tower *tower)
-{
-    int i, row;
-    for (row = playing_field->y + playing_field->height - TILE_HEIGHT; row >= playing_field->y; row -= TILE_HEIGHT)
-    {
-        if (check_row(row, playing_field, tower))
-        {
-            printf("Clearing row at y: %d\n", row);
-            for (i = 0; i < tower->tile_count; i++)
-            {
-                Tile *tile = &tower->tile[i];
-                if (tile->y == row)
-                {
-
-                    tile->y = -1;
-                }
-            }
-            shift_rows(tower, playing_field);
-        }
-    }
-}
-
-/*
------ FUNCTION: shift_rows -----
-Purpose: shifts the rows if there is a gap found in the tower
-Parameters: Tower tower             (tower address)
-            Field playing_field     (playing field address)
-
-Limitations: - Checks the collision between the active piece and the tower object.
-             - Occurs when the player chooses to drop the piece as it checks for height.
-
-*/
-void shift_rows(Tower *tower, Field *playing_field)
-{
-    int i, j, row, lowest_row, tile_falls, tile_below_found;
-    for (row = playing_field->y + playing_field->height - TILE_HEIGHT; row >= playing_field->y; row -= TILE_HEIGHT)
-    {
-        tile_falls = 1;
-        for (i = 0; i < tower->tile_count; i++)
-        {
-            Tile *tile = &tower->tile[i];
-
-            if (tile->y == row)
-            {
-                tile_below_found = 0;
-
-                for (j = 0; j < tower->tile_count; j++)
-                {
-                    if (tower->tile[j].x == tile->x && tower->tile[j].y == tile->y + TILE_HEIGHT)
-                    {
-                        tile_below_found = 1;
-                        break;
-                    }
-                }
-                if (tile_below_found)
-                {
-                    tile_falls = 0;
-                    break;
-                }
-            }
-        }
-
-        if (tile_falls)
-        {
-            for (i = 0; i < tower->tile_count; i++)
-            {
-                Tile *tile = &tower->tile[i];
-                if (tile->y == row)
-                {
-                    tile->y += TILE_HEIGHT;
-                }
-            }
-        }
-    }
-}
-
-/*
------ FUNCTION: check_row -----
-Purpose: checks row for completed column
-
-Parameters: Tetromino playing_field  (playing_field address)
-            Tower tower              (tower address)
-
-Return: int value                    (boolean int value)
-
-Limitations: - Checks the collision between the active piece and the tower object.
-             - Occurs when the player chooses to drop the piece as it checks for height.
-
-*/
-int check_row(int row, Field *playing_field, Tower *tower)
-{
-    int i, col, tiles_in_row, tile_found;
-    tiles_in_row = 0;
-
-    for (col = 0; col < 10; col++)
-    {
-        tile_found = 0;
-        for (i = 0; i < tower->tile_count; i++)
-        {
-            Tile *tile = &tower->tile[i];
-            if (tile->y == row && tile->x == playing_field->x + (col * TILE_WIDTH))
-            {
-                tile_found = 1;
-                break;
-            }
-        }
-
-        if (tile_found)
-        {
-            tiles_in_row++;
-        }
-    }
-
-    return (tiles_in_row == 10) ? 1 : 0;
 }
 
 /*
@@ -389,19 +265,19 @@ Limitations: - Checks the collision between the active piece and the tower objec
 int check_tower_collision(Tetromino *active_piece, Tower *tower)
 {
     int i, has_collided;
-    has_collided = 0;
+    has_collided = FALSE;
 
     for (i = 0; i < tower->tile_count; i++)
     {
         Tile *tile = &tower->tile[i];
 
-        if (active_piece->x + 1 < tile->x + tile->width &&
+        if (active_piece->x + OFFSET < tile->x + tile->width &&
             active_piece->x + active_piece->width - 1 > tile->x &&
-            active_piece->y + 1 < tile->y + tile->height &&
-            active_piece->y + active_piece->height - 1 > tile->y)
+            active_piece->y + OFFSET < tile->y + tile->height &&
+            active_piece->y + active_piece->height - OFFSET > tile->y)
         {
-            has_collided = 1;
-            tower->collided = has_collided;
+            has_collided = TRUE;
+            tower->collided = TRUE;
             printf("Collision detected with tile at x: %u, y: %u\n", tile->x, tile->y);
         }
     }

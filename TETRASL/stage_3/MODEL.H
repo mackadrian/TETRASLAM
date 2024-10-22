@@ -6,8 +6,10 @@
 #define FIELD_WIDTH 10
 #define FIELD_HEIGHT 20
 #define MAX_TILES_PER_TETROMINO 4
+#define MAX_TILES_PER_ROW 10
+#define MAX_PLAYER_TETROMINOES 7
 #define MAX_TILES_IN_TOWER 100
-#define MAX_TILES_IN_FIELD 200
+#define MAX_PER_COLUMN 100
 
 typedef enum
 {
@@ -25,8 +27,8 @@ typedef struct
 {
   unsigned int x, y;
   unsigned int width, height;
-  unsigned int tile_count;
-  unsigned int curr_index;
+  unsigned int tile_count, curr_index;
+  int velocity_x, velocity_y;
   int merged, dropped;
 } Tetromino;
 
@@ -35,7 +37,7 @@ typedef struct
   unsigned int x, y;
   unsigned int width, height;
   unsigned int tile_count;
-  int row_cleared, collided;
+  int collided;
 } Field;
 
 typedef struct
@@ -56,7 +58,7 @@ typedef struct
 typedef struct
 {
   Tetromino active_piece;
-  Tetromino player_pieces[7];
+  Tetromino player_pieces[MAX_PLAYER_TETROMINOES];
   Field playing_field;
   Tower tower;
   Counter counter;
@@ -67,9 +69,6 @@ void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
 void reset_active_pos(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
 void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
 void merge_active_piece_to_tower(Tetromino *active_piece, Tower *tower);
-void clear_row(Field *playing_field, Tower *tower);
-void shift_rows(Tower *tower, Field *playing_field);
-int check_row(int row, Field *playing_field, Tower *tower);
 int check_tower_collision(Tetromino *active_piece, Tower *tower);
 
 #endif

@@ -11,18 +11,18 @@
 /* SNAPSHOT*/
 Model testSnapshot = {
     /* default starting piece is the I_piece */
-    {225 + (15 * 4), 41, 16, 61, MAX_TILES_PER_TETROMINO, 0, 0, 0},
+    {225 + (15 * 4), 41, 16, 61, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
     /* 7 tetrominoes for player */
     {
-        {225 + (15 * 4), 41, 16, 61, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 31, 46, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 31, 46, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 31, 31, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 0},
-        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 0}},
+        {225 + (15 * 4), 41, 16, 61, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 31, 46, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 31, 46, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 31, 31, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0},
+        {225 + (15 * 4), 41, 46, 31, MAX_TILES_PER_TETROMINO, 0, 15, 15, 0, 0}},
     /* playing field */
-    {224, 40, 153, 303, 100, 0, 0},
+    {224, 40, 153, 303, 100, 0},
     /* tower */
     {
         225, 41, 151, 301, {
@@ -46,10 +46,14 @@ int main()
 {
     int i;
     printf("\033E\033f\n");
+
+    /*Test 1: print all the properties of the initialized model.*/
     printf("Test 1: Printing initialized model snapshot... press any key to continue.\n");
     Cnecin();
     print_model(&testSnapshot);
+    printf("Test 1 completed.\n");
 
+    /*Test 2: collide with left boundary of playing field and drop piece.*/
     Cnecin();
     printf("\033E\033f\n");
     printf("Test 2: Given the first active piece: testing left playing field boundary collision... press any key to continue.\n");
@@ -59,6 +63,8 @@ int main()
         move_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
                           &testSnapshot.tower, LEFT);
         print_active_piece(&testSnapshot.active_piece);
+        printf("Moving to the left by one tile... press any key to continue.\n");
+        Cnecin();
     }
     printf("Drop the active piece to the left edge boundary... press any key to continue.\n");
     Cnecin();
@@ -68,7 +74,9 @@ int main()
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
     print_tower(&testSnapshot.tower);
+    printf("Test 2 completed.\n");
 
+    /*Test 3: collide with right boundary of playing field and drop piece*/
     Cnecin();
     printf("\033E\033f\n");
     printf("Test 3: Testing right playing field boundary collision... press any key to continue.\n");
@@ -78,6 +86,8 @@ int main()
         move_active_piece(&testSnapshot.active_piece, &testSnapshot.playing_field,
                           &testSnapshot.tower, RIGHT);
         print_active_piece(&testSnapshot.active_piece);
+        printf("Moving to the right by one tile... press any key to continue.\n");
+        Cnecin();
     }
     printf("Dropping the active piece to the right edge boundary... press any key to continue.\n");
     Cnecin();
@@ -87,7 +97,9 @@ int main()
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
     print_tower(&testSnapshot.tower);
+    printf("Test 3 completed.\n");
 
+    /*Test 4: dropping active piece at starting position*/
     Cnecin();
     printf("\033E\033f\n");
     printf("Test 4: Dropping active piece at the centre column... press any key to continue.\n");
@@ -99,7 +111,9 @@ int main()
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
     print_tower(&testSnapshot.tower);
+    printf("Test 4 completed.\n");
 
+    /*
     Cnecin();
     printf("\033E\033f\n");
     printf("Test 5: Shifted piece to right and fill column... press any key to continue.\n");
@@ -177,6 +191,6 @@ int main()
     Cnecin();
     reset_active_pos(&testSnapshot.active_piece, testSnapshot.player_pieces,
                      &testSnapshot.playing_field, &testSnapshot.tower);
-    print_active_piece(&testSnapshot.active_piece);
+    print_active_piece(&testSnapshot.active_piece); */
     return 0;
 }

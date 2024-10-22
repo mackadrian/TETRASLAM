@@ -20,13 +20,15 @@ void print_model(Model *model)
 {
     int i;
     printf("Active Piece:\n");
-    printf("    x=%u, y=%u, width=%u, height=%u, tile_count=%u, curr_index=%u merged=%d, dropped=%d\n",
+    printf("    x=%u, y=%u, width=%u, height=%u, tile_count=%u, curr_index=%u, velocity_x=%d, velocity_y= %d, merged=%d, dropped=%d\n",
            model->active_piece.x,
            model->active_piece.y,
            model->active_piece.width,
            model->active_piece.height,
            model->active_piece.tile_count,
            model->active_piece.curr_index,
+           model->active_piece.velocity_x,
+           model->active_piece.velocity_y,
            model->active_piece.merged,
            model->active_piece.dropped);
 
@@ -34,25 +36,27 @@ void print_model(Model *model)
     for (i = 0; i < 7; i++)
     {
         Tetromino *tetromino = &model->player_pieces[i];
-        printf("  Tetromino %d: x=%u, y=%u, width=%u, height=%u, tile_count=%u, merged=%d, dropped=%d\n",
+        printf("  Tetromino %d: x=%u, y=%u, width=%u, height=%u, tile_count=%u, curr_index=%u, velocity_x=%d, velocity_y= %d, merged=%d, dropped=%d\n",
                i,
                tetromino->x,
                tetromino->y,
                tetromino->width,
                tetromino->height,
                tetromino->tile_count,
+               tetromino->curr_index,
+               tetromino->velocity_x,
+               tetromino->velocity_y,
                tetromino->merged,
                tetromino->dropped);
     }
 
     printf("Playing Field:\n");
-    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, row_cleared=%d, collided=%d\n",
+    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, collided=%d\n",
            model->playing_field.x,
            model->playing_field.y,
            model->playing_field.width,
            model->playing_field.height,
            model->playing_field.tile_count,
-           model->playing_field.row_cleared,
            model->playing_field.collided);
 
     printf("Tower:\n");
@@ -101,13 +105,15 @@ void print_tetrominoes(Tetromino player_pieces[7])
     for (i = 0; i < 7; i++)
     {
         Tetromino *tetromino = &player_pieces[i];
-        printf("  Tetromino %d: x=%u, y=%u, width=%u, height=%u, tile_count=%u, merged=%d, dropped=%d\n",
+        printf("  Tetromino %d: x=%u, y=%u, width=%u, height=%u, tile_count=%u, velocity_x=%d, velocity_y=%d, merged=%d, dropped=%d\n",
                i,
                tetromino->x,
                tetromino->y,
                tetromino->width,
                tetromino->height,
                tetromino->tile_count,
+               tetromino->velocity_x,
+               tetromino->velocity_y,
                tetromino->merged,
                tetromino->dropped);
     }
@@ -124,13 +130,12 @@ Limitations: - Playing field needs to be initialized first.
 void print_playing_field(Field *playing_field)
 {
     printf("Playing Field:\n");
-    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, row_cleared=%d, collided=%d\n",
+    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, collided=%d\n",
            playing_field->x,
            playing_field->y,
            playing_field->width,
            playing_field->height,
            playing_field->tile_count,
-           playing_field->row_cleared,
            playing_field->collided);
 }
 
