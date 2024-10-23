@@ -51,35 +51,34 @@ void print_model(Model *model)
     }
 
     printf("Playing Field:\n");
-    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, collided=%d\n",
+    printf("  x=%u, y=%u, width=%u, height=%u, collided=%d\n",
            model->playing_field.x,
            model->playing_field.y,
            model->playing_field.width,
            model->playing_field.height,
-           model->playing_field.tile_count,
-           model->playing_field.collided);
+           model->playing_field.collision);
 
     printf("Tower:\n");
-    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%d, collided=%d\n",
+    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%d, collision=%d\n",
            model->tower.x,
            model->tower.y,
            model->tower.width,
            model->tower.height,
            model->tower.tile_count,
-           model->tower.collided);
+           model->tower.collision);
 
     printf("Tiles in Tower:\n");
     for (i = 0; i < model->tower.tile_count; i++)
     {
-        Tile *tile = &model->tower.tile[i];
+        Tile *tile = &model->tower.tiles[i];
         if (tile->x != 0 || tile->y != 0)
         {
-            printf("  Tile %d: x=%u, y=%u, width=%u, height=%u\n",
+            printf("  Tiles %d: x=%u, y=%u, width=%u, height=%u\n",
                    i,
                    tile->x,
                    tile->y,
-                   TILE_WIDTH,
-                   TILE_HEIGHT);
+                   tile->width,
+                   tile->height);
         }
     }
 
@@ -130,13 +129,12 @@ Limitations: - Playing field needs to be initialized first.
 void print_playing_field(Field *playing_field)
 {
     printf("Playing Field:\n");
-    printf("  x=%u, y=%u, width=%u, height=%u, tile_count=%u, collided=%d\n",
+    printf("  x=%u, y=%u, width=%u, height=%u, collision=%d\n",
            playing_field->x,
            playing_field->y,
            playing_field->width,
            playing_field->height,
-           playing_field->tile_count,
-           playing_field->collided);
+           playing_field->collision);
 }
 
 /*
@@ -158,20 +156,20 @@ void print_tower(Tower *tower)
            tower->width,
            tower->height,
            tower->tile_count,
-           tower->collided);
+           tower->collision);
 
     printf("Tiles in Tower:\n");
     for (i = 0; i < tower->tile_count; i++)
     {
-        Tile *tile = &tower->tile[i];
+        Tile *tile = &tower->tiles[i];
         if (tile->x != 0 || tile->y != 0)
         {
             printf("  Tile %d: x=%u, y=%u, width=%u, height=%u\n",
                    i,
                    tile->x,
                    tile->y,
-                   TILE_WIDTH,
-                   TILE_HEIGHT);
+                   tile->height,
+                   tile->width);
         }
     }
 }

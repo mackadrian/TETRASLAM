@@ -1,8 +1,6 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#define TILE_WIDTH 16
-#define TILE_HEIGHT 16
 #define FIELD_WIDTH 10
 #define FIELD_HEIGHT 20
 #define MAX_TILES_PER_TETROMINO 4
@@ -11,11 +9,9 @@
 #define MAX_TILES_IN_TOWER 100
 #define MAX_PER_COLUMN 100
 
-typedef enum
-{
-  LEFT,
-  RIGHT
-} Direction;
+typedef unsigned int bool;
+#define TRUE 1
+#define FALSE 0
 
 typedef struct
 {
@@ -29,30 +25,29 @@ typedef struct
   unsigned int width, height;
   unsigned int tile_count, curr_index;
   int velocity_x, velocity_y;
-  int merged, dropped;
+  bool merged, dropped;
 } Tetromino;
 
 typedef struct
 {
   unsigned int x, y;
   unsigned int width, height;
-  unsigned int tile_count;
-  int collided;
+  bool collision;
 } Field;
 
 typedef struct
 {
   unsigned int x, y;
   unsigned int width, height;
-  Tile tile[MAX_TILES_IN_TOWER];
+  Tile tiles[MAX_TILES_IN_TOWER];
   unsigned int tile_count;
-  int collided;
+  bool collision;
 } Tower;
 
 typedef struct
 {
   unsigned int x, y;
-  int tile_count;
+  unsigned int tile_count;
 } Counter;
 
 typedef struct
@@ -64,11 +59,12 @@ typedef struct
   Counter counter;
 } Model;
 
-void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower, Direction direction);
-void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower);
-void reset_active_pos(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
-void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
-void merge_active_piece_to_tower(Tetromino *active_piece, Tower *tower);
-int check_tower_collision(Tetromino *active_piece, Tower *tower);
+void initialize_tile(Tile *new_tile, unsigned int x, unsigned int y);
+void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+void initialize_tower(Tower *new_tower, unsigned int x, unsigned int y,
+                      unsigned int width, unsigned int height, unsigned int tile_count);
+void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, int tile_count);
+bool tile_collision(Tile *tile1, Tile *tile2);
 
 #endif

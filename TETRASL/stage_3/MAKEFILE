@@ -9,6 +9,5 @@ model.o: model.c model.h
 
 print.o: print.c print.h
 	cc68x -g -c print.c
-
 clean:
 	$(RM) *.o *.tos

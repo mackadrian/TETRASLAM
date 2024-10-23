@@ -15,8 +15,8 @@ void plot_char(UINT8 *base, int x, int y,
 void plot_text(UINT8 *base, int x, int y,
                const UINT8 *font, const char *text);
 
-void clear_tile(UINT16 *base, int x, int y, unsigned int height);
+/*void clear_tile(UINT16 *base, int x, int y, unsigned int height);
 
-void clear_row(UINT16 *base, int x, int y, unsigned int width);
+void clear_row(UINT16 *base, int x, int y, unsigned int width);*/
 
 #endif
