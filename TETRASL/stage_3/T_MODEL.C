@@ -83,7 +83,7 @@ void test_initializer_tower_tiles(Model *model)
 
 /*
 ----- FUNCTION: test_initializer_active_piece -----
-Purpose: initializes all tiles of the tower and each of their position.
+Purpose: initializes the active piece at different columns
 */
 void test_initializer_active_piece(Model *model)
 {
@@ -97,6 +97,10 @@ void test_initializer_active_piece(Model *model)
     print_active_piece(&model->active_piece);
 }
 
+/*
+----- FUNCTION: test_move_active_piece -----
+Purpose: moves the active_piece towards the playing field boundaries
+*/
 void test_move_active_piece(Model *model)
 {
     printf("-- TESTING FOR LEFT OUT OF BOUNDS COLLISION --\n");

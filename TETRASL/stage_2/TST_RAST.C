@@ -6,7 +6,7 @@
 #include <osbind.h>
 #include <stdio.h>
 #include "raster.h"
-#include "bitmaps.h" /*temporary*/
+#include "bitmaps.h"
 #include "font.h"
 
 int main()
