@@ -70,13 +70,26 @@ int main()
 	plot_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), tile, 16, 1);
 	Cnecin();
 
-	/*Test 5: clear tiles*/
+	plot_bitmap_16(base_16, 285, 41, tile, 16, 1);
+	plot_bitmap_16(base_16, 285, 56, tile, 16, 1);
+	plot_bitmap_16(base_16, 285, 71, tile, 16, 1);
+	plot_bitmap_16(base_16, 285, 86, tile, 16, 1);
+	plot_bitmap_16(base_16, 225, 281, tile, 16, 1);
+	plot_bitmap_16(base_16, 225, 296, tile, 16, 1);
+	plot_bitmap_16(base_16, 225, 311, tile, 16, 1);
+	plot_bitmap_16(base_16, 225, 326, tile, 16, 1);
+	plot_bitmap_16(base_16, 360, 41, tile, 16, 1);
+	plot_bitmap_16(base_16, 360, 56, tile, 16, 1);
+	plot_bitmap_16(base_16, 360, 71, tile, 16, 1);
+	plot_bitmap_16(base_16, 360, 86, tile, 16, 1);
+
+	/*Test 5: clear tiles
 	clear_bitmap_16(base_16, 255, 41 + (15 * 4), tile, 16, 1);
 	clear_bitmap_16(base_16, 255 + (15 * 2), 41 + (15 * 4), tile, 16, 1);
 	clear_bitmap_16(base_16, 255 + (15 * 3), 41 + (15 * 4), tile, 16, 1);
 	clear_bitmap_16(base_16, 255 + (15 * 6), 41 + (15 * 4), tile, 16, 1);
 	clear_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), tile, 16, 1);
-	plot_bitmap_16(base_16, 224, 40, playing_field, 303, 10);
+	plot_bitmap_16(base_16, 224, 40, playing_field, 303, 10); */
 
 	Cnecin();
 	clear_screen(base_32);

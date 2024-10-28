@@ -4,7 +4,7 @@
  * @author Mack Bautista
  */
 
-#include "EVENTS.H"
+#include "events.h"
 #include <stdio.h>
 /*
 ----- FUNCTION: move_player_piece -----
