@@ -85,20 +85,24 @@ Parameters: UINT16 base 			pointer to frame buffer
 Assumptions: - Must know the size and position of the bitmap that is being cleared.
 */
 void clear_bitmap_16(UINT16 *base, int x, int y,
-					 const UINT16 *bitmap,
-					 unsigned int height, unsigned int width)
+                     const UINT16 *bitmap,
+                     unsigned int height, unsigned int width)
 {
 	int i, j, shift;
 	UINT16 *loc = base + y * 40 + (x >> 4);
-	shift = x & 15;
+	shift = x  & 15;
 
 	for (i = 0; i < height; i++)
 	{
 		const UINT16 *current_row = bitmap + (i * width);
 		for (j = 0; j < width; j++)
 		{
-			loc[j] &= ~(current_row[j] >> shift);
-			loc[j + 1] &= ~(current_row[j] << (16 - shift));
+            if (shift == 0) {
+                loc[j] = current_row[j];
+            } else {
+                loc[j] = (loc[j] & (0xFFFF << (16 - shift))) | (current_row[j] >> shift);
+                loc[j + 1] = (loc[j + 1] & (0xFFFF >> shift)) | (current_row[j] << (16 - shift));
+			}
 		}
 		loc += 40;
 	}
