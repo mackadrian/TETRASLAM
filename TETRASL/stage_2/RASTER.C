@@ -79,18 +79,22 @@ Purpose: clears bitmap at a specified coordinate position with a given width
 Parameters: UINT16 base 			pointer to frame buffer
 			int x 					horizontal position
 			int y 					vertical position
+			UINT16 bitmap			pointer to bitmap
 			unsigned int height		user height
 			unsigned int width		user width
 
 Assumptions: - Must know the size and position of the bitmap that is being cleared.
+			 - When a tile is colliding with the playing field and gets cleared, it forms 2 thick lines.
 */
 void clear_bitmap_16(UINT16 *base, int x, int y,
                      const UINT16 *bitmap,
                      unsigned int height, unsigned int width)
 {
-	int i, j, shift;
+	int i, j;
 	UINT16 *loc = base + y * 40 + (x >> 4);
-	shift = x  & 15;
+	int shift = x  & 15;
+	UINT16 left_mask = 0xffff << (16 - shift);
+	UINT16 right_mask = 0xffff >> shift;
 
 	for (i = 0; i < height; i++)
 	{
@@ -100,12 +104,38 @@ void clear_bitmap_16(UINT16 *base, int x, int y,
             if (shift == 0) {
                 loc[j] = current_row[j];
             } else {
-                loc[j] = (loc[j] & (0xFFFF << (16 - shift))) | (current_row[j] >> shift);
-                loc[j + 1] = (loc[j + 1] & (0xFFFF >> shift)) | (current_row[j] << (16 - shift));
+                loc[j] = (loc[j] & left_mask) | (current_row[j] >> shift);
+                loc[j + 1] = (loc[j + 1] & right_mask) | (current_row[j] << (16 - shift));
 			}
 		}
 		loc += 40;
 	}
+}
+
+/*
+----- FUNCTION: clear_bitmap_row_16 -----
+Purpose: clears a row of bitmap a specified coordinate position with a given row length
+
+Parameters: UINT16 base 			pointer to frame buffer
+			int x 					horizontal position
+			int y 					vertical position
+			UINT16 bitmap			pointer to bitmap
+			unsigned int height		user height
+
+Assumptions: - Must know the size and position of the bitmap that is being cleared.
+			 - When a tile is colliding with the playing field and gets cleared, it forms 2 thick lines.
+*/
+void clear_bitmap_row_16(UINT16 *base, int x, int y,
+						 const UINT16 *bitmap,
+						 unsigned int height, unsigned int width)
+{
+	int i;
+
+	for (i = 0; i <= width; i += 15)
+	{
+		clear_bitmap_16(base, x + i, y + i, bitmap, height, 1);
+	}
+
 }
 
 /*

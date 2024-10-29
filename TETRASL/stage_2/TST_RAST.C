@@ -68,9 +68,8 @@ int main()
 	plot_bitmap_16(base_16, 255 + (15 * 3), 41 + (15 * 4), tile, 16, 1);
 	plot_bitmap_16(base_16, 255 + (15 * 6), 41 + (15 * 4), tile, 16, 1);
 	plot_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), tile, 16, 1);
-	Cnecin();
 
-	/*
+	
 	plot_bitmap_16(base_16, 285, 41, tile, 16, 1);
 	plot_bitmap_16(base_16, 285, 56, tile, 16, 1);
 	plot_bitmap_16(base_16, 285, 71, tile, 16, 1);
@@ -82,14 +81,32 @@ int main()
 	plot_bitmap_16(base_16, 360, 41, tile, 16, 1);
 	plot_bitmap_16(base_16, 360, 56, tile, 16, 1);
 	plot_bitmap_16(base_16, 360, 71, tile, 16, 1);
-	plot_bitmap_16(base_16, 360, 86, tile, 16, 1);*/
+	plot_bitmap_16(base_16, 360, 86, tile, 16, 1);
+	Cnecin();
 
-	/*Test 5: clear tiles*/
-	clear_bitmap_16(base_16, 225, 41 + (15 * 4), white_tile, 16, 1);
-	clear_bitmap_16(base_16, 255 + (15 * 2), 41 + (15 * 4), white_tile, 16, 1);
-	clear_bitmap_16(base_16, 255 + (15 * 3), 41 + (15 * 4), white_tile, 16, 1);
-	clear_bitmap_16(base_16, 255 + (15 * 6), 41 + (15 * 4), white_tile, 16, 1);
-	clear_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), white_tile, 16, 1);
+	/*Test 5: clear tiles
+	clear_bitmap_16(base_16, 225, 41 + (15 * 4), clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 255 + (15 * 2), 41 + (15 * 4), clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 255 + (15 * 3), 41 + (15 * 4), clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 255 + (15 * 6), 41 + (15 * 4), clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), clear_tile, 16, 1);
+	
+	clear_bitmap_16(base_16, 285, 41, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 285, 56, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 285, 71, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 285, 86, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 225, 281, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 225, 296, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 225, 311, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 225, 326, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 360, 41, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 360, 56, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 360, 71, clear_tile, 16, 1);
+	clear_bitmap_16(base_16, 360, 86, clear_tile, 16, 1);*/
+	
+	
+	clear_bitmap_row_16(base_16, 225, 41 + (15 * 4), clear_tile, 16, 360 - 225);
+
 
 
 	Cnecin();
