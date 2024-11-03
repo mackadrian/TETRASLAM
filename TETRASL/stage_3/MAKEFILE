@@ -1,7 +1,9 @@
-t_model: t_model.o model.o print.o events.o
-	cc68x -g t_model.o model.o print.o events.o -o t_model
+t_model: t_model.o model.o layout.o print.o events.o 
+	cc68x -g t_model.o model.o layout.o print.o events.o -o t_model
 t_model.o: t_model.c model.h
 	cc68x -g -c t_model.c
+layout.o: layout.c layout.h
+	cc68x -g -c layout.c
 model.o: model.c model.h
 	cc68x -g -c model.c
 print.o: print.c print.h

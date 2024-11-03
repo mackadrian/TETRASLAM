@@ -74,10 +74,14 @@ void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, in
 void update_counter(Counter *counter, Tower *tower);
 void update_active_piece(Tetromino *active_piece, Direction direction);
 void update_tower(Tetromino *active_piece, Tower *tower);
+void update_IJL_piece(Tetromino *active_piece, Tower *tower, const int layout[4][2], int height);
+void update_O_piece(Tetromino *active_piece, Tower *tower);
+void update_STZ_piece(Tetromino *active_piece, Tower *tower, const int layout[2][3]);
 
 /*Collisions*/
-bool out_of_bounds_collision(Tetromino *active_piece, Field *playing_field);
+bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
 bool tile_collision(Tetromino *active_piece, Tile *tile);
 bool tower_collision(Tetromino *active_piece, Tower *tower);
+bool fatal_tower_collision(Tower *tower, Field *playing_field);
 
 #endif

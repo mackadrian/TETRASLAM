@@ -5,9 +5,9 @@
  */
 
 #include "model.h"
+#include "layout.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 
 #define OFFSET 1
 #define TILE_WIDTH 16
@@ -49,7 +49,7 @@ void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int
 /*
 ----- FUNCTION: initialize_field -----
 Purpose: initializes the playing field
-Limitations: - Must know the size of playing field and understand game occurs within that boundary.
+Limitations: - Must know the size of playing field and game occurs within that boundary.
 */
 void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
@@ -95,7 +95,7 @@ void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, in
 
 /*
 ----- FUNCTION: update_counter -----
-Purpose: updates the tile counter
+Purpose: updates the tile counter based on the tower tile counts
 */
 void update_counter(Counter *counter, Tower *tower)
 {
@@ -128,29 +128,124 @@ Purpose: Updates the tower by merging the active piece into the tower and updati
 */
 void update_tower(Tetromino *active_piece, Tower *tower)
 {
-    unsigned int i, new_tile_index;
-
-    for (i = 0; i < active_piece->tile_count; i++)
+    switch (active_piece->curr_index)
     {
-        new_tile_index = tower->tile_count;
-
-        tower->tiles[new_tile_index].x = active_piece->x;
-        tower->tiles[new_tile_index].y = active_piece->y + (i * active_piece->velocity_y);
-
-        tower->tiles[new_tile_index].width = TILE_WIDTH;
-        tower->tiles[new_tile_index].height = TILE_HEIGHT;
-
-        tower->tile_count++;
+    case 0:
+        update_IJL_piece(active_piece, tower, I_PIECE_LAYOUT, 4);
+        break;
+    case 1:
+        update_IJL_piece(active_piece, tower, J_PIECE_LAYOUT, 3);
+        break;
+    case 2:
+        update_IJL_piece(active_piece, tower, L_PIECE_LAYOUT, 3);
+        break;
+    case 3:
+        update_O_piece(active_piece, tower);
+        break;
+    case 4:
+        update_STZ_piece(active_piece, tower, S_PIECE_LAYOUT);
+        break;
+    case 5:
+        update_STZ_piece(active_piece, tower, T_PIECE_LAYOUT);
+        break;
+    case 6:
+        update_STZ_piece(active_piece, tower, Z_PIECE_LAYOUT);
+        break;
+    default:
+        break;
     }
 
     active_piece->merged = TRUE;
 }
 
 /*
+----- FUNCTION: update_IJL_pieces -----
+Purpose: updates the IJL pieces, called by the update_tower.
+*/
+void update_IJL_piece(Tetromino *active_piece, Tower *tower, const int layout[4][2], int height)
+{
+    unsigned int i, j, tile_index;
+    for (i = 0; i < height; i++)
+    {
+        for (j = 0; j < 2; j++)
+        {
+            if (layout[i][j] == 1)
+            {
+                tile_index = tower->tile_count;
+                tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
+                tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
+
+                tower->tiles[tile_index].width = TILE_WIDTH;
+                tower->tiles[tile_index].height = TILE_HEIGHT;
+
+                tower->tile_count++;
+            }
+        }
+    }
+}
+
+/*
+----- FUNCTION: update_O_piece -----
+Purpose: updates the O piece, called by the update_tower.
+*/
+void update_O_piece(Tetromino *active_piece, Tower *tower)
+{
+    unsigned int i, j, tile_index;
+    for (i = 0; i < 2; i++)
+    {
+        for (j = 0; j < 2; j++)
+        {
+            if (O_PIECE_LAYOUT[i][j] == 1)
+            {
+                tile_index = tower->tile_count;
+                tower->tiles[tile_index].x = active_piece->x + (j * TILE_WIDTH);
+                tower->tiles[tile_index].y = active_piece->y + (i * TILE_HEIGHT);
+
+                tower->tiles[tile_index].width = active_piece->velocity_x;
+                tower->tiles[tile_index].height = active_piece->velocity_y;
+
+                tower->tile_count++;
+            }
+        }
+    }
+}
+
+/*
+----- FUNCTION: update_STZ_pieces -----
+Purpose: updates the STZ pieces, called by the update_tower.
+*/
+void update_STZ_piece(Tetromino *active_piece, Tower *tower, const int layout[2][3])
+{
+    unsigned int i, j, tile_index;
+    for (i = 0; i < 2; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            if (layout[i][j] == 1)
+            {
+                tile_index = tower->tile_count;
+                tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
+                tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
+
+                tower->tiles[tile_index].width = TILE_WIDTH;
+                tower->tiles[tile_index].height = TILE_HEIGHT;
+
+                tower->tile_count++;
+            }
+        }
+    }
+}
+
+/*
+----- FUNCTION: clear_row -----
+Purpose: clears the row of the lowest tile position of an active piece.
+*/
+
+/*
 ----- FUNCTION: out_of_bounds_collision -----
 Purpose: checks to see if player is out of bounds of the playing area
 */
-bool out_of_bounds_collision(Tetromino *active_piece, Field *playing_field)
+bool player_bounds_collision(Tetromino *active_piece, Field *playing_field)
 {
     if (active_piece->x < playing_field->x ||
         active_piece->x + active_piece->width > playing_field->x + playing_field->width)
@@ -163,22 +258,25 @@ bool out_of_bounds_collision(Tetromino *active_piece, Field *playing_field)
     {
         return TRUE;
     }
+
     return FALSE;
 }
 
 /*
 ----- FUNCTION: tile_collision -----
 Purpose: checks to see if player has collided with any tiles
+Assumptions: collision hit size is 15x15 instead of 16x16 due to overlapping edges
 */
 bool tile_collision(Tetromino *active_piece, Tile *tile)
 {
     if (active_piece->x + OFFSET < tile->x + tile->width &&
-        active_piece->x + active_piece->width - 1 > tile->x &&
+        active_piece->x + active_piece->width - OFFSET > tile->x &&
         active_piece->y + OFFSET < tile->y + tile->height &&
         active_piece->y + active_piece->height - OFFSET > tile->y)
     {
         return TRUE;
     }
+
     return FALSE;
 }
 
@@ -193,6 +291,25 @@ bool tower_collision(Tetromino *active_piece, Tower *tower)
     {
         Tile *current_tile = &tower->tiles[i];
         if (tile_collision(active_piece, current_tile))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+/*
+----- FUNCTION: fatal_tower_collision -----
+Purpose: checks to see if tower collides with the playing field's top
+*/
+bool fatal_tower_collision(Tower *tower, Field *playing_field)
+{
+    unsigned int i;
+    for (i = 0; i < tower->tile_count; i++)
+    {
+        Tile *current_tile = &tower->tiles[i];
+        if (current_tile->y <= playing_field->y + OFFSET)
         {
             return TRUE;
         }
