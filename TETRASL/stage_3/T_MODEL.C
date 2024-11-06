@@ -21,6 +21,7 @@ void test_drop_event(Model *model);
 void test_reset_active_piece_event(Model *model);
 void test_cycle_event(Model *model);
 void test_cycle_and_drop_event(Model *model);
+void test_row_clear(Model *model);
 
 int main()
 {
@@ -55,8 +56,8 @@ void main_test_model()
     initialize_tetromino(&model.player_pieces[6], 285, 41, 46, 31);
 
     initialize_field(&model.playing_field, 224, 40, 153, 303);
-    initialize_tower(&model.tower, 5);
-    initialize_counter(&model.counter, 224 + 153 + 32, 40, 5);
+    initialize_tower(&model.tower, 8);
+    initialize_counter(&model.counter, 224 + 153 + 32, 40, 8);
 
     print_model(&model);
 
@@ -89,6 +90,8 @@ void main_test_event(Model *model)
     test_cycle_event(model);
     Cnecin();
     test_cycle_and_drop_event(model);
+    Cnecin();
+    test_row_clear(model);
 }
 
 /*
@@ -100,16 +103,22 @@ void test_initializer_tower_tiles(Model *model)
 {
     printf("\n");
     printf("Initializing the tiles inside the tower structure...\n");
-    printf("Tile 1: x=255, y=101 ==> R5 C1\n");
-    printf("Tile 2: x=285, y=101 ==> R5 C3\n");
-    printf("Tile 3: x=300, y=101 ==> R5 C4\n");
+    printf("Tile 1: x=255, y=101 ==> R5 C3\n");
+    printf("Tile 2: x=285, y=101 ==> R5 C5\n");
+    printf("Tile 3: x=300, y=101 ==> R5 C6\n");
     printf("Tile 4: x=345, y=101 ==> R5 C9\n");
     printf("Tile 5: x=360, y=101 ==> R5 C10\n");
+    printf("Tile 6: x=270, y=101 ==> R5 C4\n");
+    printf("Tile 7: x=330, y=101 ==> R5 C8\n");
+    printf("Tile 8: x=315, y=101 ==> R5 C7\n");
     initialize_tile(&model->tower.tiles[0], 255, 41 + (15 * 4));
     initialize_tile(&model->tower.tiles[1], 255 + (15 * 2), 41 + (15 * 4));
     initialize_tile(&model->tower.tiles[2], 255 + (15 * 3), 41 + (15 * 4));
     initialize_tile(&model->tower.tiles[3], 255 + (15 * 6), 41 + (15 * 4));
     initialize_tile(&model->tower.tiles[4], 255 + (15 * 7), 41 + (15 * 4));
+    initialize_tile(&model->tower.tiles[5], 255 + 15, 41 + (15 * 4));
+    initialize_tile(&model->tower.tiles[6], 255 + (15 * 5), 41 + (15 * 4));
+    initialize_tile(&model->tower.tiles[7], 255 + (15 * 4), 41 + (15 * 4));
     print_tower(&model->tower);
     print_counter(&model->counter);
 }
@@ -434,7 +443,7 @@ void test_cycle_event(Model *model)
 
     printf("\n");
     printf("TEST 2: Testing for piece cycling at right boundary...\n");
-    initialize_tetromino(&model->active_piece, 345, 41, 16, 61);
+    initialize_tetromino(&model->active_piece, 360, 41, 16, 61);
     print_active_piece(&model->active_piece);
 
     printf("\n");
@@ -554,6 +563,78 @@ void test_cycle_and_drop_event(Model *model)
     Cnecin();
     reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     update_counter(&model->counter, &model->tower);
+    print_tower(&model->tower);
+    print_counter(&model->counter);
+    Cnecin();
+
+    printf("\n");
+    printf("TEST 3: Drop O-piece at x: 225.\n");
+    printf("Recall to (x,y) = 225. 41.\n");
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    print_active_piece(&model->active_piece);
+    printf("EXPECTED Collision with tower occurs at (x,y)= 225, 191.\n");
+    printf("EXPECTED Position at (x,y)= 225, 161.\n");
+    Cnecin();
+    drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
+    print_active_piece(&model->active_piece);
+    Cnecin();
+    reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    update_counter(&model->counter, &model->tower);
+    print_tower(&model->tower);
+    print_counter(&model->counter);
+    Cnecin();
+
+    printf("\n");
+    printf("TEST 4: Drop O-piece at x: 225.\n");
+    printf("Recall to (x,y) = 225. 41.\n");
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    print_active_piece(&model->active_piece);
+    printf("EXPECTED Collision with tower occurs at (x,y)= 225, 161.\n");
+    printf("EXPECTED Position at (x,y)= 225, 101.\n");
+    Cnecin();
+    drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
+    print_active_piece(&model->active_piece);
+    Cnecin();
+    reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    update_counter(&model->counter, &model->tower);
+    print_tower(&model->tower);
+    print_counter(&model->counter);
+    Cnecin();
+}
+
+/*
+----- FUNCTION: test_cycle_and_drop_event -----
+Purpose: tests how rows are cleared when all columns have adjacent connecting tiles
+*/
+void test_row_clear(Model *model)
+{
+    printf("\n");
+    printf("-- TESTING FOR ROW CLEAR --\n");
+
+    printf("\n");
+    printf("TEST 5: Drop O-piece at x: 225.\n");
+    printf("Recall to (x,y) = 225. 41.\n");
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    print_active_piece(&model->active_piece);
+    printf("EXPECTED Collision with tower occurs at (x,y)= 225, 101.\n");
+    printf("EXPECTED Position at (x,y)= 225, 71.\n");
+    Cnecin();
+    drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
+    check_row(&model->tower, &model->active_piece);
+    print_active_piece(&model->active_piece);
+    Cnecin();
+    reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+    update_counter(&model->counter, &model->tower);
+    Cnecin();
     print_tower(&model->tower);
     print_counter(&model->counter);
     Cnecin();

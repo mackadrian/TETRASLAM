@@ -71,7 +71,7 @@ void render_all_tiles(const Model *model, UINT16 *base_16)
 }
 
 /*
------ FUNCTION: render_all_tiles -----
+----- FUNCTION: render_counter -----
 Purpose: renders the tile counter outside of the playing field
 
 Parameters: const Model model	model address
@@ -89,5 +89,5 @@ void render_counter(const Model *model, UINT8 *base_8)
     plot_text(base_8, model->counter.x, model->counter.y, font, "-+- C O U N T E R -+-");
     plot_text(base_8, model->counter.x, model->counter.y + COUNTER_Y_OFFSET, font, "     ");
     plot_text(base_8, model->counter.x + COUNTER_DIGIT_OFFSET, model->counter.y + COUNTER_Y_OFFSET, font, buffer);
-    plot_text(base_8, model->counter.x + COUNTER_MAX_OFFSET, model->counter.y + COUNTER_Y_OFFSET, font, "  /  1 0 0     ");
+    plot_text(base_8, model->counter.x + COUNTER_MAX_OFFSET, model->counter.y + COUNTER_Y_OFFSET, font, "  /  2 0 0    ");
 }

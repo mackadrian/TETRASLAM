@@ -10,8 +10,6 @@
 #include <stdio.h>
 
 #define OFFSET 1
-#define TILE_WIDTH 16
-#define TILE_HEIGHT 16
 #define CONST_VELOCITY 15
 
 /*
@@ -67,18 +65,13 @@ Limitations: - Tower is initialized but not the positions of the tiles.
 void initialize_tower(Tower *new_tower, unsigned int tile_count)
 {
     unsigned int i = 0;
-
+    new_tower->tiles_per_row - 0;
     new_tower->tile_count = tile_count;
 
     while (i < tile_count)
     {
         initialize_tile(&new_tower->tiles[0], 0, 0);
         i++;
-    }
-
-    for (i = 0; i < MAX_TILES_PER_ROW; i++)
-    {
-        new_tower->tiles_per_row[i] = 0;
     }
 }
 
@@ -120,6 +113,14 @@ void update_active_piece(Tetromino *active_piece, Direction direction)
         active_piece->y += active_piece->velocity_y;
         break;
     }
+}
+
+/*
+----- FUNCTION: update_tiles -----
+Purpose: updates the tiles in tower shifting the y-position downwards.
+*/
+void update_tiles(Tower *tower, unsigned int row)
+{
 }
 
 /*
@@ -198,11 +199,11 @@ void update_O_piece(Tetromino *active_piece, Tower *tower)
             if (O_PIECE_LAYOUT[i][j] == 1)
             {
                 tile_index = tower->tile_count;
-                tower->tiles[tile_index].x = active_piece->x + (j * TILE_WIDTH);
-                tower->tiles[tile_index].y = active_piece->y + (i * TILE_HEIGHT);
+                tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
+                tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
 
-                tower->tiles[tile_index].width = active_piece->velocity_x;
-                tower->tiles[tile_index].height = active_piece->velocity_y;
+                tower->tiles[tile_index].width = TILE_WIDTH;
+                tower->tiles[tile_index].height = TILE_HEIGHT;
 
                 tower->tile_count++;
             }

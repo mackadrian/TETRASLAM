@@ -1,6 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#define TILE_WIDTH 16
+#define TILE_HEIGHT 16
 #define FIELD_WIDTH 10
 #define FIELD_HEIGHT 20
 #define MAX_TILES_PER_TETROMINO 4
@@ -8,6 +10,7 @@
 #define MAX_PLAYER_TETROMINOES 7
 #define MAX_TILES_IN_TOWER 100
 #define MAX_PER_COLUMN 100
+#define MAX_ROWS 20
 
 #define TRUE 1
 #define FALSE 0
@@ -44,7 +47,7 @@ typedef struct
 typedef struct
 {
   Tile tiles[MAX_TILES_IN_TOWER];
-  unsigned int tiles_per_row[MAX_TILES_PER_ROW];
+  unsigned int tiles_per_row;
   unsigned int tile_count;
 } Tower;
 
@@ -74,6 +77,7 @@ void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, in
 void update_counter(Counter *counter, Tower *tower);
 void update_active_piece(Tetromino *active_piece, Direction direction);
 void update_tower(Tetromino *active_piece, Tower *tower);
+void update_tiles(Tower *tower, unsigned int cleared_row);
 void update_IJL_piece(Tetromino *active_piece, Tower *tower, const int layout[4][2], int height);
 void update_O_piece(Tetromino *active_piece, Tower *tower);
 void update_STZ_piece(Tetromino *active_piece, Tower *tower, const int layout[2][3]);

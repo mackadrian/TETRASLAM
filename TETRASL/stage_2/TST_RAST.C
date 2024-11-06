@@ -88,6 +88,9 @@ int main()
 	plot_bitmap_16(base_16, 255 + (15 * 3), 41 + (15 * 4), tile, 16, 1);
 	plot_bitmap_16(base_16, 255 + (15 * 6), 41 + (15 * 4), tile, 16, 1);
 	plot_bitmap_16(base_16, 255 + (15 * 7), 41 + (15 * 4), tile, 16, 1);
+	plot_bitmap_16(base_16, 255 + 15, 41 + (15 * 4), tile, 16, 1);
+	plot_bitmap_16(base_16, 255 + (15 * 5), 41 + (15 * 4), tile, 16, 1);
+	plot_bitmap_16(base_16, 255 + (15 * 4), 41 + (15 * 4), tile, 16, 1);
 
 	plot_bitmap_16(base_16, 225, 281, I_piece, 61, 1);
 	plot_bitmap_16(base_16, 225, 236, J_piece, 46, 2);
