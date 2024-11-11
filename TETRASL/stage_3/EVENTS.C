@@ -97,7 +97,6 @@ void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     if (fatal_tower_collision(tower, playing_field))
     {
         printf("GAME OVER... Collision at y: %u\n", active_piece->y);
-        /*TODO*/
     }
 
     *active_piece = pieces[reload_index];
@@ -120,22 +119,31 @@ Limitations: - Model needs to be initialized with active_piece, pieces array, an
 */
 void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
-    int next_index = (active_piece->curr_index + 1) % 7;
-
+    const int(*layout)[PIECE_SIZE] = NULL;
     unsigned int prev_x = active_piece->x;
     unsigned int prev_y = active_piece->y;
+    int next_index = (active_piece->curr_index + 1) % 7;
 
     *active_piece = pieces[next_index];
     active_piece->curr_index = next_index;
     active_piece->x = prev_x;
     active_piece->y = prev_y;
 
-    printf("Cycling active piece. Previous piece x: %u, y: %u\n", prev_x, prev_y);
+    printf("Cycling active piece. New piece index: %d, Previous position: x: %u, y: %u\n", next_index, prev_x, prev_y);
+
+    layout = cycle_piece_layout(active_piece->curr_index);
+    if (layout == NULL)
+    {
+        printf("Invalid piece layout.\n");
+        return;
+    }
+
+    active_piece->layout = layout;
 
     if (player_bounds_collision(active_piece, playing_field))
     {
         active_piece->x -= active_piece->velocity_x;
-        printf("Tower collision detected. Reverting to x: %d\n", active_piece->x);
+        printf("Player bounds collision detected. Reverting to x: %d\n", active_piece->x);
         return;
     }
 
@@ -145,7 +153,7 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
         while (tower_collision(active_piece, tower))
         {
             active_piece->x -= active_piece->velocity_x;
-            printf("Adjusted active piece to avoid collision. New x: %u\n", active_piece->x);
+            printf("Adjusted active piece to avoid tower collision. New x: %u\n", active_piece->x);
         }
         return;
     }
@@ -171,12 +179,12 @@ void clear_completed_row(Tetromino *active_piece, Tower *tower)
 
     for (row = lowest_row; row >= lowest_row - rows_to_check + 1; row--)
     {
-        printf("Checking row %u for completeness: %u tiles\n", row, tower->tiles_per_row);
+        printf("Checking row %u for completeness: %u tiles\n", row, tower->max_row);
 
-        if (row < MAX_ROWS && tower->tiles_per_row >= MAX_TILES_PER_ROW)
+        if (row < GRID_HEIGHT && tower->max_row >= MAX_TILES_PER_ROW)
         {
             printf("Row %u is complete. Clearing row.\n", row);
-            tower->tiles_per_row = 0;
+            tower->max_row = 0;
 
             printf("Updating tower tiles starting from cleared row %u.\n", row);
             update_tiles(tower, row);
@@ -258,17 +266,17 @@ bool check_tiles_in_row(Tower *tower, unsigned int row)
         if ((tower->tiles[tile_index].y == row) && (tower->tiles[tile_index].x == tile_x))
         {
             printf("Tile found at row %u, column (x: %d, y: %d)\n", row, tower->tiles[tile_index].x, tower->tiles[tile_index].y);
-            tower->tiles_per_row++;
+            tower->max_row++;
         }
     }
 
-    printf("Tiles found in row %u: %d\n", row, tower->tiles_per_row);
-    if (tower->tiles_per_row == 10)
+    printf("Tiles found in row %u: %d\n", row, tower->max_row);
+    if (tower->max_row == 10)
     {
         printf("Row %u is fully filled with 10 tiles.\n", row);
         return TRUE;
     }
-    printf("Row %u is not fully filled (tiles found: %d).\n", row, tower->tiles_per_row);
+    printf("Row %u is not fully filled (tiles found: %d).\n", row, tower->max_row);
     return FALSE;
 }
 

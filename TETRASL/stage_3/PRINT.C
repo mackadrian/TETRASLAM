@@ -18,7 +18,7 @@ Limitations: - Model needs to be initialized first.
 */
 void print_model(Model *model)
 {
-    int i;
+    int i, j, k, row, col;
     printf("Active Piece:\n");
     printf("    x=%u, y=%u, width=%u, height=%u, tile_count=%u, curr_index=%u, velocity_x=%d, velocity_y= %d, merged=%d, dropped=%d\n",
            model->active_piece.x,
@@ -48,6 +48,20 @@ void print_model(Model *model)
                tetromino->velocity_y,
                tetromino->merged,
                tetromino->dropped);
+
+        printf("  Layout:\n");
+        for (j = 0; j < PIECE_SIZE; j++)
+        {
+            for (k = 0; k < PIECE_SIZE; k++)
+            {
+                if (tetromino->layout[j][k] == 0)
+                    printf(". ");
+                else
+                    printf("# ");
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 
     printf("Playing Field:\n");
@@ -58,8 +72,26 @@ void print_model(Model *model)
            model->playing_field.height);
 
     printf("Tower:\n");
-    printf(" tile_count=%d\n",
+    printf(" max_row=%u, tile_count=%d\n",
+           model->tower.max_row,
            model->tower.tile_count);
+
+    printf("Grid Layout:\n");
+    for (row = 0; row < GRID_HEIGHT; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (model->tower.grid[row][col] == 0)
+            {
+                printf(". ");
+            }
+            else
+            {
+                printf("# ");
+            }
+        }
+        printf("\n");
+    }
 
     printf("Tiles in Tower:\n");
     for (i = 0; i < model->tower.tile_count; i++)
@@ -93,8 +125,9 @@ Limitations: - Player pieces needs to be initialized first.
 */
 void print_tetrominoes(Tetromino player_pieces[7])
 {
-    int i;
+    int i, j, k;
     printf("Player Tetrominoes:\n");
+
     for (i = 0; i < 7; i++)
     {
         Tetromino *tetromino = &player_pieces[i];
@@ -109,6 +142,20 @@ void print_tetrominoes(Tetromino player_pieces[7])
                tetromino->velocity_y,
                tetromino->merged,
                tetromino->dropped);
+
+        printf("  Layout:\n");
+        for (j = 0; j < PIECE_SIZE; j++)
+        {
+            for (k = 0; k < PIECE_SIZE; k++)
+            {
+                if (tetromino->layout[j][k] == 0)
+                    printf(". ");
+                else
+                    printf("# ");
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 }
 
@@ -141,9 +188,10 @@ Limitations: - Tower needs to be initialized first.
 */
 void print_tower(Tower *tower)
 {
-    int i;
+    int i, row, col;
     printf("Tower:\n");
-    printf("  tile_count=%d\n",
+    printf("  max_row=%u, tile_count=%d\n",
+           tower->max_row,
            tower->tile_count);
 
     printf("Tiles in Tower:\n");
@@ -159,6 +207,39 @@ void print_tower(Tower *tower)
                    tile->height,
                    tile->width);
         }
+    }
+}
+
+/*
+----- FUNCTION: print_grid -----
+Purpose: prints the grid to the screen.
+        "."       represents an empty space
+        "#"       represents tile within the space
+
+Parameters: Tower tower    (tower address)
+
+Limitations: - Tower needs to be initialized first.
+             - Tiles has to be randomized and initialized first.
+*/
+void print_grid(Tower *tower)
+{
+    int row, col;
+
+    printf("Grid Layout:\n");
+    for (row = 0; row < GRID_HEIGHT; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (tower->grid[row][col] == 0)
+            {
+                printf(". ");
+            }
+            else
+            {
+                printf("# ");
+            }
+        }
+        printf("\n");
     }
 }
 

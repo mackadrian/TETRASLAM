@@ -14,5 +14,6 @@ void clear_completed_row(Tetromino *active_piece, Tower *tower);
 
 bool check_row(Tower *tower, Tetromino *active_piece);
 bool check_tiles_in_row(Tower *tower, unsigned int row);
+const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE];
 unsigned int get_rows_to_check(Tetromino *active_piece);
 #endif

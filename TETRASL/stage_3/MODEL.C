@@ -10,19 +10,117 @@
 #include <stdio.h>
 
 #define OFFSET 1
+#define FIELD_X_OFFSET 225
+#define FIELD_Y_OFFSET 41
 #define CONST_VELOCITY 15
+
+/*
+----- FUNCTION: cycle_piece_layout -----
+Purpose: returns the layout corresponding to the current piece's index.
+*/
+const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE]
+{
+    switch (curr_index)
+    {
+    case 0:
+        return I_PIECE_LAYOUT;
+    case 1:
+        return J_PIECE_LAYOUT;
+    case 2:
+        return L_PIECE_LAYOUT;
+    case 3:
+        return O_PIECE_LAYOUT;
+    case 4:
+        return S_PIECE_LAYOUT;
+    case 5:
+        return T_PIECE_LAYOUT;
+    case 6:
+        return Z_PIECE_LAYOUT;
+    default:
+        return NULL;
+    }
+}
+
+/*
+----- FUNCTION: get_grid_coordinates -----
+Purpose: converts the (x,y) pixel coordinates into grid coordinates to be used
+            within the grid layout
+Formula: grid position = (x - 225) / 15
+
+Limitations:
+*/
+void get_grid_coordinates(unsigned int x, unsigned int y,
+                          unsigned int *grid_x, unsigned int *grid_y)
+{
+    *grid_x = (x - FIELD_X_OFFSET) / CONST_VELOCITY;
+    *grid_y = (y - FIELD_Y_OFFSET) / CONST_VELOCITY;
+}
 
 /*
 ----- FUNCTION: initialize_tile -----
 Purpose: initializes a tile
 Limitations: - Assumes that every tile is 16x16 size.
 */
-void initialize_tile(Tile *new_tile, unsigned int x, unsigned int y)
+void initialize_tile(Tower *tower, Tile *new_tile, unsigned int x, unsigned int y)
 {
+    unsigned int grid_x, grid_y;
+
     new_tile->x = x;
     new_tile->y = y;
     new_tile->width = TILE_WIDTH;
     new_tile->height = TILE_HEIGHT;
+
+    get_grid_coordinates(x, y, &grid_x, &grid_y);
+    if (grid_x >= 0 && grid_x < GRID_WIDTH && grid_y >= 0 && grid_y < GRID_HEIGHT)
+    {
+        tower->grid[grid_y][grid_x] = 1;
+    }
+}
+
+/*
+----- FUNCTION: initialize_layout -----
+Purpose: initializes the tetromino layout with its own type
+Limitations: -
+*/
+void initialize_layout(Tetromino *new_tetromino, TetrominoType type)
+{
+    unsigned int i, j;
+    const int(*layout)[PIECE_SIZE] = NULL;
+
+    switch (type)
+    {
+    case I_PIECE:
+        layout = I_PIECE_LAYOUT;
+        break;
+    case J_PIECE:
+        layout = J_PIECE_LAYOUT;
+        break;
+    case L_PIECE:
+        layout = L_PIECE_LAYOUT;
+        break;
+    case O_PIECE:
+        layout = O_PIECE_LAYOUT;
+        break;
+    case S_PIECE:
+        layout = S_PIECE_LAYOUT;
+        break;
+    case T_PIECE:
+        layout = T_PIECE_LAYOUT;
+        break;
+    case Z_PIECE:
+        layout = Z_PIECE_LAYOUT;
+        break;
+    default:
+        return;
+    }
+
+    for (i = 0; i < PIECE_SIZE; i++)
+    {
+        for (j = 0; j < PIECE_SIZE; j++)
+        {
+            new_tetromino->layout[i][j] = layout[i][j];
+        }
+    }
 }
 
 /*
@@ -30,7 +128,7 @@ void initialize_tile(Tile *new_tile, unsigned int x, unsigned int y)
 Purpose: initializes a tetromino
 Limitations: - Fixed x-velocity and y-velocity at 15.
 */
-void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int y, unsigned int width, unsigned int height, TetrominoType type)
 {
     new_tetromino->x = x;
     new_tetromino->y = y;
@@ -42,6 +140,8 @@ void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int
     new_tetromino->velocity_y = CONST_VELOCITY;
     new_tetromino->merged = FALSE;
     new_tetromino->dropped = FALSE;
+
+    initialize_layout(new_tetromino, type);
 }
 
 /*
@@ -64,14 +164,22 @@ Limitations: - Tower is initialized but not the positions of the tiles.
 */
 void initialize_tower(Tower *new_tower, unsigned int tile_count)
 {
-    unsigned int i = 0;
-    new_tower->tiles_per_row - 0;
+    unsigned int i, row, col;
+    new_tower->max_row = 0;
     new_tower->tile_count = tile_count;
 
     while (i < tile_count)
     {
-        initialize_tile(&new_tower->tiles[0], 0, 0);
+        initialize_tile(new_tower, &new_tower->tiles[i], 0, 0);
         i++;
+    }
+
+    for (row = 0; row < GRID_HEIGHT; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            new_tower->grid[row][col] = GRID_LAYOUT[row][col];
+        }
     }
 }
 
@@ -129,109 +237,45 @@ Purpose: Updates the tower by merging the active piece into the tower and updati
 */
 void update_tower(Tetromino *active_piece, Tower *tower)
 {
-    switch (active_piece->curr_index)
-    {
-    case 0:
-        update_IJL_piece(active_piece, tower, I_PIECE_LAYOUT, 4);
-        break;
-    case 1:
-        update_IJL_piece(active_piece, tower, J_PIECE_LAYOUT, 3);
-        break;
-    case 2:
-        update_IJL_piece(active_piece, tower, L_PIECE_LAYOUT, 3);
-        break;
-    case 3:
-        update_O_piece(active_piece, tower);
-        break;
-    case 4:
-        update_STZ_piece(active_piece, tower, S_PIECE_LAYOUT);
-        break;
-    case 5:
-        update_STZ_piece(active_piece, tower, T_PIECE_LAYOUT);
-        break;
-    case 6:
-        update_STZ_piece(active_piece, tower, Z_PIECE_LAYOUT);
-        break;
-    default:
-        break;
-    }
+    unsigned int rows, cols;
+    const int(*layout)[PIECE_SIZE] = NULL;
+    rows = 0;
+    cols = 0;
 
+    layout = cycle_piece_layout(active_piece->curr_index);
+    update_piece_layout(active_piece, tower, layout);
     active_piece->merged = TRUE;
 }
 
 /*
------ FUNCTION: update_IJL_pieces -----
-Purpose: updates the IJL pieces, called by the update_tower.
+----- FUNCTION: update_piece_layout -----
+Purpose: Updates the tower by merging the active piece into the tower and updating the tower's state.
 */
-void update_IJL_piece(Tetromino *active_piece, Tower *tower, const int layout[4][2], int height)
+void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE])
 {
     unsigned int i, j, tile_index;
-    for (i = 0; i < height; i++)
+    unsigned int grid_x, grid_y;
+
+    for (i = 0; i < PIECE_SIZE; i++)
     {
-        for (j = 0; j < 2; j++)
+        for (j = 0; j < PIECE_SIZE; j++)
         {
             if (layout[i][j] == 1)
             {
                 tile_index = tower->tile_count;
                 tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
                 tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
-
                 tower->tiles[tile_index].width = TILE_WIDTH;
                 tower->tiles[tile_index].height = TILE_HEIGHT;
-
                 tower->tile_count++;
-            }
-        }
-    }
-}
 
-/*
------ FUNCTION: update_O_piece -----
-Purpose: updates the O piece, called by the update_tower.
-*/
-void update_O_piece(Tetromino *active_piece, Tower *tower)
-{
-    unsigned int i, j, tile_index;
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 2; j++)
-        {
-            if (O_PIECE_LAYOUT[i][j] == 1)
-            {
-                tile_index = tower->tile_count;
-                tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
-                tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
-
-                tower->tiles[tile_index].width = TILE_WIDTH;
-                tower->tiles[tile_index].height = TILE_HEIGHT;
-
-                tower->tile_count++;
-            }
-        }
-    }
-}
-
-/*
------ FUNCTION: update_STZ_pieces -----
-Purpose: updates the STZ pieces, called by the update_tower.
-*/
-void update_STZ_piece(Tetromino *active_piece, Tower *tower, const int layout[2][3])
-{
-    unsigned int i, j, tile_index;
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            if (layout[i][j] == 1)
-            {
-                tile_index = tower->tile_count;
-                tower->tiles[tile_index].x = active_piece->x + (j * active_piece->velocity_x);
-                tower->tiles[tile_index].y = active_piece->y + (i * active_piece->velocity_y);
-
-                tower->tiles[tile_index].width = TILE_WIDTH;
-                tower->tiles[tile_index].height = TILE_HEIGHT;
-
-                tower->tile_count++;
+                get_grid_coordinates(active_piece->x + j * active_piece->velocity_x,
+                                     active_piece->y + i * active_piece->velocity_y,
+                                     &grid_x, &grid_y);
+                if (grid_x < GRID_WIDTH && grid_y < GRID_HEIGHT)
+                {
+                    tower->grid[grid_y][grid_x] = 1;
+                }
             }
         }
     }
