@@ -104,7 +104,7 @@ bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
 bool tile_collision(Tetromino *active_piece, Tile *tile);
 bool tower_collision(Tetromino *active_piece, Tower *tower);
 bool fatal_tower_collision(Tower *tower);
-bool check_row_clearance(Tower *tower);
+bool check_row_clearance(Tower *tower, Tetromino *active_piece);
 bool is_row_non_empty(Tower *tower, unsigned int row);
 
 #endif

@@ -385,11 +385,13 @@ bool fatal_tower_collision(Tower *tower)
 ----- FUNCTION: check_row_clearance -----
 Purpose: checks to see if all the columns at max_row is filled
 */
-bool check_row_clearance(Tower *tower)
+bool check_row_clearance(Tower *tower, Tetromino *active_piece)
 {
-    unsigned int row, col;
+    unsigned int row, col, tile_height;
 
-    for (row = tower->max_row; row > 0; row--)
+    tile_height = active_piece->height / CONST_VELOCITY;
+
+    for (row = tower->max_row; row > tower->max_row - tile_height; row--)
     {
         for (col = 0; col < GRID_WIDTH; col++)
         {
@@ -400,6 +402,8 @@ bool check_row_clearance(Tower *tower)
         }
         if (col == GRID_WIDTH)
         {
+            tower->max_row = row;
+            printf("Max row has been changed. max_row=%u\n", tower->max_row);
             return TRUE;
         }
     }

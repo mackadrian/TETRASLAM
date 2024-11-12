@@ -168,19 +168,17 @@ Parameters: Tower tower     tower address
 
 Limitations: - Model needs to be initialized with active_piece, pieces array, and playing_field properties.
 */
-void clear_completed_rows(Tower *tower)
+void clear_completed_rows(Tower *tower, Tetromino *active_piece)
 {
     unsigned int row, col;
 
-    while (check_row_clearance(tower))
+    while (check_row_clearance(tower, active_piece))
     {
         row = tower->max_row;
-
         for (col = 0; col < GRID_WIDTH; col++)
         {
             tower->grid[row][col] = 0;
         }
-        update_tiles(tower);
         tower->max_row--;
     }
 }

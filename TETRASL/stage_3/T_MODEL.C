@@ -60,6 +60,8 @@ void main_test_model()
     initialize_counter(&model.counter, 224 + 153 + 32, 40, 8);
 
     print_model(&model);
+    Cnecin();
+    print_grid(&model.tower);
 
     Cnecin();
     test_initializer_tower_tiles(&model);
@@ -345,7 +347,7 @@ void test_reset_active_piece_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 
     printf("\n");
@@ -374,7 +376,7 @@ void test_reset_active_piece_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 
     printf("\n");
@@ -403,7 +405,7 @@ void test_reset_active_piece_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 }
 
@@ -560,7 +562,7 @@ void test_cycle_and_drop_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 
     printf("\n");
@@ -582,7 +584,7 @@ void test_cycle_and_drop_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 
     printf("\n");
@@ -605,7 +607,7 @@ void test_cycle_and_drop_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 
     printf("\n");
@@ -628,7 +630,7 @@ void test_cycle_and_drop_event(Model *model)
     print_counter(&model->counter);
     Cnecin();
     print_grid(&model->tower);
-    check_row_clearance(&model->tower);
+    check_row_clearance(&model->tower, &model->active_piece);
     Cnecin();
 }
 
@@ -667,7 +669,7 @@ void test_row_clear(Model *model)
     printf("\n");
     printf("CALLING clear_completed_rows.\n");
     Cnecin();
-    clear_completed_rows(&model->tower);
+    clear_completed_rows(&model->tower, &model->active_piece);
     print_grid(&model->tower);
     Cnecin();
 }

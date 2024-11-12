@@ -76,22 +76,6 @@ void print_model(Model *model)
            model->tower.max_row,
            model->tower.tile_count);
 
-    printf("Grid Layout:\n");
-    for (row = 0; row < GRID_HEIGHT; row++)
-    {
-        for (col = 0; col < GRID_WIDTH; col++)
-        {
-            if (model->tower.grid[row][col] == 0)
-            {
-                printf(". ");
-            }
-            else
-            {
-                printf("# ");
-            }
-        }
-        printf("\n");
-    }
 
     printf("Tiles in Tower:\n");
     for (i = 0; i < model->tower.tile_count; i++)
