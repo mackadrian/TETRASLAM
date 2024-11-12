@@ -68,7 +68,6 @@ void main_test_model()
     test_initializer_active_piece(&model);
 
     /*Event testing*/
-
     main_test_event(&model);
 }
 
@@ -90,11 +89,11 @@ void main_test_event(Model *model)
 
     Cnecin();
     test_cycle_event(model);
-    /*
+
     Cnecin();
     test_cycle_and_drop_event(model);
     Cnecin();
-    test_row_clear(model);*/
+    test_row_clear(model);
 }
 
 /*
@@ -344,7 +343,9 @@ void test_reset_active_piece_event(Model *model)
     update_counter(&model->counter, &model->tower);
     print_tower(&model->tower);
     print_counter(&model->counter);
+    Cnecin();
     print_grid(&model->tower);
+    check_row_clearance(&model->tower);
     Cnecin();
 
     printf("\n");
@@ -371,7 +372,9 @@ void test_reset_active_piece_event(Model *model)
     update_counter(&model->counter, &model->tower);
     print_tower(&model->tower);
     print_counter(&model->counter);
+    Cnecin();
     print_grid(&model->tower);
+    check_row_clearance(&model->tower);
     Cnecin();
 
     printf("\n");
@@ -398,7 +401,9 @@ void test_reset_active_piece_event(Model *model)
     update_counter(&model->counter, &model->tower);
     print_tower(&model->tower);
     print_counter(&model->counter);
+    Cnecin();
     print_grid(&model->tower);
+    check_row_clearance(&model->tower);
     Cnecin();
 }
 
@@ -554,11 +559,14 @@ void test_cycle_and_drop_event(Model *model)
     print_tower(&model->tower);
     print_counter(&model->counter);
     Cnecin();
+    print_grid(&model->tower);
+    check_row_clearance(&model->tower);
+    Cnecin();
 
     printf("\n");
     printf("TEST 2: Drop L-piece at x: 225.\n");
     printf("Recall to (x,y) = 225. 41.\n");
-    initialize_tetromino(&model->active_piece, 285, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61, I_PIECE);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     print_active_piece(&model->active_piece);
@@ -573,11 +581,14 @@ void test_cycle_and_drop_event(Model *model)
     print_tower(&model->tower);
     print_counter(&model->counter);
     Cnecin();
+    print_grid(&model->tower);
+    check_row_clearance(&model->tower);
+    Cnecin();
 
     printf("\n");
     printf("TEST 3: Drop O-piece at x: 225.\n");
     printf("Recall to (x,y) = 225. 41.\n");
-    initialize_tetromino(&model->active_piece, 285, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61, I_PIECE);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
@@ -593,11 +604,14 @@ void test_cycle_and_drop_event(Model *model)
     print_tower(&model->tower);
     print_counter(&model->counter);
     Cnecin();
+    print_grid(&model->tower);
+    check_row_clearance(&model->tower);
+    Cnecin();
 
     printf("\n");
     printf("TEST 4: Drop O-piece at x: 225.\n");
     printf("Recall to (x,y) = 225. 41.\n");
-    initialize_tetromino(&model->active_piece, 285, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61, I_PIECE);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
@@ -613,6 +627,9 @@ void test_cycle_and_drop_event(Model *model)
     print_tower(&model->tower);
     print_counter(&model->counter);
     Cnecin();
+    print_grid(&model->tower);
+    check_row_clearance(&model->tower);
+    Cnecin();
 }
 
 /*
@@ -627,7 +644,7 @@ void test_row_clear(Model *model)
     printf("\n");
     printf("TEST 5: Drop O-piece at x: 225.\n");
     printf("Recall to (x,y) = 225. 41.\n");
-    initialize_tetromino(&model->active_piece, 285, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 225, 41, 16, 61, I_PIECE);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
@@ -636,13 +653,21 @@ void test_row_clear(Model *model)
     printf("EXPECTED Position at (x,y)= 225, 71.\n");
     Cnecin();
     drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
-    check_row(&model->tower, &model->active_piece);
     print_active_piece(&model->active_piece);
     Cnecin();
     reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
     update_counter(&model->counter, &model->tower);
     Cnecin();
     print_tower(&model->tower);
+    Cnecin();
     print_counter(&model->counter);
+    Cnecin();
+    print_grid(&model->tower);
+
+    printf("\n");
+    printf("CALLING clear_completed_rows.\n");
+    Cnecin();
+    clear_completed_rows(&model->tower);
+    print_grid(&model->tower);
     Cnecin();
 }

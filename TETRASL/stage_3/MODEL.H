@@ -46,14 +46,13 @@ typedef struct
   unsigned int tile_count, curr_index;
   int velocity_x, velocity_y;
   bool merged, dropped;
-  int layout[PIECE_SIZE][PIECE_SIZE];
+  const int (*layout)[PIECE_SIZE];
 } Tetromino;
 
 typedef struct
 {
   unsigned int x, y;
   unsigned int width, height;
-
 } Field;
 
 typedef struct
@@ -79,6 +78,12 @@ typedef struct
   Counter counter;
 } Model;
 
+/*Helper Functions*/
+void get_grid_coordinates(unsigned int x, unsigned int y,
+                          unsigned int *grid_x, unsigned int *grid_y);
+const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE];
+void shift_row_down(Tower *tower, unsigned int row);
+
 /*Initializers*/
 void initialize_tile(Tower *tower, Tile *new_tile, unsigned int x, unsigned int y);
 void initialize_layout(Tetromino *new_tetromino, TetrominoType type);
@@ -87,22 +92,19 @@ void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned
 void initialize_tower(Tower *new_tower, unsigned int tile_count);
 void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, int tile_count);
 
-/*Helper Functions*/
-void get_grid_coordinates(unsigned int x, unsigned int y,
-                          unsigned int *grid_x, unsigned int *grid_y);
-const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE];
-
 /*Behaviours*/
 void update_counter(Counter *counter, Tower *tower);
 void update_active_piece(Tetromino *active_piece, Direction direction);
 void update_tower(Tetromino *active_piece, Tower *tower);
-void update_tiles(Tower *tower, unsigned int cleared_row);
+void update_tiles(Tower *tower);
 void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE]);
 
 /*Collisions*/
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
 bool tile_collision(Tetromino *active_piece, Tile *tile);
 bool tower_collision(Tetromino *active_piece, Tower *tower);
-bool fatal_tower_collision(Tower *tower, Field *playing_field);
+bool fatal_tower_collision(Tower *tower);
+bool check_row_clearance(Tower *tower);
+bool is_row_non_empty(Tower *tower, unsigned int row);
 
 #endif

@@ -46,8 +46,7 @@ const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE]
 Purpose: converts the (x,y) pixel coordinates into grid coordinates to be used
             within the grid layout
 Formula: grid position = (x - 225) / 15
-
-Limitations:
+Limitations: - Assumed that the playing field is at (x,y) = (220,40).
 */
 void get_grid_coordinates(unsigned int x, unsigned int y,
                           unsigned int *grid_x, unsigned int *grid_y)
@@ -80,7 +79,7 @@ void initialize_tile(Tower *tower, Tile *new_tile, unsigned int x, unsigned int 
 /*
 ----- FUNCTION: initialize_layout -----
 Purpose: initializes the tetromino layout with its own type
-Limitations: -
+Limitations: - Layout is based on the tile position as an array.
 */
 void initialize_layout(Tetromino *new_tetromino, TetrominoType type)
 {
@@ -90,36 +89,28 @@ void initialize_layout(Tetromino *new_tetromino, TetrominoType type)
     switch (type)
     {
     case I_PIECE:
-        layout = I_PIECE_LAYOUT;
+        new_tetromino->layout = I_PIECE_LAYOUT;
         break;
     case J_PIECE:
-        layout = J_PIECE_LAYOUT;
+        new_tetromino->layout = J_PIECE_LAYOUT;
         break;
     case L_PIECE:
-        layout = L_PIECE_LAYOUT;
+        new_tetromino->layout = L_PIECE_LAYOUT;
         break;
     case O_PIECE:
-        layout = O_PIECE_LAYOUT;
+        new_tetromino->layout = O_PIECE_LAYOUT;
         break;
     case S_PIECE:
-        layout = S_PIECE_LAYOUT;
+        new_tetromino->layout = S_PIECE_LAYOUT;
         break;
     case T_PIECE:
-        layout = T_PIECE_LAYOUT;
+        new_tetromino->layout = T_PIECE_LAYOUT;
         break;
     case Z_PIECE:
-        layout = Z_PIECE_LAYOUT;
+        new_tetromino->layout = Z_PIECE_LAYOUT;
         break;
     default:
         return;
-    }
-
-    for (i = 0; i < PIECE_SIZE; i++)
-    {
-        for (j = 0; j < PIECE_SIZE; j++)
-        {
-            new_tetromino->layout[i][j] = layout[i][j];
-        }
     }
 }
 
@@ -227,21 +218,51 @@ void update_active_piece(Tetromino *active_piece, Direction direction)
 ----- FUNCTION: update_tiles -----
 Purpose: updates the tiles in tower shifting the y-position downwards.
 */
-void update_tiles(Tower *tower, unsigned int row)
+void update_tiles(Tower *tower)
 {
+    unsigned int row, col;
+    for (row = tower->max_row; row > 0; row--)
+    {
+        if (is_row_non_empty(tower, row))
+        {
+            shift_row_down(tower, row);
+        }
+    }
+}
+
+/*
+----- FUNCTION: shift_row_down -----
+Purpose: shifts a whole row downwards and updates the y-position of the tiles
+*/
+void shift_row_down(Tower *tower, unsigned int row)
+{
+    unsigned int col, tile_index;
+
+    for (col = 0; col < GRID_WIDTH; col++)
+    {
+        if (tower->grid[row][col] != 0)
+        {
+            tower->grid[row + 1][col] = tower->grid[row][col];
+            tower->grid[row][col] = 0;
+        }
+    }
+
+    for (tile_index = 0; tile_index < tower->tile_count; tile_index++)
+    {
+        if (tower->tiles[tile_index].y == row)
+        {
+            tower->tiles[tile_index].y += CONST_VELOCITY;
+        }
+    }
 }
 
 /*
 ----- FUNCTION: update_tower -----
-Purpose: Updates the tower by merging the active piece into the tower and updating the tower's state.
+Purpose: updates the tower by merging the active piece into the tower and updating the tower's state
 */
 void update_tower(Tetromino *active_piece, Tower *tower)
 {
-    unsigned int rows, cols;
     const int(*layout)[PIECE_SIZE] = NULL;
-    rows = 0;
-    cols = 0;
-
     layout = cycle_piece_layout(active_piece->curr_index);
     update_piece_layout(active_piece, tower, layout);
     active_piece->merged = TRUE;
@@ -249,7 +270,7 @@ void update_tower(Tetromino *active_piece, Tower *tower)
 
 /*
 ----- FUNCTION: update_piece_layout -----
-Purpose: Updates the tower by merging the active piece into the tower and updating the tower's state.
+Purpose: updates the tower by merging the active piece into the tower and updating the tower's state
 */
 void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE])
 {
@@ -272,9 +293,11 @@ void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout
                 get_grid_coordinates(active_piece->x + j * active_piece->velocity_x,
                                      active_piece->y + i * active_piece->velocity_y,
                                      &grid_x, &grid_y);
+
                 if (grid_x < GRID_WIDTH && grid_y < GRID_HEIGHT)
                 {
                     tower->grid[grid_y][grid_x] = 1;
+                    tower->max_row = grid_y;
                 }
             }
         }
@@ -282,12 +305,7 @@ void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout
 }
 
 /*
------ FUNCTION: clear_row -----
-Purpose: clears the row of the lowest tile position of an active piece.
-*/
-
-/*
------ FUNCTION: out_of_bounds_collision -----
+----- FUNCTION: player_bounds_collision -----
 Purpose: checks to see if player is out of bounds of the playing area
 */
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field)
@@ -348,17 +366,59 @@ bool tower_collision(Tetromino *active_piece, Tower *tower)
 ----- FUNCTION: fatal_tower_collision -----
 Purpose: checks to see if tower collides with the playing field's top
 */
-bool fatal_tower_collision(Tower *tower, Field *playing_field)
+bool fatal_tower_collision(Tower *tower)
 {
-    unsigned int i;
-    for (i = 0; i < tower->tile_count; i++)
+    unsigned int col;
+
+    for (col = 0; col < GRID_WIDTH; col++)
     {
-        Tile *current_tile = &tower->tiles[i];
-        if (current_tile->y <= playing_field->y + OFFSET)
+        if (tower->grid[0][col] != 0)
         {
             return TRUE;
         }
     }
 
+    return FALSE;
+}
+
+/*
+----- FUNCTION: check_row_clearance -----
+Purpose: checks to see if all the columns at max_row is filled
+*/
+bool check_row_clearance(Tower *tower)
+{
+    unsigned int row, col;
+
+    for (row = tower->max_row; row > 0; row--)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (tower->grid[row][col] == 0)
+            {
+                break;
+            }
+        }
+        if (col == GRID_WIDTH)
+        {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/*
+----- FUNCTION: is_row_non_empty -----
+Purpose: checks if a given row is non-empty (contains at least one tile)
+*/
+bool is_row_non_empty(Tower *tower, unsigned int row)
+{
+    unsigned int col;
+    for (col = 0; col < GRID_WIDTH; col++)
+    {
+        if (tower->grid[row][col] != 0)
+        {
+            return TRUE;
+        }
+    }
     return FALSE;
 }

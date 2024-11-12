@@ -188,7 +188,7 @@ Limitations: - Tower needs to be initialized first.
 */
 void print_tower(Tower *tower)
 {
-    int i, row, col;
+    int i;
     printf("Tower:\n");
     printf("  max_row=%u, tile_count=%d\n",
            tower->max_row,
