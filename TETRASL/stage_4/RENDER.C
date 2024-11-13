@@ -36,7 +36,8 @@ Parameters: const Model model	model address
 */
 void render_active_piece(const Model *model, UINT16 *base_16)
 {
-    plot_bitmap_16(base_16, model->active_piece.x, model->active_piece.y, I_piece, 61, 1);
+    plot_bitmap_16(base_16, model->active_piece.x, model->active_piece.y, I_piece,
+     model->active_piece.height, model->active_piece.width / 15);
 }
 
 /*
@@ -48,7 +49,8 @@ Parameters: const Model model	model address
 */
 void render_playing_field(const Model *model, UINT16 *base_16)
 {
-    plot_bitmap_16(base_16, model->playing_field.x, model->playing_field.y, playing_field, 303, 10);
+    plot_bitmap_16(base_16, model->playing_field.x, model->playing_field.y,
+     playing_field, model->playing_field.height, model->playing_field.width / 15);
 }
 
 /*

@@ -1,5 +1,5 @@
-tst_rend: t_render.o render.o raster.o model.o bitmaps.o font.o events.o
-	cc68x -g t_render.o render.o raster.o model.o bitmaps.o font.o events.o -o tst_rend
+tst_rend: t_render.o render.o raster.o model.o layout.o bitmaps.o font.o events.o
+	cc68x -g t_render.o render.o raster.o model.o layout.o bitmaps.o font.o events.o -o tst_rend
 
 raster.o: raster.c raster.h
 	cc68x -g -c raster.c
@@ -13,6 +13,8 @@ bitmaps.o: bitmaps.c bitmaps.h
 model.o: model.c model.h
 	cc68x -g -c model.c
 
+layout.o: layout.c layout.h
+	cc68x -g -c layout.c
 events.o: events.c events.h
 	cc68x -g -c events.c
 
