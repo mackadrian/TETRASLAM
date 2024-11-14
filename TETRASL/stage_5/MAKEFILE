@@ -1,0 +1,30 @@
+tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o
+	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o -o tetrasl
+
+raster.o: raster.c raster.h
+	cc68x -g -c raster.c
+
+font.o: font.c font.h
+	cc68x -g -c font.c
+
+bitmaps.o: bitmaps.c bitmaps.h
+	cc68x -g -c bitmaps.c
+
+model.o: model.c model.h
+	cc68x -g -c model.c
+
+layout.o: layout.c layout.h
+	cc68x -g -c layout.c
+
+events.o: events.c events.h
+	cc68x -g -c events.c
+
+render.o: render.c render.h
+	cc68x -g -c render.c
+
+tetrasl.o: tetrasl.c
+	cc68x -g -c tetrasl.c
+
+
+clean:
+	$(RM) *.o *.tos
