@@ -1,5 +1,5 @@
-tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o
-	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o -o tetrasl
+tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o
+	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o -o tetrasl
 
 raster.o: raster.c raster.h
 	cc68x -g -c raster.c
@@ -24,6 +24,9 @@ render.o: render.c render.h
 
 tetrasl.o: tetrasl.c
 	cc68x -g -c tetrasl.c
+
+input.o: input.c input.h
+	cc68x -g -c input.c
 
 
 clean:

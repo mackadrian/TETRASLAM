@@ -4,13 +4,21 @@
  * @author Mack Bautista
  */
 
+#include "input.h"
 #include "render.h"
 #include "events.h"
 #include "types.h"
 #include "layout.h"
 #include <osbind.h>
 
+#define MOVE_DELAY 70   /*move every 1000 milliseconds (1 second)*/
+#define DROP_DELAY 35   /*drop every 500 milliseconds (0.5 second)*/
+#define CYCLE_DELAY 210 /*cycle pieces every 3000 milliseconds (3 seconds)*/
+#define RESET_DELAY 350 /*reset after 5000 milliseconds (5 seconds)*/
+
 void init_starting_model(Model *model);
+void process_async_events(Model *model, char ch, UINT32 time_elapsed);
+UINT32 read_async_events(Model *model, char ch, UINT32 time_then);
 UINT32 get_time();
 
 /*
@@ -20,13 +28,119 @@ Purpose: main game loop of TETRASLAM.
 main()
 {
     Model model;
+    UINT32 time_then, time_now, time_elapsed;
     UINT32 *base_32 = (UINT32 *)Physbase();
     UINT16 *base_16 = (UINT16 *)Physbase();
     UINT8 *base_8 = (UINT8 *)Physbase();
 
+    char ch = KEY_NULL;
+    bool user_quit = FALSE;
+
+    clear_screen(base_32);
     init_starting_model(&model);
     render(&model, base_32, base_16, base_8);
+
+    time_then = get_time();
+    while (!user_quit)
+    {
+        user_input(&ch);
+        time_now = read_async_events(&model, ch, time_then);
+        time_elapsed = time_now - time_elapsed;
+        process_async_events(&model, ch, time_elapsed);
+
+        if (time_elapsed > 1)
+        {
+            clear_screen(base_32);
+            render(&model, base_32, base_16, base_8);
+            time_then = time_now;
+        }
+
+        ch = KEY_NULL;
+        user_input(&ch);
+        if (ch == KEY_ESC)
+        {
+            clear_screen(base_32);
+            user_quit = TRUE;
+        }
+    }
+
     return 0;
+}
+
+/*
+----- FUNCTION: process_async_events -----
+Purpose: Processes time-dependent events (move, drop, cycle) based on elapsed time.
+*/
+void process_async_events(Model *model, char ch, UINT32 time_elapsed)
+{
+
+    if (time_elapsed > MOVE_DELAY)
+    {
+        if (ch == KEY_ARROW_LEFT || ch == KEY_ARROW_RIGHT)
+        {
+            move_active_piece(&model->active_piece, &model->playing_field, &model->tower, (ch == KEY_ARROW_LEFT) ? LEFT : RIGHT);
+        }
+    }
+
+    if (time_elapsed > DROP_DELAY)
+    {
+        if (ch == KEY_SPACE)
+        {
+            drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
+        }
+    }
+
+    if (time_elapsed > CYCLE_DELAY)
+    {
+        if (ch == KEY_LOWER_C || ch == KEY_UPPER_C)
+        {
+            cycle_active_piece(&model->active_piece, model->player_pieces, &model->playing_field, &model->tower);
+        }
+    }
+}
+
+/*
+----- FUNCTION: read_async_events -----
+Purpose:    returns a timer when a keyboard input is read
+Parameters: Model model     pointer to initialized model structure
+            char  ch        character read from keyboard input
+Return:     time of when the keyboard is read
+Limitations: - Invalid keyboard inputs that are not used by the game will not be requested.
+*/
+UINT32 read_async_events(Model *model, char ch, UINT32 time_then)
+{
+    switch (ch)
+    {
+    case KEY_ARROW_LEFT:
+    case KEY_ARROW_RIGHT:
+    case KEY_LOWER_C:
+    case KEY_UPPER_C:
+    case KEY_SPACE:
+        return get_time();
+    default:
+        return time_then;
+    }
+}
+
+/*
+----- FUNCTION: get_time -----
+Author: Paul Pospisil
+
+Purpose:    retrieves the current time from the CPU clock through supervisor access.
+
+Limitations: - Each time supervisor mode is invoked, it always has to be exited once intended use.
+*/
+UINT32 get_time()
+{
+    UINT32 time_now;
+    UINT32 old_ssp;
+    UINT32 *timer = (UINT32 *)0x462; /*address of a long word that is auto incremented 70 times per second */
+
+    old_ssp = Super(0); /* enter privileged mode */
+    time_now = *timer;
+    Super(old_ssp); /* exit privileged mode */
+
+    return time_now;
 }
 
 /*
@@ -48,9 +162,9 @@ void init_starting_model(Model *model)
     initialize_tetromino(&model->player_pieces[1], 285, 41, 31, 46, J_PIECE);
     initialize_tetromino(&model->player_pieces[2], 285, 41, 31, 46, L_PIECE);
     initialize_tetromino(&model->player_pieces[3], 285, 41, 31, 31, O_PIECE);
-    initialize_tetromino(&model->player_pieces[4], 285, 41, 46, 31, S_PIECE);
-    initialize_tetromino(&model->player_pieces[5], 285, 41, 46, 31, T_PIECE);
-    initialize_tetromino(&model->player_pieces[6], 285, 41, 46, 31, Z_PIECE);
+    initialize_tetromino(&model->player_pieces[4], 285, 41, 45, 31, S_PIECE);
+    initialize_tetromino(&model->player_pieces[5], 285, 41, 45, 31, T_PIECE);
+    initialize_tetromino(&model->player_pieces[6], 285, 41, 45, 31, Z_PIECE);
 
     /*Plotting tiles */
     initialize_tower(&model->tower, 78);
@@ -149,25 +263,4 @@ void init_starting_model(Model *model)
     initialize_tile(&model->tower, &model->tower.tiles[75], 225 + (15 * 4), 41 + (15 * 19));
     initialize_tile(&model->tower, &model->tower.tiles[76], 225 + (15 * 5), 41 + (15 * 19));
     initialize_tile(&model->tower, &model->tower.tiles[77], 225 + (15 * 8), 41 + (15 * 19));
-}
-
-/*
------ FUNCTION: get_time -----
-Author: Paul Pospisil
-
-Purpose:    retrieves the current time from the CPU clock through supervisor access.
-
-Limitations: - Each time supervisor mode is invoked, it always has to be exited once intended use.
-*/
-UINT32 get_time()
-{
-    UINT32 time_now;
-    UINT32 old_ssp;
-    UINT32 *timer = (UINT32 *)0x462; /*address of a long word that is auto incremented 70 times per second */
-
-    old_ssp = Super(0); /* enter privileged mode */
-    time_now = *timer;
-    Super(old_ssp); /* exit privileged mode */
-
-    return time_now;
 }

@@ -26,14 +26,12 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
     if (tower_collision(active_piece, tower))
     {
         active_piece->x = curr_x;
-        printf("Tower collision detected. Reverting to x: %d\n", active_piece->x);
         return;
     }
 
     if (player_bounds_collision(active_piece, playing_field))
     {
         active_piece->x = curr_x;
-        printf("Boundary collision detected. Reverting to x: %d\n", active_piece->x);
         return;
     }
 }
@@ -52,29 +50,20 @@ void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
 {
     active_piece->dropped = TRUE;
 
-    while (active_piece->dropped)
+    update_active_piece(active_piece, DROP);
+
+    if (tower_collision(active_piece, tower))
     {
-        update_active_piece(active_piece, DROP);
+        active_piece->y -= active_piece->velocity_y;
+        active_piece->dropped = FALSE;
+        active_piece->merged = TRUE;
+    }
 
-        if (tower_collision(active_piece, tower))
-        {
-            printf("Tower collision detected at y: %d\n", active_piece->y);
-            active_piece->y -= active_piece->velocity_y;
-            active_piece->dropped = FALSE;
-            active_piece->merged = TRUE;
-            printf("Reverting to y: %d\n", active_piece->y);
-            break;
-        }
-
-        if (player_bounds_collision(active_piece, playing_field))
-        {
-            printf("Boundary collision detected at y: %d\n", active_piece->y);
-            active_piece->y -= active_piece->velocity_y;
-            active_piece->dropped = FALSE;
-            active_piece->merged = TRUE;
-            printf("Reverting to y: %d\n", active_piece->y);
-            break;
-        }
+    if (player_bounds_collision(active_piece, playing_field))
+    {
+        active_piece->y -= active_piece->velocity_y;
+        active_piece->dropped = FALSE;
+        active_piece->merged = TRUE;
     }
 }
 
@@ -95,16 +84,8 @@ void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     int reload_index = active_piece->curr_index;
     update_tower(active_piece, tower);
 
-    if (fatal_tower_collision(tower))
-    {
-        printf("GAME OVER... Collision at y: %u\n", active_piece->y);
-    }
-
     *active_piece = pieces[reload_index];
     active_piece->curr_index = reload_index;
-
-    printf("Loaded next active piece at x: %d, y: %d, width: %d, height: %d\n",
-           active_piece->x, active_piece->y, active_piece->width, active_piece->height);
 }
 
 /*
@@ -130,12 +111,9 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     active_piece->x = prev_x;
     active_piece->y = prev_y;
 
-    printf("Cycling active piece. New piece index: %d, Previous position: x: %u, y: %u\n", next_index, prev_x, prev_y);
-
     layout = cycle_piece_layout(active_piece->curr_index);
     if (layout == NULL)
     {
-        printf("Invalid piece layout.\n");
         return;
     }
 
@@ -144,17 +122,14 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     if (player_bounds_collision(active_piece, playing_field))
     {
         active_piece->x -= active_piece->velocity_x;
-        printf("Player bounds collision detected. Reverting to x: %d\n", active_piece->x);
         return;
     }
 
     if (tower_collision(active_piece, tower))
     {
-        printf("Collision detected with the tower after cycling at x:%u, y:%u\n", active_piece->x, active_piece->y);
         while (tower_collision(active_piece, tower))
         {
             active_piece->x -= active_piece->velocity_x;
-            printf("Adjusted active piece to avoid tower collision. New x: %u\n", active_piece->x);
         }
         return;
     }

@@ -365,14 +365,26 @@ Assumptions: collision hit size is 15x15 instead of 16x16 due to overlapping edg
 */
 bool tile_collision(Tetromino *active_piece, Tile *tile)
 {
-    if (active_piece->x + OFFSET < tile->x + tile->width &&
-        active_piece->x + active_piece->width - OFFSET > tile->x &&
-        active_piece->y + OFFSET < tile->y + tile->height &&
-        active_piece->y + active_piece->height - OFFSET > tile->y)
+    unsigned int x, y, piece_x, piece_y;
+    for (y = 0; y < PIECE_SIZE; y++)
     {
-        return TRUE;
-    }
+        for (x = 0; x < PIECE_SIZE; x++)
+        {
+            if (active_piece->layout[y][x] == 1)
+            {
+                int piece_x = active_piece->x + x * active_piece->velocity_x;
+                int piece_y = active_piece->y + y * active_piece->velocity_y;
 
+                if (piece_x + active_piece->velocity_x > tile->x &&
+                    piece_x < tile->x + tile->width - OFFSET &&
+                    piece_y + active_piece->velocity_y > tile->y &&
+                    piece_y < tile->y + tile->height - OFFSET)
+                {
+                    return TRUE;
+                }
+            }
+        }
+    }
     return FALSE;
 }
 
