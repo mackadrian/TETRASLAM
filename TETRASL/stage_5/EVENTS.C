@@ -8,14 +8,23 @@
 #include <stdio.h>
 
 /*
------ FUNCTION: move_player_piece -----
-Purpose: moves the player's active piece left or right
+----- FUNCTION: move_active_piece -----
+Purpose:
+    - Moves the player's active piece left or right.
 
-Parameters: Tetromino active_piece       active piece address
-            Field playing_field          playing_field address
-            Tower tower                  tower address
-            Direction direction          LEFT or RIGHT directions
-Limitations: - Model needs to be initialized first otherwise this doesn't work.
+Details:
+    - Updates the active piece's x-coordinate based on the given direction.
+    - Checks for collisions with the tower and playing field boundaries,
+    - and reverts the movement if a collision occurs.
+
+Parameters:
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Field *playing_field:     Pointer to the playing field structure.
+    - Tower *tower:             Pointer to the tower structure.
+    - Direction direction:      Direction of movement (LEFT or RIGHT).
+
+Limitations:
+    - The model needs to be initialized first; otherwise, the function does not work.
 */
 void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower, Direction direction)
 {
@@ -38,46 +47,65 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
 
 /*
 ----- FUNCTION: drop_active_piece -----
-Purpose: drops the active piece in the playing field
+Purpose:
+    - Drops the active piece in the playing field.
 
-Parameters: Tetromino active_piece      active piece address
-            Tetromino playing_field     playing field address
-            Tower tower                 tower address
+Details:
+    - Moves the active piece downward until it either collides with the
+      tower or reaches the playing field boundary. Upon collision, the pieces
+      merged into the tower and its position is finalized.
 
-Limitations: - Model needs to be initialized with the proper active_piece, playing_field, and tower properties.
+Parameters:
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Field *playing_field:     Pointer to the playing field structure.
+    - Tower *tower:             Pointer to the tower structure.
+
+Limitations:
+    - The model must be properly initialized with valid active_piece, playing_field,
+      and tower structures before calling this function.
 */
 void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower)
 {
     active_piece->dropped = TRUE;
 
-    update_active_piece(active_piece, DROP);
-
-    if (tower_collision(active_piece, tower))
+    while (active_piece->dropped)
     {
-        active_piece->y -= active_piece->velocity_y;
-        active_piece->dropped = FALSE;
-        active_piece->merged = TRUE;
-    }
+        update_active_piece(active_piece, DROP);
 
-    if (player_bounds_collision(active_piece, playing_field))
-    {
-        active_piece->y -= active_piece->velocity_y;
-        active_piece->dropped = FALSE;
-        active_piece->merged = TRUE;
+        if (tower_collision(active_piece, tower))
+        {
+            active_piece->y -= active_piece->velocity_y;
+            active_piece->dropped = FALSE;
+            active_piece->merged = TRUE;
+        }
+
+        if (player_bounds_collision(active_piece, playing_field))
+        {
+            active_piece->y -= active_piece->velocity_y;
+            active_piece->dropped = FALSE;
+            active_piece->merged = TRUE;
+        }
     }
 }
 
 /*
 ----- FUNCTION: reset_active_piece -----
-Purpose: resets the player's position to the top centre of the playing field after merging
-         with the tower.
+Purpose:
+    - Resets the active piece's position to the top center of the playing field.
 
-Parameters: Tetromino player    tetromino address
-            Tetromino pieces[]  player_pieces address
-            Field playing_field playing_field address
-            Tower tower         tower address
+Details:
+    - After merging the current active piece into the tower, this function
+      resets the active piece to its initial state for the next round.
 
-Limitations: - Resets the active piece to the original starting position.
+Parameters:
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Tetromino pieces[]:       Array of Tetromino structures representing all available pieces.
+    - Field *playing_field:     Pointer to the playing field structure.
+    - Tower *tower:             Pointer to the tower structure.
+
+Limitations:
+    - The active piece is reset to its original starting position with no consideration
+      for custom starting positions.
 */
 void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
@@ -90,14 +118,21 @@ void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
 
 /*
 ----- FUNCTION: cycle_active_piece -----
-Purpose: cycles the active piece to the next piece.
+Purpose:
+    - Cycles the active piece to the next piece in the sequence.
 
-Parameters: Tetromino active_piece  active_piece address
-            Tetromino pieces[]      all of the 7 pieces address
-            Field playing_field     playing_field address
-            Tower tower             tower address
+Details:
+    - Swaps the active piece with the next piece in the predefined array of pieces.
+    - Adjusts the new piece's position to prevent boundary or tower collisions.
 
-Limitations: - Model needs to be initialized with active_piece, pieces array, and playing_field properties.
+Parameters:
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Tetromino pieces[]:         Array of Tetromino structures representing all available pieces.
+    - Field *playing_field:       Pointer to the playing field structure.
+    - Tower *tower:               Pointer to the tower structure.
+
+Limitations:
+    - Requires initialized active_piece, pieces array, and playing_field structures.
 */
 void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
@@ -119,29 +154,64 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
 
     active_piece->layout = layout;
 
-    if (player_bounds_collision(active_piece, playing_field))
+    while (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower))
+    {
+        adjust_position(active_piece, playing_field);
+
+        if (active_piece->y + active_piece->height > playing_field->y + playing_field->height)
+        {
+            adjust_position(active_piece, playing_field);
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
+/*
+----- FUNCTION: adjust_position -----
+Purpose:
+    - Adjusts the active piece's position to resolve collisions.
+
+Details:
+    - Moves the active piece within the boundaries of the playing field
+      if it collides with the tower or exceeds the playing field boundaries.
+
+Parameters:
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Field *playing_field:     Pointer to the playing field structure.
+
+Limitations:
+    - Only resolves collisions caused by out-of-bounds conditions.
+*/
+void adjust_position(Tetromino *active_piece, Field *playing_field)
+{
+    if (active_piece->x + active_piece->width > playing_field->x + playing_field->width)
     {
         active_piece->x -= active_piece->velocity_x;
-        return;
     }
-
-    if (tower_collision(active_piece, tower))
+    else if (active_piece->x < playing_field->x)
     {
-        while (tower_collision(active_piece, tower))
-        {
-            active_piece->x -= active_piece->velocity_x;
-        }
-        return;
+        active_piece->x += active_piece->velocity_x;
     }
 }
 
 /*
 ----- FUNCTION: clear_completed_rows -----
-Purpose: clears the completed rows where the column is full
+Purpose:
+    - Clears any rows in the tower that are completely filled with tiles.
 
-Parameters: Tower tower     tower address
+Details:
+    - Iterates through the tower's rows, identifies full rows, removes the
+      corresponding tiles, and shifts remaining rows downward.
 
-Limitations: - Model needs to be initialized with active_piece, pieces array, and playing_field properties.
+Parameters:
+    - Tower *tower:             Pointer to the tower structure.
+    - Tetromino *active_piece:  Pointer to the active piece structure.
+
+Limitations:
+    - Requires proper initialization of the tower structure.
 */
 void clear_completed_rows(Tower *tower, Tetromino *active_piece)
 {
@@ -153,6 +223,17 @@ void clear_completed_rows(Tower *tower, Tetromino *active_piece)
         {
             tower->grid[tower->max_row][col] = 0;
         }
+
+        for (row = tower->max_row - 1; row >= 0; row--)
+        {
+            for (col = 0; col < GRID_WIDTH; col++)
+            {
+                tower->grid[row + 1][col] = tower->grid[row][col];
+            }
+        }
+
         tower->max_row--;
+
+        update_tiles(tower);
     }
 }

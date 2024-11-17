@@ -11,19 +11,23 @@
 #include "layout.h"
 #include <osbind.h>
 
-#define MOVE_DELAY 70   /*move every 1000 milliseconds (1 second)*/
-#define DROP_DELAY 35   /*drop every 500 milliseconds (0.5 second)*/
-#define CYCLE_DELAY 210 /*cycle pieces every 3000 milliseconds (3 seconds)*/
-#define RESET_DELAY 350 /*reset after 5000 milliseconds (5 seconds)*/
-
 void init_starting_model(Model *model);
-void process_async_events(Model *model, char ch, UINT32 time_elapsed);
-UINT32 read_async_events(Model *model, char ch, UINT32 time_then);
+void process_async_events(Model *model, char ch);
+void process_sync_events(Model *model);
 UINT32 get_time();
 
 /*
 ----- FUNCTION: main -----
-Purpose: main game loop of TETRASLAM.
+Purpose:
+    - Main game loop of TETRASLAM.
+
+Details:
+    - The function starts the game, initializing the game model, rendering the screen, and processing user inputs.
+    - It contains a loop that listens for keypresses, processes the game events asynchronously and synchronously,
+      and updates the screen accordingly. The game will continue until the user chooses to quit (presses ESC).
+
+Limitations:
+    - Requires proper hardware/OS to handle the graphics and input events.
 */
 main()
 {
@@ -44,14 +48,23 @@ main()
     while (!user_quit)
     {
         user_input(&ch);
-        time_now = read_async_events(&model, ch, time_then);
-        time_elapsed = time_now - time_elapsed;
-        process_async_events(&model, ch, time_elapsed);
+        process_async_events(&model, ch);
+
+        time_now = get_time();
+        time_elapsed = time_now - time_then;
+        time_then = time_now;
 
         if (time_elapsed > 1)
         {
+            process_sync_events(&model);
             clear_screen(base_32);
             render(&model, base_32, base_16, base_8);
+
+            if (fatal_tower_collision(&model.tower))
+            {
+                break;
+            }
+
             time_then = time_now;
         }
 
@@ -69,66 +82,85 @@ main()
 
 /*
 ----- FUNCTION: process_async_events -----
-Purpose: Processes time-dependent events (move, drop, cycle) based on elapsed time.
+Purpose:
+    - Processes the asynchronous events based on keyboard inputs.
+
+Details:
+    - The function takes the user input and processes the corresponding asynchronous events, such as moving the active piece
+      or cycling through different pieces based on key presses.
+
+Parameters:
+    - Model *model:    Pointer to initialized game model.
+    - char ch:        Keyboard input from user.
+
+Limitations:
+    - Only handles input events for moving, dropping, and cycling pieces.
 */
-void process_async_events(Model *model, char ch, UINT32 time_elapsed)
-{
-
-    if (time_elapsed > MOVE_DELAY)
-    {
-        if (ch == KEY_ARROW_LEFT || ch == KEY_ARROW_RIGHT)
-        {
-            move_active_piece(&model->active_piece, &model->playing_field, &model->tower, (ch == KEY_ARROW_LEFT) ? LEFT : RIGHT);
-        }
-    }
-
-    if (time_elapsed > DROP_DELAY)
-    {
-        if (ch == KEY_SPACE)
-        {
-            drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
-        }
-    }
-
-    if (time_elapsed > CYCLE_DELAY)
-    {
-        if (ch == KEY_LOWER_C || ch == KEY_UPPER_C)
-        {
-            cycle_active_piece(&model->active_piece, model->player_pieces, &model->playing_field, &model->tower);
-        }
-    }
-}
-
-/*
------ FUNCTION: read_async_events -----
-Purpose:    returns a timer when a keyboard input is read
-Parameters: Model model     pointer to initialized model structure
-            char  ch        character read from keyboard input
-Return:     time of when the keyboard is read
-Limitations: - Invalid keyboard inputs that are not used by the game will not be requested.
-*/
-UINT32 read_async_events(Model *model, char ch, UINT32 time_then)
+void process_async_events(Model *model, char ch)
 {
     switch (ch)
     {
     case KEY_ARROW_LEFT:
+        move_active_piece(&model->active_piece, &model->playing_field, &model->tower, LEFT);
+        break;
     case KEY_ARROW_RIGHT:
-    case KEY_LOWER_C:
-    case KEY_UPPER_C:
+        move_active_piece(&model->active_piece, &model->playing_field, &model->tower, RIGHT);
+        break;
     case KEY_SPACE:
-        return get_time();
+        drop_active_piece(&model->active_piece, &model->playing_field, &model->tower);
+        break;
+    case KEY_UPPER_C:
+    case KEY_LOWER_C:
+        cycle_active_piece(&model->active_piece, model->player_pieces, &model->playing_field, &model->tower);
+        break;
     default:
-        return time_then;
+        break;
     }
+}
+
+/*
+----- FUNCTION: process_sync_events -----
+Purpose:
+    - Processes the synchronized events to update the model.
+
+Details:
+    - The function checks if the active piece has merged with the tower, and if so, resets the active piece. It also clears
+      completed rows after the active piece has merged.
+
+Parameters:
+    - Model *model:     Pointer to initialized game model.
+
+Limitations:
+    - Assumes the active piece will always be merged once it reaches the tower.
+*/
+void process_sync_events(Model *model)
+{
+    if (model->active_piece.merged)
+    {
+        reset_active_piece(&model->active_piece, model->player_pieces, &model->playing_field, &model->tower);
+    }
+
+    clear_completed_rows(&model->tower, &model->active_piece);
+
+    update_counter(&model->counter, &model->tower);
 }
 
 /*
 ----- FUNCTION: get_time -----
 Author: Paul Pospisil
 
-Purpose:    retrieves the current time from the CPU clock through supervisor access.
+Purpose:
+    - Retrieves the current time from the CPU clock through supervisor access.
 
-Limitations: - Each time supervisor mode is invoked, it always has to be exited once intended use.
+Details:
+    - This function accesses the system timer, which is automatically incremented 70 times per second, and retrieves
+      the current value of the timer.
+
+Return:
+    - UINT32:     The current system time.
+
+Limitations:
+    - Supervisor mode must be exited after usage.
 */
 UINT32 get_time()
 {
@@ -145,12 +177,18 @@ UINT32 get_time()
 
 /*
 ----- FUNCTION: init_starting_model -----
-Purpose: initializes the model based on the values defined by the user
+Purpose:
+    - Initializes the model based on the values defined by the user.
 
-Parameters: Model model     pointer to the game model
+Details:
+    - The function sets up the initial configuration of the game, including the tetrominoes, playing field, tower, and score counter.
+    - It also sets up the tiles of the tower and initializes the player pieces.
 
-Assumptions: - The game properties must be understood by the user.
-             - Model is initialized to allocate for space in memory.
+Parameters:
+    - Model *model:   Pointer to the game model.
+
+Limitations:
+    - Assumes the game properties and pieces are correctly initialized based on the values defined.
 */
 void init_starting_model(Model *model)
 {

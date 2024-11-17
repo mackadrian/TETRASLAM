@@ -8,9 +8,19 @@
 
 /*
 ----- FUNCTION: user_input -----
-Purpose:    changes the character pointer passed if a valid key was pressed.
-Parameters: char input      pointer to a character varaible
-Limitations: - All of the keyboard inputs will be used inside the table.
+Purpose:
+    - Changes the character pointer passed if a valid key is pressed. Valid keys are space, escape,
+      uppercase 'C', lowercase 'c', left arrow, and right arrow.
+Details:
+    - The function checks if a key is pressed, and if it is a valid key from the predefined set,
+      it updates the character pointer with the pressed key.
+
+Parameters:
+    - char *input:     A pointer to a character variable that will be updated with the pressed key.
+
+Limitations:
+    - All of the keyboard inputs will be used inside the table.
+    - The function does not handle invalid or unrecognized keys.
 */
 void user_input(char *input)
 {
