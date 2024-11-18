@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-extern const UINT16 clear_tile[16];
 extern const UINT16 tile[16];
 extern const UINT16 I_piece[61];
 extern const UINT16 J_piece[92];

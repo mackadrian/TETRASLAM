@@ -123,6 +123,7 @@ void test_initializer_tower_tiles(Model *model)
     initialize_tile(&model->tower, &model->tower.tiles[5], 255 + 15, 41 + (15 * 4));
     initialize_tile(&model->tower, &model->tower.tiles[6], 255 + (15 * 5), 41 + (15 * 4));
     initialize_tile(&model->tower, &model->tower.tiles[7], 255 + (15 * 4), 41 + (15 * 4));
+
     print_tower(&model->tower);
     print_grid(&model->tower);
     print_counter(&model->counter);

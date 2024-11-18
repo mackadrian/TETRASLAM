@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "LAYOUT.H"
+#include "TYPES.H"
 
 #define TILE_WIDTH 16
 #define TILE_HEIGHT 16
@@ -10,10 +11,6 @@
 #define MAX_PLAYER_TETROMINOES 7
 #define MAX_TILES_IN_TOWER 200
 #define MAX_PER_COLUMN 100
-
-#define TRUE 1
-#define FALSE 0
-typedef unsigned int bool;
 
 typedef enum
 {

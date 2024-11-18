@@ -2,6 +2,7 @@
 #define EVENTS_H
 
 #include "model.h"
+#include "types.h"
 
 /*Asynchronous Events*/
 void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower, Direction direction);
@@ -12,4 +13,6 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
 void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
 void clear_completed_rows(Tower *tower, Tetromino *active_piece);
 
+/*Helper Functions*/
+void adjust_position(Tetromino *active_piece, Field *playing_field);
 #endif
