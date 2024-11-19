@@ -1,0 +1,12 @@
+tst_psg: tst_psg.o psg.o
+	cc68x -g tst_psg.o psg.o -o tst_psg
+
+tst_psg.o: tst_psg.c psg.h
+	cc68x -g -c tst_psg.c
+
+psg.o: psg.c psg.h
+	cc68x -g -c psg.c
+
+
+clean:
+	$(RM) *.o *.tos

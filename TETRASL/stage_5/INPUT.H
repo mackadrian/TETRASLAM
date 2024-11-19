@@ -9,8 +9,10 @@
 #define KEY_ESC 0x1B
 #define KEY_UPPER_C 0x43
 #define KEY_LOWER_C 0x63
-#define KEY_ARROW_LEFT 0x4E
-#define KEY_ARROW_RIGHT 0x4D
+#define KEY_UPPER_M 0x4D
+#define KEY_LOWER_M 0x6D
+#define KEY_UPPER_N 0x4E
+#define KEY_LOWER_N 0x6E
 
 void user_input(char *input);
 

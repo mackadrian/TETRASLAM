@@ -100,10 +100,12 @@ void process_async_events(Model *model, char ch)
 {
     switch (ch)
     {
-    case KEY_ARROW_LEFT:
+    case KEY_UPPER_N:
+    case KEY_LOWER_N:
         move_active_piece(&model->active_piece, &model->playing_field, &model->tower, LEFT);
         break;
-    case KEY_ARROW_RIGHT:
+    case KEY_UPPER_M:
+    case KEY_LOWER_M:
         move_active_piece(&model->active_piece, &model->playing_field, &model->tower, RIGHT);
         break;
     case KEY_SPACE:

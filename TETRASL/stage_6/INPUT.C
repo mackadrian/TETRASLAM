@@ -5,6 +5,7 @@
  */
 
 #include "input.h"
+#include <stdio.h>
 
 /*
 ----- FUNCTION: user_input -----
@@ -37,8 +38,10 @@ void user_input(char *input)
     case KEY_ESC:
     case KEY_UPPER_C:
     case KEY_LOWER_C:
-    case KEY_ARROW_LEFT:
-    case KEY_ARROW_RIGHT:
+    case KEY_UPPER_M:
+    case KEY_LOWER_M:
+    case KEY_UPPER_N:
+    case KEY_LOWER_N:
         *input = ch;
         break;
     default:
