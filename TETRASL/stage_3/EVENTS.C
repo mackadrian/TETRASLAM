@@ -8,29 +8,24 @@
 #include <stdio.h>
 
 /*
------ FUNCTION: move_active_piece -----
+----- FUNCTION: move_left_request -----
 Purpose:
-    - Moves the player's active piece left or right.
+    - Initiates a request to move the active piece to the left.
 
 Details:
-    - Updates the active piece's x-coordinate based on the given direction.
-    - Checks for collisions with the tower and playing field boundaries,
-    - and reverts the movement if a collision occurs.
+    - Calls the function to update the position of the active piece.
+    - Performs collision checks with the tower and boundaries.
+    - Cancels the move if a collision is detected.
 
 Parameters:
-    - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Field *playing_field:     Pointer to the playing field structure.
-    - Tower *tower:             Pointer to the tower structure.
-    - Direction direction:      Direction of movement (LEFT or RIGHT).
-
-Limitations:
-    - The model needs to be initialized first; otherwise, the function does not work.
+    - Tetromino *active_piece: Pointer to the current active piece.
+    - Field *playing_field: Pointer to the game field (for boundary checks).
+    - Tower *tower: Pointer to the tower (for collision checks).
 */
-void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower, Direction direction)
+void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
 {
     unsigned int curr_x = active_piece->x;
-
-    update_active_piece(active_piece, direction);
+    move_active_piece_left(active_piece);
 
     if (tower_collision(active_piece, tower))
     {
@@ -46,31 +41,61 @@ void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tow
 }
 
 /*
------ FUNCTION: drop_active_piece -----
+----- FUNCTION: move_right_request -----
 Purpose:
-    - Drops the active piece in the playing field.
+    - Initiates a request to move the active piece to the right.
 
 Details:
-    - Moves the active piece downward until it either collides with the
-      tower or reaches the playing field boundary. Upon collision, the pieces
-      merged into the tower and its position is finalized.
+    - Calls the function to update the position of the active piece.
+    - Performs collision checks with the tower and boundaries.
+    - Cancels the move if a collision is detected.
 
 Parameters:
-    - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Field *playing_field:     Pointer to the playing field structure.
-    - Tower *tower:             Pointer to the tower structure.
-
-Limitations:
-    - The model must be properly initialized with valid active_piece, playing_field,
-      and tower structures before calling this function.
+    - Tetromino *active_piece: Pointer to the current active piece.
+    - Field *playing_field: Pointer to the game field (for boundary checks).
+    - Tower *tower: Pointer to the tower (for collision checks).
 */
-void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower)
+void move_right_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
+{
+    unsigned int curr_x = active_piece->x;
+    move_active_piece_right(active_piece);
+
+    if (tower_collision(active_piece, tower))
+    {
+        active_piece->x = curr_x;
+        return;
+    }
+
+    if (player_bounds_collision(active_piece, playing_field))
+    {
+        active_piece->x = curr_x;
+        return;
+    }
+}
+
+/*
+----- FUNCTION: drop_request -----
+Purpose:
+    - Initiates a request to drop the active piece down to the next valid position.
+
+Details:
+    - Calls the function to update the position of the active piece.
+    - Performs collision checks with the tower and boundaries.
+    - Continues to drop the piece until a collision is detected.
+    - Sets the active_piece->dropped status appropriately.
+
+Parameters:
+    - Tetromino *active_piece: Pointer to the current active piece.
+    - Field *playing_field: Pointer to the game field (for boundary checks).
+    - Tower *tower: Pointer to the tower (for collision checks).
+*/
+void drop_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
 {
     active_piece->dropped = TRUE;
 
     while (active_piece->dropped)
     {
-        update_active_piece(active_piece, DROP);
+        drop_active_piece(active_piece);
 
         if (tower_collision(active_piece, tower))
         {

@@ -285,40 +285,66 @@ void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, in
 }
 
 /*
------ FUNCTION: update_counter -----
-Purpose: Updates the tile counter to reflect the current tile count in the tower.
+----- FUNCTION: move_active_piece_left -----
+Purpose:
+    - Moves the active player-controlled tetromino to the left by updating its x-coordinate.
+
+Details:
+    - This function decreases the x-coordinate of the active tetromino by its velocity in the x-direction.
+    - The amount by which the tetromino moves is determined by the value of `velocity_x`, which can be adjusted for different movement speeds.
 
 Parameters:
-    - Counter *counter: Pointer to the counter structure.
-    - Tower *tower: Pointer to the tower structure containing the current tile count.
+    - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
+
+Limitations:
+    - Assumes that the `velocity_x` value has been properly initialized for the active tetromino.
+    - Does not check for boundary conditions or collisions; those must be handled separately.
 */
-void update_counter(Counter *counter, Tower *tower)
+void move_active_piece_left(Tetromino *active_piece)
 {
-    counter->tile_count = tower->tile_count;
+    active_piece->x -= active_piece->velocity_x;
 }
 
 /*
------ FUNCTION: update_active_piece -----
-Purpose: Updates the position of the active player-controlled tetromino based on movement direction.
+----- FUNCTION: move_active_piece_right -----
+Purpose:
+    - Moves the active player-controlled tetromino to the right by updating its x-coordinate.
+
+Details:
+    - This function increases the x-coordinate of the active tetromino by its velocity in the x-direction.
+    - The amount by which the tetromino moves is determined by the value of `velocity_x`, which can be adjusted for different movement speeds.
 
 Parameters:
-    - Tetromino *active_piece: Pointer to the active tetromino structure.
-    - Direction direction: Enum representing the direction of movement (LEFT, RIGHT, DROP).
+    - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
+
+Limitations:
+    - Assumes that the `velocity_x` value has been properly initialized for the active tetromino.
+    - Does not check for boundary conditions or collisions; those must be handled separately.
 */
-void update_active_piece(Tetromino *active_piece, Direction direction)
+void move_active_piece_right(Tetromino *active_piece)
 {
-    switch (direction)
-    {
-    case LEFT:
-        active_piece->x -= active_piece->velocity_x;
-        break;
-    case RIGHT:
-        active_piece->x += active_piece->velocity_x;
-        break;
-    case DROP:
-        active_piece->y += active_piece->velocity_y;
-        break;
-    }
+    active_piece->x += active_piece->velocity_x;
+}
+
+/*
+----- FUNCTION: drop_active_piece -----
+Purpose:
+    - Moves the active player-controlled tetromino downward by updating its y-coordinate.
+
+Details:
+    - This function increases the y-coordinate of the active tetromino by its velocity in the y-direction.
+    - The amount by which the tetromino moves downward is determined by the value of `velocity_y`, which can be adjusted for different movement speeds.
+
+Parameters:
+    - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the y-coordinate and velocity.
+
+Limitations:
+    - Assumes that the `velocity_y` value has been properly initialized for the active tetromino.
+    - Does not check for boundary conditions or collisions with the bottom of the playing field or other pieces; those must be handled separately.
+*/
+void drop_active_piece(Tetromino *active_piece)
+{
+    active_piece->y += active_piece->velocity_y;
 }
 
 /*
@@ -530,7 +556,8 @@ Purpose:
 
 Details:
     - Compares the active piece's coordinates with the playing field's dimensions.
-    - Identifies out-of-bounds movement.
+    - Identifies out-of-bounds movement and one can only be checked one at a time.
+    - Player cannot move the active piece once it is dropped.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active piece.

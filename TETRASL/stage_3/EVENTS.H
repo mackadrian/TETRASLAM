@@ -5,8 +5,9 @@
 #include "types.h"
 
 /*Asynchronous Events*/
-void move_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower, Direction direction);
-void drop_active_piece(Tetromino *active_piece, Field *playing_field, Tower *tower);
+void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tower);
+void move_right_request(Tetromino *active_piece, Field *playing_field, Tower *tower);
+void drop_request(Tetromino *active_piece, Field *playing_field, Tower *tower);
 void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower);
 
 /*Cascaded Events*/

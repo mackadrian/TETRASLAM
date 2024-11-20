@@ -7,6 +7,8 @@
 #include "raster.h"
 
 #define PIXELS_PER_SCREEN 256000
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 400
 
 /*
 ----- FUNCTION: clear_screen -----
@@ -69,6 +71,11 @@ void plot_bitmap_16(UINT16 *base, int x, int y,
 {
 	int i, j, shift;
 	UINT16 *loc = base + y * 40 + (x >> 4);
+	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
+	{
+		return;
+	}
+
 	shift = x & 15;
 	for (i = 0; i < height; i++)
 	{
@@ -198,6 +205,11 @@ void plot_char(UINT8 *base, int x, int y,
 {
 	int i, index, shift;
 	UINT8 *loc = base + y * 80 + (x >> 3);
+	if (x < SCREEN_WIDTH || x > SCREEN_WIDTH || y < SCREEN_HEIGHT || y > SCREEN_HEIGHT)
+	{
+		return;
+	}
+
 	index = ascii - 32;
 	shift = x & 7;
 	for (i = 0; i < 8; i++)

@@ -4,20 +4,13 @@
 #include "LAYOUT.H"
 #include "TYPES.H"
 
-#define TILE_WIDTH 16
-#define TILE_HEIGHT 16
+#define TILE_WIDTH 14
+#define TILE_HEIGHT 14
 #define MAX_TILES_PER_TETROMINO 4
 #define MAX_TILES_PER_ROW 10
 #define MAX_PLAYER_TETROMINOES 7
 #define MAX_TILES_IN_TOWER 200
 #define MAX_PER_COLUMN 100
-
-typedef enum
-{
-  LEFT,
-  RIGHT,
-  DROP
-} Direction;
 
 typedef enum
 {
@@ -91,8 +84,11 @@ void initialize_tower(Tower *new_tower, unsigned int tile_count);
 void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, int tile_count);
 
 /*Behaviours*/
+void move_active_piece_left(Tetromino *Tetromino);
+void move_active_piece_right(Tetromino *Tetromino);
+void drop_active_piece(Tetromino *Tetromino);
+
 void update_counter(Counter *counter, Tower *tower);
-void update_active_piece(Tetromino *active_piece, Direction direction);
 void update_tower(Tetromino *active_piece, Tower *tower);
 void update_tiles(Tower *tower);
 void update_grid(Tower *tower);
