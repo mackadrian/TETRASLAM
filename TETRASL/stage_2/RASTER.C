@@ -51,6 +51,7 @@ Details:
   - The bitmap width is assumed to be byte-aligned when the base is an unsigned char pointer.
   - The bitmap is plotted within the 640 x 400 screen boundaries using the specified
 	height and width.
+  - This function performs a bitwise OR operation to plot the bitmap onto the screen.
 
 Parameters:
   - UINT16 *base: Pointer to the frame buffer where the bitmap will be plotted.
@@ -69,22 +70,22 @@ void plot_bitmap_16(UINT16 *base, int x, int y,
 					const UINT16 *bitmap,
 					unsigned int height, unsigned int width)
 {
-	int i, j, shift;
+	int i, j;
 	UINT16 *loc = base + y * 40 + (x >> 4);
+
 	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
 	{
 		return;
 	}
 
-	shift = x & 15;
 	for (i = 0; i < height; i++)
 	{
 		const UINT16 *current_row = bitmap + (i * width);
 		for (j = 0; j < width; j++)
 		{
-			loc[j] |= (current_row[j] >> shift);
-			loc[j + 1] |= (current_row[j] << (16 - shift));
+			loc[j] |= current_row[j];
 		}
+
 		loc += 40;
 	}
 }
@@ -98,14 +99,15 @@ Details:
 	- A shift value (based on the x position) determines how the bitmap rows align with the frame buffer.
 	- Left and right masks are used to clear partial overlaps at the boundaries.
 	- The frame buffer width is assumed to be 640 pixels, divided into 40 UINT16 words per row.
+	- This function performs a bitwise AND operation with the negation of the bitmap to clear the pixels.
 
 Parameters:
-	- UINT16 *base: pointer to frame buffer.
-	- int x: horizontal position.
-	- int y: vertical position.
-	- const UINT16 *bitmap: pointer to the bitmap to be cleared.
-	- unsigned int height: height of the bitmap.
-	- unsigned int width: width of the bitmap.
+	- UINT16 *base: Pointer to the frame buffer.
+	- int x: Horizontal position.
+	- int y: Vertical position.
+	- const UINT16 *bitmap: Pointer to the bitmap to be cleared.
+	- unsigned int height: Height of the bitmap.
+	- unsigned int width: Width of the bitmap.
 
 Assumptions:
 	- Must know the size and position of the bitmap that is being cleared.
@@ -117,27 +119,21 @@ void clear_bitmap_16(UINT16 *base, int x, int y,
 					 unsigned int height, unsigned int width)
 {
 	int i, j;
-	int shift = x & 15;
 	UINT16 *loc = base + y * 40 + (x >> 4);
-	UINT16 left_mask = 0xffff << (16 - shift);
-	UINT16 right_mask = 0xffff >> shift;
+
+	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
+	{
+		return;
+	}
 
 	for (i = 0; i < height; i++)
 	{
 		const UINT16 *current_row = bitmap + (i * width);
-		UINT16 *current_loc = loc;
 		for (j = 0; j < width; j++)
 		{
-			if (shift == 0)
-			{
-				loc[j] = current_row[j];
-			}
-			else
-			{
-				loc[j] = (loc[j] & left_mask) | (current_row[j] >> shift);
-				loc[j + 1] = (loc[j + 1] & right_mask) | (current_row[j] << (16 - shift));
-			}
+			loc[j] &= ~current_row[j];
 		}
+
 		loc += 40;
 	}
 }
@@ -149,15 +145,16 @@ Purpose: Clears a row of bitmaps specified at the coordinate position.
 Details:
 	- The function clears bitmaps in a row by iterating through horizontal positions.
 	- It uses the clear_bitmap_16 function to clear each segment of the row.
-	- Row clearing is done in increments of 15 pixels.
+	- Row clearing is done in increments of 16 pixels, handling full-width row clearing for each segment.
+	- This function ensures the bitmap is cleared in a specific column range from `x` to `x + (16 * 10)`.
 
 Parameters:
-	- UINT16 *base: pointer to frame buffer.
-	- int x: horizontal position.
-	- int y: vertical position.
-	- const UINT16 *bitmap: pointer to the bitmap to be cleared.
-	- unsigned int height: height of the row.
-	- unsigned int width: column range, starting from 225 to 360.
+	- UINT16 *base: Pointer to the frame buffer.
+	- int x: Horizontal position.
+	- int y: Vertical position.
+	- const UINT16 *bitmap: Pointer to the bitmap to be cleared.
+	- unsigned int height: Height of the row.
+	- unsigned int width: Column range, starting from `x` to `x + (16 * 10)`.
 
 Assumptions:
 	- Must know the size and position of the bitmap that is being cleared.
@@ -172,9 +169,9 @@ void clear_bitmap_row_16(UINT16 *base, int x, int y,
 
 	for (i = 0; i < height; i++)
 	{
-		for (j = x; j <= 360; j += 15)
+		for (j = x; j <= x + (16 * 10); j += 16)
 		{
-			clear_bitmap_16(base, j, y, bitmap, 16, 1);
+			clear_bitmap_16(base, j, y, bitmap, height, width);
 		}
 	}
 }
@@ -205,7 +202,7 @@ void plot_char(UINT8 *base, int x, int y,
 {
 	int i, index, shift;
 	UINT8 *loc = base + y * 80 + (x >> 3);
-	if (x < SCREEN_WIDTH || x > SCREEN_WIDTH || y < SCREEN_HEIGHT || y > SCREEN_HEIGHT)
+	if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
 	{
 		return;
 	}
