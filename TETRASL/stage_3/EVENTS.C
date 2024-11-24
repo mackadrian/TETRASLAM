@@ -30,13 +30,11 @@ void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tow
     if (tower_collision(active_piece, tower))
     {
         active_piece->x = curr_x;
-        return;
     }
 
     if (player_bounds_collision(active_piece, playing_field))
     {
         active_piece->x = curr_x;
-        return;
     }
 }
 
@@ -63,13 +61,11 @@ void move_right_request(Tetromino *active_piece, Field *playing_field, Tower *to
     if (tower_collision(active_piece, tower))
     {
         active_piece->x = curr_x;
-        return;
     }
 
     if (player_bounds_collision(active_piece, playing_field))
     {
         active_piece->x = curr_x;
-        return;
     }
 }
 
@@ -135,7 +131,8 @@ Limitations:
 void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
     int reload_index = active_piece->curr_index;
-    update_tower(active_piece, tower);
+    update_tower(playing_field, active_piece, tower);
+    clear_completed_rows(playing_field, tower, active_piece);
 
     *active_piece = pieces[reload_index];
     active_piece->curr_index = reload_index;
@@ -161,7 +158,6 @@ Limitations:
 */
 void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
 {
-    const int(*layout)[PIECE_SIZE] = NULL;
     unsigned int prev_x = active_piece->x;
     unsigned int prev_y = active_piece->y;
     int next_index = (active_piece->curr_index + 1) % 7;
@@ -171,13 +167,7 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *play
     active_piece->x = prev_x;
     active_piece->y = prev_y;
 
-    layout = cycle_piece_layout(active_piece->curr_index);
-    if (layout == NULL)
-    {
-        return;
-    }
-
-    active_piece->layout = layout;
+    active_piece->layout = cycle_piece_layout(active_piece->curr_index);
 
     while (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower))
     {
@@ -238,27 +228,45 @@ Parameters:
 Limitations:
     - Requires proper initialization of the tower structure.
 */
-void clear_completed_rows(Tower *tower, Tetromino *active_piece)
+void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_piece)
 {
-    int row, col;
+    unsigned int i, x, row, grid_x, grid_y;
+    bool is_row_full;
 
-    while (check_row_clearance(tower, active_piece))
+    get_grid_coordinates(playing_field, active_piece->x, active_piece->y, &grid_x, &grid_y);
+
+    for (row = tower->max_row; row >= grid_y; row--)
     {
-        for (col = 0; col < GRID_WIDTH; col++)
-        {
-            tower->grid[tower->max_row][col] = 0;
-        }
+        is_row_full = TRUE;
 
-        for (row = tower->max_row - 1; row >= 0; row--)
+        for (x = 0; x < GRID_WIDTH; x++)
         {
-            for (col = 0; col < GRID_WIDTH; col++)
+            if (tower->grid[row][x] == 0)
             {
-                tower->grid[row + 1][col] = tower->grid[row][col];
+                is_row_full = FALSE;
+                break;
             }
         }
 
-        tower->max_row--;
+        if (is_row_full)
+        {
 
-        update_tiles(tower);
+            for (i = row; i > 0; i--)
+            {
+                for (x = 0; x < GRID_WIDTH; x++)
+                {
+                    tower->grid[i][x] = tower->grid[i - 1][x];
+                }
+            }
+
+            for (x = 0; x < GRID_WIDTH; x++)
+            {
+                tower->grid[0][x] = 0;
+            }
+
+            row++;
+        }
     }
+
+    update_tiles(playing_field, tower);
 }

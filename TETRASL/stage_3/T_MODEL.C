@@ -45,18 +45,18 @@ void main_test_model()
     printf("Tiles inside the tower should be blank...\n");
     wait_for_input();
 
-    initialize_tetromino(&model.active_piece, 285, 41, 16, 61, I_PIECE);
-    initialize_tetromino(&model.player_pieces[0], 285, 41, 16, 61, I_PIECE);
-    initialize_tetromino(&model.player_pieces[1], 285, 41, 31, 46, J_PIECE);
-    initialize_tetromino(&model.player_pieces[2], 285, 41, 31, 46, L_PIECE);
-    initialize_tetromino(&model.player_pieces[3], 285, 41, 31, 31, O_PIECE);
-    initialize_tetromino(&model.player_pieces[4], 285, 41, 46, 31, S_PIECE);
-    initialize_tetromino(&model.player_pieces[5], 285, 41, 46, 31, T_PIECE);
-    initialize_tetromino(&model.player_pieces[6], 285, 41, 46, 31, Z_PIECE);
+    initialize_tetromino(&model.active_piece, 288, 32, 16, 64, I_PIECE);
+    initialize_tetromino(&model.player_pieces[0], 288, 32, 16, 64, I_PIECE);
+    initialize_tetromino(&model.player_pieces[1], 288, 32, 32, 46, J_PIECE);
+    initialize_tetromino(&model.player_pieces[2], 288, 32, 32, 46, L_PIECE);
+    initialize_tetromino(&model.player_pieces[3], 288, 32, 32, 32, O_PIECE);
+    initialize_tetromino(&model.player_pieces[4], 288, 32, 46, 32, S_PIECE);
+    initialize_tetromino(&model.player_pieces[5], 288, 32, 46, 32, T_PIECE);
+    initialize_tetromino(&model.player_pieces[6], 288, 32, 46, 32, Z_PIECE);
 
-    initialize_field(&model.playing_field, 224, 40, 153, 303);
-    initialize_tower(&model.tower, 8);
-    initialize_counter(&model.counter, 224 + 153 + 32, 40, 8);
+    initialize_field(&model.playing_field, 224, 32, 160, 320);
+    initialize_tower(&model.playing_field, &model.tower, 8);
+    initialize_counter(&model.counter, &model.tower, 384 + 16, 32);
 
     print_model(&model);
     wait_for_input();
@@ -95,15 +95,16 @@ Assumptions: Tiles must be initialized inside the playing field.
 */
 void test_initializer_tower_tiles(Model *model)
 {
-    initialize_tile(&model->tower, &model->tower.tiles[0], 255, 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[1], 255 + (15 * 2), 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[2], 255 + (15 * 3), 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[3], 255 + (15 * 6), 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[4], 255 + (15 * 7), 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[5], 255 + 15, 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[6], 255 + (15 * 5), 41 + (15 * 4));
-    initialize_tile(&model->tower, &model->tower.tiles[7], 255 + (15 * 4), 41 + (15 * 4));
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[0], 224 + (16 * 2), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[1], 224 + (16 * 3), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[2], 224 + (16 * 4), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[3], 224 + (16 * 5), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[4], 224 + (16 * 6), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[5], 224 + (16 * 7), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[6], 224 + (16 * 8), 96);
+    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[7], 224 + (16 * 9), 96);
 
+    wait_for_input();
     print_tower(&model->tower);
     print_grid(&model->tower);
     print_counter(&model->counter);
@@ -118,17 +119,17 @@ void test_initializer_active_piece(Model *model)
     printf("\n");
     printf("Initializing a different position for the active piece.\n");
     wait_for_input();
-    initialize_tetromino(&model->active_piece, 255, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 288, 32, 16, 64, I_PIECE);
     print_active_piece(&model->active_piece);
     wait_for_input();
     printf("Re-initializing back to its original starting position.\n");
-    initialize_tetromino(&model->active_piece, 285, 41, 16, 61, I_PIECE);
+    initialize_tetromino(&model->active_piece, 384, 32, 16, 64, I_PIECE);
     print_active_piece(&model->active_piece);
 }
 
 /*
 ----- FUNCTION: test_move_event -----
-Purpose: move the piece left or right with the specified key towards the playing field boundaries
+Purpose: tests game input
 */
 void test_move_event(Model *model)
 {
@@ -137,6 +138,7 @@ void test_move_event(Model *model)
     printf("-- TESTING FOR LEFT/RIGHT OUT OF BOUNDS COLLISION --\n");
     printf("CURRENT ACTIVE PIECE POSITION: \n");
     print_active_piece(&model->active_piece);
+    printf("Press 'c' OR 'C' key to cycle active piece.\n");
     printf("Press 'n' OR 'N' key to move left.\n");
     printf("Press 'm' OR 'M' key to move right.\n");
     printf("Press 'SPACEBAR' key to drop the piece.\n");
@@ -152,7 +154,13 @@ void test_move_event(Model *model)
             break;
         }
 
-        if (key == 'n' || key == 'N')
+        else if (key == 'c' || key == 'C')
+        {
+            cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+            printf("New cycled active piece: ");
+            print_active_piece(&model->active_piece);
+        }
+        else if (key == 'n' || key == 'N')
         {
             move_left_request(&model->active_piece, &model->playing_field, &model->tower);
             printf("Moved Left: ");
@@ -169,6 +177,19 @@ void test_move_event(Model *model)
             drop_request(&model->active_piece, &model->playing_field, &model->tower);
             printf("Dropped Piece: ");
             print_active_piece(&model->active_piece);
+
+            reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+            update_counter(&model->counter, &model->tower);
+
+            print_grid(&model->tower);
+            print_counter(&model->counter);
+            print_tower(&model->tower);
+
+            if (fatal_tower_collision(&model->tower))
+            {
+                printf("GAME OVER!! Exiting...\n");
+                break;
+            }
         }
     }
 }
