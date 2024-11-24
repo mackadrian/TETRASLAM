@@ -17,11 +17,6 @@ void main_test_event(Model *model);
 void test_initializer_tower_tiles(Model *model);
 void test_initializer_active_piece(Model *model);
 void test_move_event(Model *model);
-void test_drop_event(Model *model);
-void test_reset_active_piece_event(Model *model);
-void test_cycle_event(Model *model);
-void test_cycle_and_drop_event(Model *model);
-void test_row_clear(Model *model);
 
 int main()
 {
@@ -65,9 +60,6 @@ void main_test_model()
     wait_for_input();
     test_initializer_tower_tiles(&model);
 
-    wait_for_input();
-    test_initializer_active_piece(&model);
-
     /*Event testing*/
     main_test_event(&model);
 }
@@ -108,23 +100,6 @@ void test_initializer_tower_tiles(Model *model)
     print_tower(&model->tower);
     print_grid(&model->tower);
     print_counter(&model->counter);
-}
-
-/*
------ FUNCTION: test_initializer_active_piece -----
-Purpose: initializes the active piece at different columns
-*/
-void test_initializer_active_piece(Model *model)
-{
-    printf("\n");
-    printf("Initializing a different position for the active piece.\n");
-    wait_for_input();
-    initialize_tetromino(&model->active_piece, 288, 32, 16, 64, I_PIECE);
-    print_active_piece(&model->active_piece);
-    wait_for_input();
-    printf("Re-initializing back to its original starting position.\n");
-    initialize_tetromino(&model->active_piece, 384, 32, 16, 64, I_PIECE);
-    print_active_piece(&model->active_piece);
 }
 
 /*
@@ -178,13 +153,18 @@ void test_move_event(Model *model)
             printf("Dropped Piece: ");
             print_active_piece(&model->active_piece);
 
+            update_tower(&model->playing_field, &model->active_piece, &model->tower);
+            update_tiles(&model->playing_field, &model->tower, &model->active_piece);
+            clear_completed_rows(&model->playing_field, &model->tower, &model->active_piece);
             reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
             update_counter(&model->counter, &model->tower);
 
+            wait_for_input();
             print_grid(&model->tower);
+            wait_for_input();
+
             print_counter(&model->counter);
             print_tower(&model->tower);
-
             if (fatal_tower_collision(&model->tower))
             {
                 printf("GAME OVER!! Exiting...\n");

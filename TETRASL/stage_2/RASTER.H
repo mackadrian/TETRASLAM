@@ -5,10 +5,6 @@
 
 void clear_screen(UINT32 *base);
 
-void plot_bitmap_32(UINT32 *base, int x, int y,
-                    const UINT32 *bitmap,
-                    unsigned int height, unsigned int width);
-
 void plot_bitmap_16(UINT16 *base, int x, int y,
                     const UINT16 *bitmap,
                     unsigned int height, unsigned int width);

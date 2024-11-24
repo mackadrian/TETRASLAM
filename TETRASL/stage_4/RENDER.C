@@ -72,7 +72,7 @@ void render_active_piece(Model *model, UINT16 *base_16)
         break;
     }
     plot_bitmap_16(base_16, model->active_piece.x, model->active_piece.y,
-                   curr_piece, model->active_piece.height, model->active_piece.width / 15);
+                   curr_piece, model->active_piece.height, model->active_piece.width >> 4);
 }
 
 /*
@@ -90,7 +90,7 @@ Limitations:
 void render_playing_field(Model *model, UINT16 *base_16)
 {
     plot_bitmap_16(base_16, model->playing_field.x, model->playing_field.y,
-                   playing_field, model->playing_field.height, model->playing_field.width / 15);
+                   playing_field, model->playing_field.height, model->playing_field.width >> 4);
 }
 
 /*
@@ -141,7 +141,7 @@ void render_counter(Model *model, UINT8 *base_8)
     buffer[5] = '\0';
 
     plot_text(base_8, model->counter.x, model->counter.y, font, "-+- C O U N T E R -+-");
-    plot_text(base_8, model->counter.x, model->counter.y + 15, font, "     ");
-    plot_text(base_8, model->counter.x + 21, model->counter.y + 15, font, buffer);
-    plot_text(base_8, model->counter.x + 61, model->counter.y + 15, font, "  /  2 0 0    ");
+    plot_text(base_8, model->counter.x, model->counter.y + 16, font, "     ");
+    plot_text(base_8, model->counter.x + 16, model->counter.y + 16, font, buffer);
+    plot_text(base_8, model->counter.x + 64, model->counter.y + 16, font, "  /  2 0 0    ");
 }

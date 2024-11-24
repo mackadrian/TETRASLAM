@@ -70,7 +70,7 @@ int main()
 	plot_text(base_8, 384 + 16, 32, font, "C O U N T E R:");
 	plot_text(base_8, 384 + 16, 32 + 16, font, "1 0 0  /  1 0 0");
 
-	plot_bitmap_16(base_16, 288, 32, I_piece, 64, 1);
+	plot_bitmap_16(base_16, 368, 288, I_piece, 64, 1);
 	plot_bitmap_16(base_16, 224, 112, tile, 16, 1);
 	plot_bitmap_16(base_16, 224 + 16, 112, tile, 16, 1);
 	plot_bitmap_16(base_16, 224 + (16 * 3), 112, tile, 16, 1);
@@ -102,5 +102,12 @@ int main()
 
 	Cnecin();
 	clear_screen(base_32);
+
+	Cnecin();
+	/*Test 7: menu*/
+	plot_bitmap_16(base_16, 0, 0, menu, 400, 40);
+	Cnecin();
+	clear_screen(base_32);
+
 	return 0;
 }

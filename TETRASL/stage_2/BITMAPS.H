@@ -12,5 +12,6 @@ extern const UINT16 S_piece[96];
 extern const UINT16 T_piece[96];
 extern const UINT16 Z_piece[96];
 extern const UINT16 playing_field[3200];
+extern const UINT16 menu[16000];
 
 #endif

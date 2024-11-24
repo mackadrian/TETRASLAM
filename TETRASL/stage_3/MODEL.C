@@ -8,91 +8,6 @@
 #include "layout.h"
 #include <stdio.h>
 
-#define CONST_VELOCITY 16
-
-/*
------ FUNCTION: cycle_piece_layout -----
-Purpose: returns the layout corresponding to the current piece's index.
-
-Details:
-    - The function maps a piece's index (0-6) to its corresponding predefined layout.
-    - Each piece has a unique layout defined as a 2D array with size PIECE_SIZE x PIECE_SIZE.
-    - If an invalid index is passed, the function returns NULL.
-
-Parameters:
-    - int curr_index: the current piece's index, ranging from 0 to 6, corresponding to specific tetrominoes:
-        0 -> I_PIECE_LAYOUT
-        1 -> J_PIECE_LAYOUT
-        2 -> L_PIECE_LAYOUT
-        3 -> O_PIECE_LAYOUT
-        4 -> S_PIECE_LAYOUT
-        5 -> T_PIECE_LAYOUT
-        6 -> Z_PIECE_LAYOUT
-
-Return:
-    - const int (*)[PIECE_SIZE]: a pointer to a 2D array representing the layout of the tetromino.
-      - Returns NULL if an invalid index is provided.
-
-Limitations:
-    - The function does not validate curr_index for being out of bounds (e.g., < 0 or > 6).
-    - Assumes PIECE_SIZE is defined and corresponds to the size of the layout arrays.
-    - The layouts (e.g., I_PIECE_LAYOUT, J_PIECE_LAYOUT) must be properly defined and accessible in the same scope.
-*/
-const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE]
-{
-    switch (curr_index)
-    {
-    case 0:
-        return I_PIECE_LAYOUT;
-    case 1:
-        return J_PIECE_LAYOUT;
-    case 2:
-        return L_PIECE_LAYOUT;
-    case 3:
-        return O_PIECE_LAYOUT;
-    case 4:
-        return S_PIECE_LAYOUT;
-    case 5:
-        return T_PIECE_LAYOUT;
-    case 6:
-        return Z_PIECE_LAYOUT;
-    default:
-        return NULL;
-    }
-}
-
-/*
------ FUNCTION: get_grid_coordinates -----
-Purpose: converts the (x, y) pixel coordinates into grid coordinates to be used
-         within the grid layout.
-
-Details:
-    - This function calculates the grid coordinates (grid_x, grid_y) based on the provided pixel coordinates (x, y).
-    - The conversion formula assumes that the grid layout starts at a fixed offset (FIELD_X_OFFSET, FIELD_Y_OFFSET) and uses a constant cell size defined by CONST_VELOCITY.
-
-Parameters:
-    - unsigned int x: the x-coordinate in pixels.
-    - unsigned int y: the y-coordinate in pixels.
-    - unsigned int *grid_x: pointer to store the calculated grid x-coordinate.
-    - unsigned int *grid_y: pointer to store the calculated grid y-coordinate.
-
-Formula:
-    grid_x = (224 - x) / 16
-    grid_y = (32 - y) / 16
-
-Limitations:
-    - Assumes the playing field starts at (x, y) = (220, 40).
-    - Assumes CONST_VELOCITY is a divisor of the pixel dimensions.
-    - No boundary checks on the resulting grid coordinates.
-*/
-void get_grid_coordinates(Field *playing_field,
-                          unsigned int x, unsigned int y,
-                          unsigned int *grid_x, unsigned int *grid_y)
-{
-    *grid_x = (x - playing_field->x) >> PIECE_SIZE;
-    *grid_y = (y - playing_field->y) >> PIECE_SIZE;
-}
-
 /*
 ----- FUNCTION: initialize_tile -----
 Purpose: initializes a tile by setting its position, dimensions, and updating the tower grid.
@@ -238,7 +153,7 @@ void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned
 
 /*
 ----- FUNCTION: initialize_tower -----
-Purpose: Initializes the tower structure, setting its tiles and grid layout.
+Purpose: Initializes the tower structure, setting its grid layout.
 
 Parameters:
     - Tower *new_tower: Pointer to the tower structure to initialize.
@@ -250,15 +165,9 @@ Limitations:
 */
 void initialize_tower(Field *playing_field, Tower *new_tower, unsigned int tile_count)
 {
-    unsigned int i, row, col;
+    unsigned int row, col;
     new_tower->max_row = 0;
     new_tower->tile_count = tile_count;
-
-    while (i < tile_count)
-    {
-        initialize_tile(playing_field, new_tower, &new_tower->tiles[i], 0, 0);
-        i++;
-    }
 
     for (row = 0; row < GRID_HEIGHT; row++)
     {
@@ -287,19 +196,102 @@ void initialize_counter(Counter *new_counter, Tower *tower, unsigned int x, unsi
 }
 
 /*
+----- FUNCTION: cycle_piece_layout -----
+Purpose: returns the layout corresponding to the current piece's index.
+
+Details:
+    - The function maps a piece's index (0-6) to its corresponding predefined layout.
+    - Each piece has a unique layout defined as a 2D array with size PIECE_SIZE x PIECE_SIZE.
+    - If an invalid index is passed, the function returns NULL.
+
+Parameters:
+    - int curr_index: the current piece's index, ranging from 0 to 6, corresponding to specific tetrominoes:
+        0 -> I_PIECE_LAYOUT
+        1 -> J_PIECE_LAYOUT
+        2 -> L_PIECE_LAYOUT
+        3 -> O_PIECE_LAYOUT
+        4 -> S_PIECE_LAYOUT
+        5 -> T_PIECE_LAYOUT
+        6 -> Z_PIECE_LAYOUT
+
+Return:
+    - const int (*)[PIECE_SIZE]: a pointer to a 2D array representing the layout of the tetromino.
+      - Returns NULL if an invalid index is provided.
+
+Limitations:
+    - The function does not validate curr_index for being out of bounds (e.g., < 0 or > 6).
+    - Assumes PIECE_SIZE is defined and corresponds to the size of the layout arrays.
+    - The layouts (e.g., I_PIECE_LAYOUT, J_PIECE_LAYOUT) must be properly defined and accessible in the same scope.
+*/
+const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE]
+{
+    switch (curr_index)
+    {
+    case 0:
+        return I_PIECE_LAYOUT;
+    case 1:
+        return J_PIECE_LAYOUT;
+    case 2:
+        return L_PIECE_LAYOUT;
+    case 3:
+        return O_PIECE_LAYOUT;
+    case 4:
+        return S_PIECE_LAYOUT;
+    case 5:
+        return T_PIECE_LAYOUT;
+    case 6:
+        return Z_PIECE_LAYOUT;
+    default:
+        return NULL;
+    }
+}
+
+/*
+----- FUNCTION: get_grid_coordinates -----
+Purpose: converts the (x, y) pixel coordinates into grid coordinates to be used
+         within the grid layout.
+
+Details:
+    - This function calculates the grid coordinates (grid_x, grid_y) based on the provided pixel coordinates (x, y).
+    - The conversion formula assumes that the grid layout starts at a fixed offset (FIELD_X_OFFSET, FIELD_Y_OFFSET) and uses a constant cell size defined by CONST_VELOCITY.
+
+Parameters:
+    - unsigned int x: the x-coordinate in pixels.
+    - unsigned int y: the y-coordinate in pixels.
+    - unsigned int *grid_x: pointer to store the calculated grid x-coordinate.
+    - unsigned int *grid_y: pointer to store the calculated grid y-coordinate.
+
+Formula:
+    grid_x = (224 - x) / 16
+    grid_y = (32 - y) / 16
+
+Limitations:
+    - Assumes the playing field starts at (x, y) = (220, 40).
+    - Assumes CONST_VELOCITY is a divisor of the pixel dimensions.
+    - No boundary checks on the resulting grid coordinates.
+*/
+void get_grid_coordinates(Field *playing_field,
+                          unsigned int x, unsigned int y,
+                          unsigned int *grid_x, unsigned int *grid_y)
+{
+    *grid_x = (x - playing_field->x) >> PIECE_SIZE;
+    *grid_y = (y - playing_field->y) >> PIECE_SIZE;
+}
+
+/*
 ----- FUNCTION: move_active_piece_left -----
 Purpose:
     - Moves the active player-controlled tetromino to the left by updating its x-coordinate.
 
 Details:
     - This function decreases the x-coordinate of the active tetromino by its velocity in the x-direction.
-    - The amount by which the tetromino moves is determined by the value of `velocity_x`, which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves is determined by the value of 'velocity_x', which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
 
 Limitations:
-    - Assumes that the `velocity_x` value has been properly initialized for the active tetromino.
+    - Assumes that the 'velocity_x' value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions; those must be handled separately.
 */
 void move_active_piece_left(Tetromino *active_piece)
@@ -314,13 +306,13 @@ Purpose:
 
 Details:
     - This function increases the x-coordinate of the active tetromino by its velocity in the x-direction.
-    - The amount by which the tetromino moves is determined by the value of `velocity_x`, which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves is determined by the value of 'velocity_x', which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
 
 Limitations:
-    - Assumes that the `velocity_x` value has been properly initialized for the active tetromino.
+    - Assumes that the 'velocity_x' value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions; those must be handled separately.
 */
 void move_active_piece_right(Tetromino *active_piece)
@@ -335,13 +327,13 @@ Purpose:
 
 Details:
     - This function increases the y-coordinate of the active tetromino by its velocity in the y-direction.
-    - The amount by which the tetromino moves downward is determined by the value of `velocity_y`, which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves downward is determined by the value of 'velocity_y', which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the y-coordinate and velocity.
 
 Limitations:
-    - Assumes that the `velocity_y` value has been properly initialized for the active tetromino.
+    - Assumes that the 'velocity_y' value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions with the bottom of the playing field or other pieces; those must be handled separately.
 */
 void drop_active_piece(Tetromino *active_piece)
@@ -368,9 +360,70 @@ Limitations:
 */
 void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower)
 {
-    const int(*layout)[PIECE_SIZE] = cycle_piece_layout(active_piece->curr_index);
-    update_piece_layout(playing_field, active_piece, tower, layout);
+    unsigned int i, j;
+    unsigned int grid_x, grid_y;
+
     active_piece->merged = FALSE;
+
+    for (i = 0; i < PIECE_SIZE; i++)
+    {
+        for (j = 0; j < PIECE_SIZE; j++)
+        {
+            if (active_piece->layout[i][j] == 1)
+            {
+                get_grid_coordinates(playing_field, active_piece->x + j * CONST_VELOCITY,
+                                     active_piece->y + i * CONST_VELOCITY,
+                                     &grid_x, &grid_y);
+
+                if (grid_x >= 0 && grid_x < GRID_WIDTH && grid_y >= 0 && grid_y < GRID_HEIGHT)
+                {
+                    tower->grid[grid_y][grid_x] = 1;
+                    tower->max_row = grid_y;
+                }
+            }
+        }
+    }
+}
+
+/*
+----- FUNCTION: update_tiles -----
+Purpose:
+    - Updates the tower's 'Tile' array by setting the coordinates of each tile in the tower.
+
+Details:
+    - Loops through the active piece's layout and updates the tiles' positions in the 'Tower' structure.
+    - Updates the coordinates of the tiles based on the current position of the active piece.
+
+Parameters:
+    - Field *playing_field: Pointer to the playing field structure.
+    - Tetromino *active_piece: Pointer to the currently active piece.
+    - Tower *tower: Pointer to the tower structure.
+
+Limitations:
+    - Assumes active_piece and tower are initialized and valid.
+    - The active piece must have a defined layout.
+*/
+void update_tiles(Field *playing_field, Tower *tower, Tetromino *active_piece)
+{
+    unsigned int i, j;
+    unsigned int tile_x, tile_y;
+    unsigned int tile_index = 0;
+
+    for (i = 0; i < PIECE_SIZE; i++)
+    {
+        for (j = 0; j < PIECE_SIZE; j++)
+        {
+            if (active_piece->layout[i][j] == 1)
+            {
+                tile_x = active_piece->x + (j * CONST_VELOCITY);
+                tile_y = active_piece->y + (i * CONST_VELOCITY);
+
+                initialize_tile(playing_field, tower, &tower->tiles[tile_index], tile_x, tile_y);
+
+                tile_index++;
+            }
+        }
+    }
 }
 
 /*
@@ -379,7 +432,7 @@ Purpose:
     - Updates the counter to reflect the current tile count from the tower.
 
 Details:
-    - Sets the `tile_count` of the `counter` to match the `tile_count` of the `tower`.
+    - Sets the 'tile_count' of the 'counter' to match the 'tile_count' of the 'tower'.
     - This ensures the counter displays the correct number of tiles in the tower at any given moment.
 
 Parameters:
@@ -387,94 +440,27 @@ Parameters:
     - Tower *tower: Pointer to the tower structure containing the current tile count.
 
 Limitations:
-    - Assumes the `counter` and `tower` structures are initialized and valid.
-    - Only updates the `tile_count` field of the `counter`; no other tower-related state is modified.
+    - Assumes the 'counter' and 'tower' structures are initialized and valid.
+    - Only updates the 'tile_count' field of the 'counter'; no other tower-related state is modified.
 */
 void update_counter(Counter *counter, Tower *tower)
 {
-    counter->tile_count = tower->tile_count;
-}
-
-/*
------ FUNCTION: update_piece_layout -----
-Purpose:
-    - Updates the layout of the active piece, placing its tiles in the tower and marking their positions in the grid.
-
-Details:
-    - Uses the active piece's layout matrix to determine the positions of its tiles.
-    - Calls `initialize_tile` to set up each tile and update the tower's grid.
-
-Parameters:
-    - Field *playing_field: Pointer to the playing field structure.
-    - Tetromino *active_piece: Pointer to the active tetromino.
-    - Tower *tower: Pointer to the tower structure.
-    - const int layout[PIECE_SIZE][PIECE_SIZE]: 2D array representing the layout of the active piece.
-
-Limitations:
-    - Assumes `playing_field`, `active_piece`, and `tower` are initialized and valid.
-*/
-void update_piece_layout(Field *playing_field, Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE])
-{
     unsigned int i, j;
-    unsigned int tile_x, tile_y, grid_x, grid_y;
+    unsigned int filled_tile_count = 0;
 
-    for (i = 0; i < PIECE_SIZE; i++)
+    for (i = 0; i < GRID_HEIGHT; i++)
     {
-        for (j = 0; j < PIECE_SIZE; j++)
+        for (j = 0; j < GRID_WIDTH; j++)
         {
-            if (layout[i][j] == 1)
+            if (tower->grid[i][j] == 1)
             {
-                tile_x = active_piece->x + (j * CONST_VELOCITY);
-                tile_y = active_piece->y + (i * CONST_VELOCITY);
-
-                grid_x = (tile_x - playing_field->x) >> PIECE_SIZE;
-                grid_y = (tile_y - playing_field->y) >> PIECE_SIZE;
-
-                if (grid_x < GRID_WIDTH && grid_y < GRID_HEIGHT)
-                {
-                    tower->grid[grid_y][grid_x] = 1;
-                }
+                filled_tile_count++;
             }
         }
     }
 
-    update_tiles(playing_field, tower);
-}
-
-/*
------ FUNCTION: update_tiles -----
-Purpose:
-    - Updates the properties of each tile in `tower->tiles` based on the current state of the grid.
-
-Details:
-    - Iterates over the `tower->tiles` array and updates the `x` and `y` properties of each tile.
-    - The `y` position of each tile is updated based on its new position in the grid.
-    - The `x` position of each tile is updated based on its current position in the grid.
-
-Parameters:
-    - Tower *tower:    Pointer to the tower structure.
-*/
-void update_tiles(Field *playing_field, Tower *tower)
-{
-    unsigned int x, y;
-    unsigned int pixel_x, pixel_y;
-
-    tower->tile_count = 0;
-
-    for (y = 0; y < GRID_HEIGHT; y++)
-    {
-        for (x = 0; x < GRID_WIDTH; x++)
-        {
-            if (tower->grid[y][x] == 1)
-            {
-                pixel_x = (x * CONST_VELOCITY) + playing_field->x;
-                pixel_y = (y * CONST_VELOCITY) + playing_field->y;
-                initialize_tile(playing_field, tower, &tower->tiles[tower->tile_count], pixel_x, pixel_y);
-
-                tower->tile_count++;
-            }
-        }
-    }
+    tower->tile_count = filled_tile_count;
+    counter->tile_count = filled_tile_count;
 }
 
 /*
@@ -517,53 +503,6 @@ bool player_bounds_collision(Tetromino *active_piece, Field *playing_field)
 }
 
 /*
------ FUNCTION: tile_collision -----
-Purpose:
-    - Checks if the active piece has collided with a specific tile.
-    - Uses the active piece's layout and current position to check for overlap.
-
-Details:
-    - Efficiently checks only the filled blocks of the piece's layout.
-    - Assumes the piece's velocity has been applied to determine its next position.
-
-Parameters:
-    - Tetromino *active_piece: Pointer to the active piece.
-    - Tile *tile: Pointer to the tile being checked.
-
-Return:
-    - bool: TRUE if a collision occurs, FALSE otherwise.
-*/
-bool tile_collision(Tetromino *active_piece, Tile *tile)
-{
-    int x, y, piece_x, piece_y, piece_left, piece_right, piece_top, piece_bottom;
-    piece_left = active_piece->x;
-    piece_right = active_piece->x + (PIECE_SIZE * active_piece->velocity_x);
-    piece_top = active_piece->y;
-    piece_bottom = active_piece->y + (PIECE_SIZE * active_piece->velocity_y);
-
-    for (y = 0; y < PIECE_SIZE; y++)
-    {
-        for (x = 0; x < PIECE_SIZE; x++)
-        {
-            if (active_piece->layout[y][x] == TRUE)
-            {
-                piece_x = piece_left + x * active_piece->velocity_x;
-                piece_y = piece_top + y * active_piece->velocity_y;
-
-                if (piece_x + PIECE_SIZE > tile->x &&
-                    piece_x < tile->x + tile->width &&
-                    piece_y + PIECE_SIZE > tile->y &&
-                    piece_y < tile->y + tile->height)
-                {
-                    return TRUE;
-                }
-            }
-        }
-    }
-    return FALSE;
-}
-
-/*
 ----- FUNCTION: tower_collision -----
 Purpose:
     - Checks if the active piece has collided with any tiles in the tower.
@@ -579,24 +518,31 @@ Parameters:
 Return:
     - bool: TRUE if a collision occurs, FALSE otherwise.
 */
-bool tower_collision(Tetromino *active_piece, Tower *tower)
+bool tower_collision(Tetromino *active_piece, Tower *tower, Field *playing_field)
 {
-    unsigned int i;
-    int piece_left = active_piece->x;
-    int piece_right = active_piece->x + (PIECE_SIZE * active_piece->velocity_x);
-    int piece_top = active_piece->y;
-    int piece_bottom = active_piece->y + (PIECE_SIZE * active_piece->velocity_y);
+    unsigned int i, j;
+    unsigned int tile_x, tile_y;
+    unsigned int grid_x, grid_y;
 
-    for (i = 0; i < tower->tile_count; i++)
+    for (i = 0; i < PIECE_SIZE; i++)
     {
-        Tile *current_tile = &tower->tiles[i];
-
-        if (current_tile->x < piece_right && current_tile->x + current_tile->width > piece_left &&
-            current_tile->y < piece_bottom && current_tile->y + current_tile->height > piece_top)
+        for (j = 0; j < PIECE_SIZE; j++)
         {
-            if (tile_collision(active_piece, current_tile))
+            if (active_piece->layout[i][j] == TRUE)
             {
-                return TRUE;
+
+                tile_x = active_piece->x + j * CONST_VELOCITY;
+                tile_y = active_piece->y + i * CONST_VELOCITY;
+
+                get_grid_coordinates(playing_field, tile_x, tile_y, &grid_x, &grid_y);
+
+                if (grid_x < GRID_WIDTH && grid_y < GRID_HEIGHT)
+                {
+                    if (tower->grid[grid_y][grid_x] == 1)
+                    {
+                        return TRUE;
+                    }
+                }
             }
         }
     }

@@ -6,6 +6,7 @@
 
 #define TILE_WIDTH 14
 #define TILE_HEIGHT 14
+#define CONST_VELOCITY 16
 #define MAX_TILES_PER_TETROMINO 4
 #define MAX_TILES_PER_ROW 10
 #define MAX_PLAYER_TETROMINOES 7
@@ -84,20 +85,16 @@ void initialize_tower(Field *playing_field, Tower *new_tower, unsigned int tile_
 void initialize_counter(Counter *new_counter, Tower *tower, unsigned int x, unsigned int y);
 
 /*Behaviours*/
-void move_active_piece_left(Tetromino *Tetromino);
-void move_active_piece_right(Tetromino *Tetromino);
-void drop_active_piece(Tetromino *Tetromino);
-
-void update_counter(Counter *counter, Tower *tower);
+void move_active_piece_left(Tetromino *active_piece);
+void move_active_piece_right(Tetromino *active_piece);
+void drop_active_piece(Tetromino *active_piece);
 void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower);
+void update_tiles(Field *playing_field, Tower *tower, Tetromino *active_piece);
 void update_counter(Counter *counter, Tower *tower);
-void update_piece_layout(Field *playing_field, Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE]);
-void update_tiles(Field *playing_field, Tower *tower);
 
 /*Collisions*/
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
-bool tile_collision(Tetromino *active_piece, Tile *tile);
-bool tower_collision(Tetromino *active_piece, Tower *tower);
+bool tower_collision(Tetromino *active_piece, Tower *tower, Field *playing_field);
 bool fatal_tower_collision(Tower *tower);
 
 #endif

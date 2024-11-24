@@ -27,7 +27,7 @@ void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tow
     unsigned int curr_x = active_piece->x;
     move_active_piece_left(active_piece);
 
-    if (tower_collision(active_piece, tower))
+    if (tower_collision(active_piece, tower, playing_field))
     {
         active_piece->x = curr_x;
     }
@@ -58,7 +58,7 @@ void move_right_request(Tetromino *active_piece, Field *playing_field, Tower *to
     unsigned int curr_x = active_piece->x;
     move_active_piece_right(active_piece);
 
-    if (tower_collision(active_piece, tower))
+    if (tower_collision(active_piece, tower, playing_field))
     {
         active_piece->x = curr_x;
     }
@@ -93,7 +93,7 @@ void drop_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
     {
         drop_active_piece(active_piece);
 
-        if (tower_collision(active_piece, tower))
+        if (tower_collision(active_piece, tower, playing_field))
         {
             active_piece->y -= active_piece->velocity_y;
             active_piece->dropped = FALSE;
@@ -120,7 +120,7 @@ Details:
 
 Parameters:
     - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Tetromino pieces[]:       Array of Tetromino structures representing all available pieces.
+    - Tetromino player_pieces[]:       Array of Tetromino structures representing all available player_pieces.
     - Field *playing_field:     Pointer to the playing field structure.
     - Tower *tower:             Pointer to the tower structure.
 
@@ -128,14 +128,41 @@ Limitations:
     - The active piece is reset to its original starting position with no consideration
       for custom starting positions.
 */
-void reset_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
+void reset_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Field *playing_field, Tower *tower)
 {
-    int reload_index = active_piece->curr_index;
-    update_tower(playing_field, active_piece, tower);
-    clear_completed_rows(playing_field, tower, active_piece);
+    Tetromino shifted_left, shifted_right;
+    int reload_index;
+    if (fatal_tower_collision(tower))
+    {
+        return;
+    }
 
-    *active_piece = pieces[reload_index];
+    reload_index = active_piece->curr_index;
+    *active_piece = player_pieces[reload_index];
     active_piece->curr_index = reload_index;
+
+    if (!tower_collision(active_piece, tower, playing_field))
+    {
+        return;
+    }
+
+    shifted_right = *active_piece;
+    shifted_right.x += shifted_right.velocity_x;
+
+    if (!tower_collision(&shifted_right, tower, playing_field))
+    {
+        *active_piece = shifted_right;
+        return;
+    }
+
+    shifted_left = *active_piece;
+    shifted_left.x -= shifted_left.velocity_x;
+
+    if (!tower_collision(&shifted_left, tower, playing_field))
+    {
+        *active_piece = shifted_left;
+        return;
+    }
 }
 
 /*
@@ -144,32 +171,32 @@ Purpose:
     - Cycles the active piece to the next piece in the sequence.
 
 Details:
-    - Swaps the active piece with the next piece in the predefined array of pieces.
+    - Swaps the active piece with the next piece in the predefined array of player_pieces.
     - Adjusts the new piece's position to prevent boundary or tower collisions.
 
 Parameters:
     - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Tetromino pieces[]:         Array of Tetromino structures representing all available pieces.
+    - Tetromino player_pieces[]:         Array of Tetromino structures representing all available player_pieces.
     - Field *playing_field:       Pointer to the playing field structure.
     - Tower *tower:               Pointer to the tower structure.
 
 Limitations:
-    - Requires initialized active_piece, pieces array, and playing_field structures.
+    - Requires initialized active_piece, player_pieces array, and playing_field structures.
 */
-void cycle_active_piece(Tetromino *active_piece, Tetromino pieces[], Field *playing_field, Tower *tower)
+void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Field *playing_field, Tower *tower)
 {
     unsigned int prev_x = active_piece->x;
     unsigned int prev_y = active_piece->y;
     int next_index = (active_piece->curr_index + 1) % 7;
 
-    *active_piece = pieces[next_index];
+    *active_piece = player_pieces[next_index];
     active_piece->curr_index = next_index;
     active_piece->x = prev_x;
     active_piece->y = prev_y;
 
     active_piece->layout = cycle_piece_layout(active_piece->curr_index);
 
-    while (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower))
+    while (player_bounds_collision(active_piece, playing_field) || (tower_collision(active_piece, tower, playing_field)))
     {
         adjust_position(active_piece, playing_field);
 
@@ -215,29 +242,38 @@ void adjust_position(Tetromino *active_piece, Field *playing_field)
 /*
 ----- FUNCTION: clear_completed_rows -----
 Purpose:
-    - Clears any rows in the tower that are completely filled with tiles.
+    - Clears any fully occupied rows in the tower and shifts rows above downward
+      until a collision or the top of the grid is reached.
 
 Details:
-    - Iterates through the tower's rows, identifies full rows, removes the
-      corresponding tiles, and shifts remaining rows downward.
+    - Scans the tower grid from the bottom to the top of the active piece's starting position.
+    - Identifies full rows, clears them, and shifts rows above downward.
+    - Updates the tower's tile positions and count to match the modified grid.
 
 Parameters:
-    - Tower *tower:             Pointer to the tower structure.
-    - Tetromino *active_piece:  Pointer to the active piece structure.
+    - Field *playing_field: Pointer to the playing field structure (unused here).
+    - Tower *tower:         Pointer to the tower structure.
+    - Tetromino *active_piece: Pointer to the active piece structure.
 
 Limitations:
-    - Requires proper initialization of the tower structure.
+    - Assumes proper initialization of the tower structure and its grid.
+    - Does not handle game-over scenarios where the top row is filled.
+
 */
 void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_piece)
 {
+    unsigned r, c;
     unsigned int i, x, row, grid_x, grid_y;
     bool is_row_full;
 
     get_grid_coordinates(playing_field, active_piece->x, active_piece->y, &grid_x, &grid_y);
+    printf("Grid coordinates of active piece: (%u, %u)\n", grid_x, grid_y);
+    printf("Starting row clear process from max_row: %u to grid_y: %u\n", tower->max_row, grid_y);
 
     for (row = tower->max_row; row >= grid_y; row--)
     {
         is_row_full = TRUE;
+        printf("Checking row %u for completion...\n", row);
 
         for (x = 0; x < GRID_WIDTH; x++)
         {
@@ -250,6 +286,7 @@ void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_
 
         if (is_row_full)
         {
+            printf("Row %u is full. Shifting rows down...\n", row);
 
             for (i = row; i > 0; i--)
             {
@@ -264,9 +301,63 @@ void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_
                 tower->grid[0][x] = 0;
             }
 
+            printf("Row %u cleared and rows shifted.\n", row);
+
             row++;
         }
     }
 
-    update_tiles(playing_field, tower);
+    refresh_tower_tiles(tower, playing_field);
+}
+/*
+----- FUNCTION: refresh_tower_tiles -----
+Purpose:
+    - Updates the 'tower->tiles' array to reflect the current state of the tower's grid.
+    - Recalculates the positions of all tiles based on the updated grid after row-clearing or other changes.
+
+Details:
+    - Traverses the tower's grid from the top to 'tower->max_row'.
+    - For every occupied cell in the grid (value 1), calculates its corresponding (x, y) position in pixels.
+    - Updates the 'tower->tiles' array with the calculated positions.
+    - Resets and updates the 'tower->tile_count' to match the number of occupied cells in the grid.
+
+Parameters:
+    - Tower *tower: Pointer to the tower structure.
+
+Limitations:
+    - Assumes that the 'tower->grid and 'tower->max_row' are correctly maintained.
+    - Does not handle any logic related to row-clearing or active piece placement; this must be done beforehand.
+*/
+void refresh_tower_tiles(Tower *tower, Field *playing_field)
+{
+    unsigned int i, row, col, tile_y, tile_x;
+    unsigned int tile_index = 0;
+
+    printf("Current tower grid after clearing rows:\n");
+    for (row = 0; row <= tower->max_row; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            printf("%u ", tower->grid[row][col]);
+        }
+        printf("\n");
+    }
+
+    for (row = 0; row <= tower->max_row; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (tower->grid[row][col] == 1)
+            {
+                tile_x = (col * CONST_VELOCITY) + playing_field->x;
+                tile_y = (row * CONST_VELOCITY) + playing_field->y;
+
+                initialize_tile(playing_field, tower, &tower->tiles[tile_index], tile_x, tile_y);
+
+                tile_index++;
+            }
+        }
+    }
+
+    tower->tile_count = tile_index;
 }
