@@ -262,53 +262,30 @@ Limitations:
 */
 void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_piece)
 {
-    unsigned r, c;
     unsigned int i, x, row, grid_x, grid_y;
-    bool is_row_full;
+    unsigned int full_row;
 
     get_grid_coordinates(playing_field, active_piece->x, active_piece->y, &grid_x, &grid_y);
-    printf("Grid coordinates of active piece: (%u, %u)\n", grid_x, grid_y);
-    printf("Starting row clear process from max_row: %u to grid_y: %u\n", tower->max_row, grid_y);
 
-    for (row = tower->max_row; row >= grid_y; row--)
+    while (find_full_row(tower, &full_row))
     {
-        is_row_full = TRUE;
-        printf("Checking row %u for completion...\n", row);
-
-        for (x = 0; x < GRID_WIDTH; x++)
+        for (i = full_row; i > 0; i--)
         {
-            if (tower->grid[row][x] == 0)
+            for (x = 0; x < GRID_WIDTH; x++)
             {
-                is_row_full = FALSE;
-                break;
+                tower->grid[i][x] = tower->grid[i - 1][x];
             }
         }
 
-        if (is_row_full)
+        for (x = 0; x < GRID_WIDTH; x++)
         {
-            printf("Row %u is full. Shifting rows down...\n", row);
-
-            for (i = row; i > 0; i--)
-            {
-                for (x = 0; x < GRID_WIDTH; x++)
-                {
-                    tower->grid[i][x] = tower->grid[i - 1][x];
-                }
-            }
-
-            for (x = 0; x < GRID_WIDTH; x++)
-            {
-                tower->grid[0][x] = 0;
-            }
-
-            printf("Row %u cleared and rows shifted.\n", row);
-
-            row++;
+            tower->grid[0][x] = 0;
         }
     }
 
     refresh_tower_tiles(tower, playing_field);
 }
+
 /*
 ----- FUNCTION: refresh_tower_tiles -----
 Purpose:
@@ -333,16 +310,6 @@ void refresh_tower_tiles(Tower *tower, Field *playing_field)
     unsigned int i, row, col, tile_y, tile_x;
     unsigned int tile_index = 0;
 
-    printf("Current tower grid after clearing rows:\n");
-    for (row = 0; row <= tower->max_row; row++)
-    {
-        for (col = 0; col < GRID_WIDTH; col++)
-        {
-            printf("%u ", tower->grid[row][col]);
-        }
-        printf("\n");
-    }
-
     for (row = 0; row <= tower->max_row; row++)
     {
         for (col = 0; col < GRID_WIDTH; col++)
@@ -360,4 +327,56 @@ void refresh_tower_tiles(Tower *tower, Field *playing_field)
     }
 
     tower->tile_count = tile_index;
+}
+
+/*
+----- FUNCTION: find_full_row -----
+Purpose:
+    - Finds the first full row in the tower's grid.
+    - Iterates through the rows and checks if all columns in a row are filled (non-zero).
+    - Returns the first full row found and updates the 'full_row' parameter.
+
+Details:
+    - The function loops through each row in the tower's grid.
+    - For each row, it checks if every column is filled (i.e., non-zero).
+    - If a full row is found, the row index is returned through the 'full_row' pointer.
+    - If no full row is found after checking all rows, the function returns 'FALSE'.
+
+Parameters:
+    - Tower *tower: Pointer to the tower structure containing the grid.
+    - unsigned int *full_row: Pointer to an unsigned int where the index of the first full row will be stored.
+
+Return:
+    - Returns 'TRUE' if a full row is found, and updates the 'full_row' parameter with the index of the full row.
+    - Returns 'FALSE' if no full row is found in the grid.
+
+Limitations:
+    - Assumes that the tower's grid and 'tower->max_row' are correctly maintained.
+    - Does not modify the grid; it only checks for full rows.
+*/
+bool find_full_row(Tower *tower, unsigned int *full_row)
+{
+    unsigned int row, x;
+
+    for (row = 0; row < tower->max_row; row++)
+    {
+        bool is_full = TRUE;
+
+        for (x = 0; x < GRID_WIDTH; x++)
+        {
+            if (tower->grid[row][x] == 0)
+            {
+                is_full = FALSE;
+                break;
+            }
+        }
+
+        if (is_full)
+        {
+            *full_row = row;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }

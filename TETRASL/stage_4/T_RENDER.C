@@ -43,9 +43,9 @@ void snapshot_1()
     initialize_tetromino(&model->player_pieces[1], 288, 32, 32, 46, J_PIECE);
     initialize_tetromino(&model->player_pieces[2], 288, 32, 32, 46, L_PIECE);
     initialize_tetromino(&model->player_pieces[3], 288, 32, 32, 32, O_PIECE);
-    initialize_tetromino(&model->player_pieces[4], 288, 32, 46, 32, S_PIECE);
-    initialize_tetromino(&model->player_pieces[5], 288, 32, 46, 32, T_PIECE);
-    initialize_tetromino(&model->player_pieces[6], 288, 32, 46, 32, Z_PIECE);
+    initialize_tetromino(&model->player_pieces[4], 288, 32, 48, 32, S_PIECE);
+    initialize_tetromino(&model->player_pieces[5], 288, 32, 48, 32, T_PIECE);
+    initialize_tetromino(&model->player_pieces[6], 288, 32, 48, 32, Z_PIECE);
 
     /*Plotting tiles */
     /*Row 4*/
