@@ -48,9 +48,9 @@ typedef struct
 
 typedef struct
 {
-  Tile tiles[MAX_TILES_IN_TOWER];
   unsigned int max_row;
   unsigned int tile_count;
+  bool is_row_full;
   int grid[GRID_HEIGHT][GRID_WIDTH];
 } Tower;
 
@@ -76,12 +76,11 @@ void get_grid_coordinates(Field *playing_field,
 const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE];
 
 /*Initializers*/
-void initialize_tile(Field *playing_field, Tower *tower, Tile *new_tile,
-                     unsigned int x, unsigned int y);
+void initialize_grid(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH]);
+void initialize_tower(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH]);
 void initialize_layout(Tetromino *new_tetromino, TetrominoType type);
 void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int y, unsigned int width, unsigned int height, TetrominoType type);
 void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-void initialize_tower(Field *playing_field, Tower *new_tower, unsigned int tile_count);
 void initialize_counter(Counter *new_counter, Tower *tower, unsigned int x, unsigned int y);
 
 /*Behaviours*/
@@ -89,7 +88,6 @@ void move_active_piece_left(Tetromino *active_piece);
 void move_active_piece_right(Tetromino *active_piece);
 void drop_active_piece(Tetromino *active_piece);
 void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower);
-void update_tiles(Field *playing_field, Tower *tower, Tetromino *active_piece);
 void update_counter(Counter *counter, Tower *tower);
 
 /*Collisions*/

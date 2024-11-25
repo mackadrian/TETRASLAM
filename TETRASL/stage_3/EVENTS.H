@@ -16,6 +16,5 @@ void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_
 
 /*Helper Functions*/
 void adjust_position(Tetromino *active_piece, Field *playing_field);
-void refresh_tower_tiles(Tower *tower, Field *playing_field);
 
 #endif

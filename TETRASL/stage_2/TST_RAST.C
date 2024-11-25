@@ -9,6 +9,31 @@
 #include "bitmaps.h"
 #include "font.h"
 
+#define GRID_HEIGHT 20
+#define GRID_WIDTH 10
+
+int test_layout[GRID_HEIGHT][GRID_WIDTH] = {
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	{1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+	{1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+	{0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+	{0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+	{1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
+	{1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+	{0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
+	{0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+	{1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+	{0, 1, 1, 0, 1, 1, 0, 1, 1, 0},
+	{0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+	{1, 1, 1, 0, 0, 0, 0, 1, 1, 1},
+	{0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
+	{1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+	{0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+	{0, 1, 0, 0, 1, 1, 0, 0, 1, 0}};
+
 int main()
 {
 	int i, j, row, col;
@@ -70,23 +95,16 @@ int main()
 	plot_text(base_8, 384 + 16, 32, font, "C O U N T E R:");
 	plot_text(base_8, 384 + 16, 32 + 16, font, "1 0 0  /  1 0 0");
 
-	plot_bitmap_16(base_16, 368, 288, I_piece, 64, 1);
-	plot_bitmap_16(base_16, 224, 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + 16, 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 3), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 4), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 5), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 6), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 8), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 9), 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224, 112, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + 16, 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 3), 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 4), 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 5), 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 6), 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 8), 112 + 16, tile, 16, 1);
-	plot_bitmap_16(base_16, 224 + (16 * 9), 112 + 16, tile, 16, 1);
+	for (i = 0; i < GRID_HEIGHT; i++)
+	{
+		for (j = 0; j < GRID_WIDTH; j++)
+		{
+			if (test_layout[i][j] == 1)
+			{
+				plot_bitmap_16(base_16, 224 + (j * 16), 32 + (i * 16), tile, 16, 1);
+			}
+		}
+	}
 
 	Cnecin();
 	/*Test 6: clearing tiles*/

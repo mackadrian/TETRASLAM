@@ -9,6 +9,70 @@
 #include <stdio.h>
 
 /*
+----- FUNCTION: initialize_tower -----
+Purpose: Initializes the tower structure, setting its grid layout and calculating the tile count.
+
+Parameters:
+    - Field *playing_field: Pointer to the playing field structure (currently unused).
+    - Tower *new_tower: Pointer to the tower structure to initialize.
+
+Limitations:
+    - Assumes tiles and grid layout (e.g., `GRID_LAYOUT`) are predefined and available.
+    - Positions of tiles are set to default values and may require further adjustment based on gameplay mechanics (e.g., piece placement, collisions).
+    - The `max_row` will reflect the highest occupied row in the grid, which is relevant for piece placement and collision detection.
+
+Returns:
+    - None. The function directly modifies the `new_tower` structure.
+*/
+void initialize_tower(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH])
+{
+    unsigned int row, col;
+    new_tower->is_row_full = FALSE;
+    new_tower->max_row = 0;
+    new_tower->tile_count = 0;
+
+    initialize_grid(new_tower, layout);
+
+    for (row = 0; row < GRID_HEIGHT; row++)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (new_tower->grid[row][col] == 1)
+            {
+                new_tower->tile_count++;
+            }
+        }
+    }
+}
+
+/*
+----- FUNCTION: initialize_grid -----
+Purpose: Initializes the grid in the tower structure using a predefined layout.
+
+Parameters:
+    - Model *model: Pointer to the model structure that holds the tower.
+    - const int layout[GRID_HEIGHT][GRID_WIDTH]: A 2D array representing the desired grid layout to initialize the tower grid.
+
+Limitations:
+    - Assumes the provided `layout` array is valid and matches the size of the tower grid.
+    - The layout array must be defined before calling this function.
+
+Returns:
+    - None. The function directly modifies the `model->tower.grid` based on the given layout.
+*/
+void initialize_grid(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH])
+{
+    int x, y;
+    for (y = 0; y < GRID_HEIGHT; y++)
+    {
+        for (x = 0; x < GRID_WIDTH; x++)
+        {
+            new_tower->grid[y][x] = layout[y][x];
+        }
+    }
+}
+
+/*
 ----- FUNCTION: initialize_tile -----
 Purpose: initializes a tile by setting its position, dimensions, and updating the tower grid.
 
@@ -149,33 +213,6 @@ void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned
     new_field->y = y;
     new_field->width = width;
     new_field->height = height;
-}
-
-/*
------ FUNCTION: initialize_tower -----
-Purpose: Initializes the tower structure, setting its grid layout.
-
-Parameters:
-    - Tower *new_tower: Pointer to the tower structure to initialize.
-    - unsigned int tile_count: Total number of tiles in the tower.
-
-Limitations:
-    - Assumes tiles and grid layout are predefined.
-    - Positions of tiles are set to default and need further adjustment based on gameplay.
-*/
-void initialize_tower(Field *playing_field, Tower *new_tower, unsigned int tile_count)
-{
-    unsigned int row, col;
-    new_tower->max_row = 0;
-    new_tower->tile_count = tile_count;
-
-    for (row = 0; row < GRID_HEIGHT; row++)
-    {
-        for (col = 0; col < GRID_WIDTH; col++)
-        {
-            new_tower->grid[row][col] = GRID_LAYOUT[row][col];
-        }
-    }
 }
 
 /*
@@ -380,47 +417,6 @@ void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower)
                     tower->grid[grid_y][grid_x] = 1;
                     tower->max_row = grid_y;
                 }
-            }
-        }
-    }
-}
-
-/*
------ FUNCTION: update_tiles -----
-Purpose:
-    - Updates the tower's 'Tile' array by setting the coordinates of each tile in the tower.
-
-Details:
-    - Loops through the active piece's layout and updates the tiles' positions in the 'Tower' structure.
-    - Updates the coordinates of the tiles based on the current position of the active piece.
-
-Parameters:
-    - Field *playing_field: Pointer to the playing field structure.
-    - Tetromino *active_piece: Pointer to the currently active piece.
-    - Tower *tower: Pointer to the tower structure.
-
-Limitations:
-    - Assumes active_piece and tower are initialized and valid.
-    - The active piece must have a defined layout.
-*/
-void update_tiles(Field *playing_field, Tower *tower, Tetromino *active_piece)
-{
-    unsigned int i, j;
-    unsigned int tile_x, tile_y;
-    unsigned int tile_index = 0;
-
-    for (i = 0; i < PIECE_SIZE; i++)
-    {
-        for (j = 0; j < PIECE_SIZE; j++)
-        {
-            if (active_piece->layout[i][j] == 1)
-            {
-                tile_x = active_piece->x + (j * CONST_VELOCITY);
-                tile_y = active_piece->y + (i * CONST_VELOCITY);
-
-                initialize_tile(playing_field, tower, &tower->tiles[tile_index], tile_x, tile_y);
-
-                tile_index++;
             }
         }
     }

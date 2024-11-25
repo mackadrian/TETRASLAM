@@ -72,25 +72,10 @@ void print_model(Model *model)
            model->playing_field.height);
 
     printf("Tower:\n");
-    printf(" max_row=%u, tile_count=%d\n",
+    printf("  max_row=%u, tile_count=%d, is_row_full=%d\n",
            model->tower.max_row,
-           model->tower.tile_count);
-
-
-    printf("Tiles in Tower:\n");
-    for (i = 0; i < model->tower.tile_count; i++)
-    {
-        Tile *tile = &model->tower.tiles[i];
-        if (tile->x != 0 || tile->y != 0)
-        {
-            printf("  Tiles %d: x=%u, y=%u, width=%u, height=%u\n",
-                   i,
-                   tile->x,
-                   tile->y,
-                   tile->width,
-                   tile->height);
-        }
-    }
+           model->tower.tile_count,
+           model->tower.is_row_full);
 
     printf("Tile Counter:\n");
     printf("  x=%u, y=%u, tile_count=%u\n",
@@ -174,24 +159,10 @@ void print_tower(Tower *tower)
 {
     int i;
     printf("Tower:\n");
-    printf("  max_row=%u, tile_count=%d\n",
+    printf("  max_row=%u, tile_count=%d, is_row_full=%d\n",
            tower->max_row,
-           tower->tile_count);
-
-    printf("Tiles in Tower:\n");
-    for (i = 0; i < tower->tile_count; i++)
-    {
-        Tile *tile = &tower->tiles[i];
-        if (tile->x != 0 || tile->y != 0)
-        {
-            printf("  Tile %d: x=%u, y=%u, width=%u, height=%u\n",
-                   i,
-                   tile->x,
-                   tile->y,
-                   tile->height,
-                   tile->width);
-        }
-    }
+           tower->tile_count,
+           tower->is_row_full);
 }
 
 /*

@@ -14,9 +14,29 @@
 void wait_for_input();
 void main_test_model();
 void main_test_event(Model *model);
-void test_initializer_tower_tiles(Model *model);
-void test_initializer_active_piece(Model *model);
 void test_move_event(Model *model);
+
+int test_layout[GRID_HEIGHT][GRID_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+    {1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+    {0, 1, 1, 0, 1, 1, 0, 1, 1, 0},
+    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+    {1, 1, 1, 0, 0, 0, 0, 1, 1, 1},
+    {0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
+    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0}};
 
 int main()
 {
@@ -37,7 +57,6 @@ void main_test_model()
 
     printf("Initializing model snapshot of TETRASLAM...\n");
     printf("--- TESTING FOR SUCCESSFUL INITIALIZATION ---\n");
-    printf("Tiles inside the tower should be blank...\n");
     wait_for_input();
 
     initialize_tetromino(&model.active_piece, 288, 32, 16, 64, I_PIECE);
@@ -45,20 +64,16 @@ void main_test_model()
     initialize_tetromino(&model.player_pieces[1], 288, 32, 32, 46, J_PIECE);
     initialize_tetromino(&model.player_pieces[2], 288, 32, 32, 46, L_PIECE);
     initialize_tetromino(&model.player_pieces[3], 288, 32, 32, 32, O_PIECE);
-    initialize_tetromino(&model.player_pieces[4], 288, 32, 46, 32, S_PIECE);
-    initialize_tetromino(&model.player_pieces[5], 288, 32, 46, 32, T_PIECE);
-    initialize_tetromino(&model.player_pieces[6], 288, 32, 46, 32, Z_PIECE);
+    initialize_tetromino(&model.player_pieces[4], 288, 32, 48, 32, S_PIECE);
+    initialize_tetromino(&model.player_pieces[5], 288, 32, 48, 32, T_PIECE);
+    initialize_tetromino(&model.player_pieces[6], 288, 32, 48, 32, Z_PIECE);
 
     initialize_field(&model.playing_field, 224, 32, 160, 320);
-    initialize_tower(&model.playing_field, &model.tower, 8);
+    initialize_tower(&model.tower, test_layout);
     initialize_counter(&model.counter, &model.tower, 384 + 16, 32);
 
     print_model(&model);
-    wait_for_input();
     print_grid(&model.tower);
-
-    wait_for_input();
-    test_initializer_tower_tiles(&model);
 
     /*Event testing*/
     main_test_event(&model);
@@ -69,44 +84,6 @@ void main_test_model()
 Purpose: tests the events of model snapshot of the game
 */
 void main_test_event(Model *model)
-{
-    test_move_event(model);
-    /*
-    test_reset_active_piece_event(model);
-
-    test_cycle_event(model);
-
-    test_cycle_and_drop_event(model);
-    test_row_clear(model);*/
-}
-
-/*
------ FUNCTION: test_initializer_tower_tiles -----
-Purpose: initializes all tiles of the tower and each of their position.
-Assumptions: Tiles must be initialized inside the playing field.
-*/
-void test_initializer_tower_tiles(Model *model)
-{
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[0], 224 + (16 * 2), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[1], 224 + (16 * 3), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[2], 224 + (16 * 4), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[3], 224 + (16 * 5), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[4], 224 + (16 * 6), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[5], 224 + (16 * 7), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[6], 224 + (16 * 8), 96);
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[7], 224 + (16 * 9), 96);
-
-    wait_for_input();
-    print_tower(&model->tower);
-    print_grid(&model->tower);
-    print_counter(&model->counter);
-}
-
-/*
------ FUNCTION: test_move_event -----
-Purpose: tests game input
-*/
-void test_move_event(Model *model)
 {
     char key;
     printf("\n");
@@ -154,14 +131,11 @@ void test_move_event(Model *model)
             print_active_piece(&model->active_piece);
 
             update_tower(&model->playing_field, &model->active_piece, &model->tower);
-            update_tiles(&model->playing_field, &model->tower, &model->active_piece);
             clear_completed_rows(&model->playing_field, &model->tower, &model->active_piece);
             reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
             update_counter(&model->counter, &model->tower);
 
-            wait_for_input();
             print_grid(&model->tower);
-            wait_for_input();
 
             print_counter(&model->counter);
             print_tower(&model->tower);
