@@ -4,20 +4,12 @@
 #include "LAYOUT.H"
 #include "TYPES.H"
 
-#define TILE_WIDTH 16
-#define TILE_HEIGHT 16
+#define CONST_VELOCITY 16
 #define MAX_TILES_PER_TETROMINO 4
 #define MAX_TILES_PER_ROW 10
 #define MAX_PLAYER_TETROMINOES 7
 #define MAX_TILES_IN_TOWER 200
 #define MAX_PER_COLUMN 100
-
-typedef enum
-{
-  LEFT,
-  RIGHT,
-  DROP
-} Direction;
 
 typedef enum
 {
@@ -54,9 +46,9 @@ typedef struct
 
 typedef struct
 {
-  Tile tiles[MAX_TILES_IN_TOWER];
   unsigned int max_row;
   unsigned int tile_count;
+  unsigned int is_row_full;
   int grid[GRID_HEIGHT][GRID_WIDTH];
 } Tower;
 
@@ -76,34 +68,31 @@ typedef struct
 } Model;
 
 /*Helper Functions*/
-void get_grid_coordinates(unsigned int x, unsigned int y,
+void get_grid_coordinates(Field *playing_field,
+                          unsigned int x, unsigned int y,
                           unsigned int *grid_x, unsigned int *grid_y);
 const int (*cycle_piece_layout(int curr_index))[PIECE_SIZE];
-void shift_row_down(Tower *tower, int row);
-void remove_tile_from_array(Tower *tower, unsigned int index);
 
 /*Initializers*/
-void initialize_tile(Tower *tower, Tile *new_tile, unsigned int x, unsigned int y);
+void initialize_grid(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH]);
+void initialize_tower(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH]);
 void initialize_layout(Tetromino *new_tetromino, TetrominoType type);
 void initialize_tetromino(Tetromino *new_tetromino, unsigned int x, unsigned int y, unsigned int width, unsigned int height, TetrominoType type);
 void initialize_field(Field *new_field, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-void initialize_tower(Tower *new_tower, unsigned int tile_count);
-void initialize_counter(Counter *new_counter, unsigned int x, unsigned int y, int tile_count);
+void initialize_counter(Counter *new_counter, Tower *tower, unsigned int x, unsigned int y);
 
 /*Behaviours*/
+void move_active_piece_left(Tetromino *active_piece);
+void move_active_piece_right(Tetromino *active_piece);
+void drop_active_piece(Tetromino *active_piece);
+void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower);
 void update_counter(Counter *counter, Tower *tower);
-void update_active_piece(Tetromino *active_piece, Direction direction);
-void update_tower(Tetromino *active_piece, Tower *tower);
-void update_tiles(Tower *tower);
-void update_grid(Tower *tower);
-void update_piece_layout(Tetromino *active_piece, Tower *tower, const int layout[PIECE_SIZE][PIECE_SIZE]);
 
 /*Collisions*/
+void check_rows(Tower *tower, Tetromino *active_piece);
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
-bool tile_collision(Tetromino *active_piece, Tile *tile);
-bool tower_collision(Tetromino *active_piece, Tower *tower);
+bool tower_collision(Tetromino *active_piece, Tower *tower, Field *playing_field);
 bool fatal_tower_collision(Tower *tower);
-bool check_row_clearance(Tower *tower, Tetromino *active_piece);
-bool is_row_non_empty(Tower *tower, int row);
+bool win_condition(Tower *tower);
 
 #endif

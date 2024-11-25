@@ -10,7 +10,7 @@
 void render(const Model *model, UINT32 *base_32, UINT16 *base_16, UINT8 *base_8);
 void render_active_piece(Model *model, UINT16 *base_16);
 void render_playing_field(Model *model, UINT16 *base_16);
-void render_all_tiles(Model *model, UINT16 *base_16);
+void render_tower(const Model *model, UINT16 *base_16);
 void render_counter(Model *model, UINT8 *base_8);
 
 #endif
