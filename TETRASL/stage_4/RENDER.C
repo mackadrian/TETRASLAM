@@ -25,7 +25,7 @@ void render(const Model *model, UINT32 *base_32, UINT16 *base_16, UINT8 *base_8)
 {
     render_active_piece(model, base_16);
     render_playing_field(model, base_16);
-    render_all_tiles(model, base_16);
+    render_tower(model, base_16);
     render_counter(model, base_8);
 }
 
@@ -94,25 +94,33 @@ void render_playing_field(Model *model, UINT16 *base_16)
 }
 
 /*
------ FUNCTION: render_all_tiles -----
+----- FUNCTION: render_tower -----
 Purpose:
-    - Renders all initialized tiles within the playing field.
+    - Renders all the tiles in the tower by reading the `model->tower->grid` and rendering the tiles accordingly.
 
 Parameters:
-    - const Model *model:    Model address containing tower tile data.
-    - UINT16 *base_16:       Short-sized frame buffer pointer.
+    - const Model *model:    Model address containing tower data (specifically the tower's grid).
+    - UINT16 *base_16:       Pointer to the frame buffer where the tiles will be rendered.
 
 Limitations:
-    - Assumes valid tile coordinates are provided.
-    - Tile count must not exceed the tower's tile array capacity.
+    - Assumes the grid and frame buffer are properly initialized and valid.
+    - The tower grid dimensions should not exceed the available frame buffer space.
 */
-void render_all_tiles(Model *model, UINT16 *base_16)
+void render_tower(const Model *model, UINT16 *base_16)
 {
-    unsigned int i = 0;
-    while (i < model->tower.tile_count)
+    int row, col;
+    int tile_value;
+
+    for (row = 0; row < GRID_HEIGHT; row++)
     {
-        plot_bitmap_16(base_16, model->tower.tiles[i].x, model->tower.tiles[i].y, tile, 16, 1);
-        i++;
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            if (model->tower.grid[row][col] == 1)
+            {
+                plot_bitmap_16(base_16, model->playing_field.x + (col * model->active_piece.velocity_x),
+                               model->playing_field.y + (row * model->active_piece.velocity_y), tile, 16, 1);
+            }
+        }
     }
 }
 

@@ -12,9 +12,6 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 
 /*Cascaded Events*/
 void reset_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Field *playing_field, Tower *tower);
-void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_piece);
-
-/*Helper Functions*/
-void adjust_position(Tetromino *active_piece, Field *playing_field);
+void clear_completed_rows(Tower *tower);
 
 #endif

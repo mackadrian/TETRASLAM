@@ -94,6 +94,7 @@ void main_test_event(Model *model)
     printf("Press 'n' OR 'N' key to move left.\n");
     printf("Press 'm' OR 'M' key to move right.\n");
     printf("Press 'SPACEBAR' key to drop the piece.\n");
+    printf("Press 'q' OR 'Q' key to print the grid.\n");
     printf("Press ESC key to exit the loop.\n");
 
     while (TRUE)
@@ -130,20 +131,30 @@ void main_test_event(Model *model)
             printf("Dropped Piece: ");
             print_active_piece(&model->active_piece);
 
-            update_tower(&model->playing_field, &model->active_piece, &model->tower);
-            clear_completed_rows(&model->playing_field, &model->tower, &model->active_piece);
+            check_row(&model->tower, &model->active_piece);
             reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
             update_counter(&model->counter, &model->tower);
-
             print_grid(&model->tower);
 
             print_counter(&model->counter);
             print_tower(&model->tower);
+
             if (fatal_tower_collision(&model->tower))
             {
                 printf("GAME OVER!! Exiting...\n");
                 break;
             }
+        }
+        else if (key == 'q' || key == 'Q')
+        {
+            printf("Current Grid:\n");
+            print_grid(&model->tower);
+        }
+
+        if (model->tower.is_row_full > 0)
+        {
+            clear_completed_rows(&model->tower);
+            update_counter(&model->counter, &model->tower);
         }
     }
 }

@@ -98,6 +98,7 @@ void drop_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
             active_piece->y -= active_piece->velocity_y;
             active_piece->dropped = FALSE;
             active_piece->merged = TRUE;
+            update_tower(playing_field, active_piece, tower);
         }
 
         if (player_bounds_collision(active_piece, playing_field))
@@ -105,6 +106,7 @@ void drop_request(Tetromino *active_piece, Field *playing_field, Tower *tower)
             active_piece->y -= active_piece->velocity_y;
             active_piece->dropped = FALSE;
             active_piece->merged = TRUE;
+            update_tower(playing_field, active_piece, tower);
         }
     }
 }
@@ -173,12 +175,13 @@ Purpose:
 Details:
     - Swaps the active piece with the next piece in the predefined array of player_pieces.
     - Adjusts the new piece's position to prevent boundary or tower collisions.
+    - If unable to resolve collisions, the piece is reset to its default position.
 
 Parameters:
     - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Tetromino player_pieces[]:         Array of Tetromino structures representing all available player_pieces.
-    - Field *playing_field:       Pointer to the playing field structure.
-    - Tower *tower:               Pointer to the tower structure.
+    - Tetromino player_pieces[]: Array of Tetromino structures representing all available player_pieces.
+    - Field *playing_field:     Pointer to the playing field structure.
+    - Tower *tower:             Pointer to the tower structure.
 
 Limitations:
     - Requires initialized active_piece, player_pieces array, and playing_field structures.
@@ -187,55 +190,37 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 {
     unsigned int prev_x = active_piece->x;
     unsigned int prev_y = active_piece->y;
-    int next_index = (active_piece->curr_index + 1) % 7;
 
+    int next_index = (active_piece->curr_index + 1) % 7;
     *active_piece = player_pieces[next_index];
     active_piece->curr_index = next_index;
+
     active_piece->x = prev_x;
     active_piece->y = prev_y;
 
     active_piece->layout = cycle_piece_layout(active_piece->curr_index);
 
-    while (player_bounds_collision(active_piece, playing_field) || (tower_collision(active_piece, tower, playing_field)))
+    if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
     {
-        adjust_position(active_piece, playing_field);
-
-        if (active_piece->y + active_piece->height > playing_field->y + playing_field->height)
+        if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
         {
-            adjust_position(active_piece, playing_field);
+            active_piece->x -= active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x += 2 * active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
+            active_piece->y = playing_field->y;
         }
-        else
-        {
-            break;
-        }
-    }
-}
-
-/*
------ FUNCTION: adjust_position -----
-Purpose:
-    - Adjusts the active piece's position to resolve collisions.
-
-Details:
-    - Moves the active piece within the boundaries of the playing field
-      if it collides with the tower or exceeds the playing field boundaries.
-
-Parameters:
-    - Tetromino *active_piece:  Pointer to the active piece structure.
-    - Field *playing_field:     Pointer to the playing field structure.
-
-Limitations:
-    - Only resolves collisions caused by out-of-bounds conditions.
-*/
-void adjust_position(Tetromino *active_piece, Field *playing_field)
-{
-    if (active_piece->x + active_piece->width > playing_field->x + playing_field->width)
-    {
-        active_piece->x -= active_piece->velocity_x;
-    }
-    else if (active_piece->x < playing_field->x)
-    {
-        active_piece->x += active_piece->velocity_x;
     }
 }
 
@@ -260,6 +245,27 @@ Limitations:
     - Does not handle game-over scenarios where the top row is filled.
 
 */
-void clear_completed_rows(Field *playing_field, Tower *tower, Tetromino *active_piece)
+void clear_completed_rows(Tower *tower)
 {
+    int row, col;
+
+    while (tower->is_row_full != 0)
+    {
+        printf("Clearing row %d...\n", tower->max_row);
+
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            tower->grid[tower->max_row][col] = 0;
+        }
+
+        for (row = tower->max_row - 1; row >= 0; row--)
+        {
+            for (col = 0; col < GRID_WIDTH; col++)
+            {
+                tower->grid[row + 1][col] = tower->grid[row][col];
+            }
+        }
+        tower->max_row--;
+        tower->is_row_full--;
+    }
 }

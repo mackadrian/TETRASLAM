@@ -72,7 +72,7 @@ void print_model(Model *model)
            model->playing_field.height);
 
     printf("Tower:\n");
-    printf("  max_row=%u, tile_count=%d, is_row_full=%d\n",
+    printf("  max_row=%u, tile_count=%d, is_row_full=%u\n",
            model->tower.max_row,
            model->tower.tile_count,
            model->tower.is_row_full);
@@ -159,7 +159,7 @@ void print_tower(Tower *tower)
 {
     int i;
     printf("Tower:\n");
-    printf("  max_row=%u, tile_count=%d, is_row_full=%d\n",
+    printf("  max_row=%u, tile_count=%d, is_row_full=%u\n",
            tower->max_row,
            tower->tile_count,
            tower->is_row_full);

@@ -13,6 +13,83 @@ void snapshot_1();
 void snapshot_2();
 void snapshot_3();
 
+int test_layout_1[GRID_HEIGHT][GRID_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
+    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
+    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
+    {1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
+    {0, 1, 1, 0, 1, 1, 0, 1, 1, 0},
+    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+    {1, 1, 1, 0, 0, 0, 0, 1, 1, 1},
+    {0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
+    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
+    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0}};
+
+int test_layout_2[GRID_HEIGHT][GRID_WIDTH] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 1, 1, 1, 0, 0, 1, 1, 1, 0},
+    {0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+    {1, 1, 0, 1, 0, 0, 1, 0, 1, 1},
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 0, 1, 0, 0, 1, 0, 1, 1},
+    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
+    {0, 1, 1, 1, 0, 0, 1, 1, 1, 0},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
+    {0, 0, 1, 0, 1, 1, 0, 1, 0, 0},
+    {0, 0, 1, 0, 1, 1, 0, 1, 0, 0},
+    {0, 0, 1, 0, 1, 1, 0, 1, 0, 0},
+    {0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+    {0, 0, 0, 0, 1, 1, 0, 0, 0, 0}};
+
+int test_layout_3[GRID_HEIGHT][GRID_WIDTH] = {
+    {0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+    {0, 0, 1, 1, 1, 0, 0, 0, 1, 0},
+    {0, 1, 1, 0, 1, 1, 0, 1, 0, 0},
+    {1, 0, 0, 0, 0, 1, 1, 0, 0, 1},
+    {1, 1, 0, 1, 1, 1, 0, 1, 0, 0},
+    {0, 1, 0, 1, 0, 0, 1, 1, 0, 0},
+    {0, 0, 1, 0, 0, 1, 0, 1, 1, 0},
+    {1, 1, 0, 1, 0, 1, 1, 0, 0, 0},
+    {1, 0, 1, 1, 0, 0, 0, 1, 0, 1},
+    {0, 0, 0, 0, 1, 1, 1, 0, 1, 0},
+    {1, 1, 0, 1, 0, 0, 1, 1, 0, 0},
+    {0, 0, 1, 0, 1, 0, 1, 1, 1, 0},
+    {0, 1, 0, 0, 1, 1, 0, 1, 0, 1},
+    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {1, 1, 1, 0, 1, 0, 0, 0, 1, 1},
+    {0, 0, 0, 1, 0, 1, 1, 0, 0, 0},
+    {0, 1, 1, 0, 1, 0, 0, 1, 1, 0},
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 0},
+    {1, 0, 0, 1, 0, 0, 1, 1, 0, 0},
+    {0, 0, 0, 0, 1, 0, 1, 1, 0, 0}};
+
+/*
+----- FUNCTION: main -----
+Purpose:
+    - The entry point of the program.
+    - Calls snapshot_1() and snapshot_2() functions to render and display different game snapshots.
+Details:
+    - The main function executes the game setup and rendering for two snapshots.
+    - `snapshot_1()` initializes the model and game field, sets up the active piece and tower, then renders the game state.
+    - `snapshot_2()` (not yet implemented) will likely set up another variation of the game state for testing or rendering purposes.
+    - After the snapshots are rendered, the function returns with an exit status of 0.
+*/
 int main()
 {
     snapshot_1();
@@ -23,7 +100,21 @@ int main()
 }
 
 /*
-Renders the first initial snapshot of the game.
+----- FUNCTION: snapshot_1 -----
+Purpose:
+    - Captures a specific state of the game, rendering the initial layout of the playing field, the tower,
+      and the active tetrominoes, followed by rendering the game to the screen.
+
+Details:
+    - Initializes the playing field, tower, and player pieces.
+    - Renders the scene to the screen buffer and clears the screen.
+
+Parameters:
+    - None.
+
+Limitations:
+    - Assumes proper initialization of global variables and game data structures.
+
 */
 void snapshot_1()
 {
@@ -36,7 +127,7 @@ void snapshot_1()
 
     initialize_tetromino(&model->active_piece, 288, 32, 16, 64, I_PIECE);
     initialize_field(&model->playing_field, 224, 32, 160, 320);
-    initialize_tower(&model->playing_field, &model->tower, 78);
+    initialize_tower(&model->tower, &test_layout_1);
     initialize_counter(&model->counter, &model->tower, 224 + 160 + 16, 32);
 
     initialize_tetromino(&model->player_pieces[0], 288, 32, 16, 64, I_PIECE);
@@ -47,108 +138,27 @@ void snapshot_1()
     initialize_tetromino(&model->player_pieces[5], 288, 32, 48, 32, T_PIECE);
     initialize_tetromino(&model->player_pieces[6], 288, 32, 48, 32, Z_PIECE);
 
-    /*Plotting tiles */
-    /*Row 4*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[0], 224, 32 + (16 * 3));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[1], 224 + (16 * 9), 32 + (16 * 3));
-    /*Row 5*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[2], 224, 32 + (16 * 4));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[3], 224 + (16 * 2), 32 + (16 * 4));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[4], 224 + (16 * 3), 32 + (16 * 4));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[5], 224 + (16 * 6), 32 + (16 * 4));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[6], 224 + (16 * 7), 32 + (16 * 4));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[7], 224 + (16 * 9), 32 + (16 * 4));
-    /*Row 6*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[8], 224 + (16 * 3), 32 + (16 * 5));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[9], 224 + (16 * 4), 32 + (16 * 5));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[10], 224 + (16 * 5), 32 + (16 * 5));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[11], 224 + (16 * 6), 32 + (16 * 5));
-    /*Row 7*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[12], 224 + 16, 32 + (16 * 6));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[13], 224 + (16 * 8), 32 + (16 * 6));
-    /*Row 8*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[14], 224, 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[15], 224 + (16 * 2), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[16], 224 + (16 * 3), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[17], 224 + (16 * 4), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[18], 224 + (16 * 5), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[19], 224 + (16 * 6), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[20], 224 + (16 * 7), 32 + (16 * 7));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[21], 224 + (16 * 9), 32 + (16 * 7));
-    /*Row 9*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[22], 224, 32 + (16 * 8));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[23], 224 + (16 * 2), 32 + (16 * 8));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[24], 224 + (16 * 3), 32 + (16 * 8));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[25], 224 + (16 * 6), 32 + (16 * 8));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[26], 224 + (16 * 7), 32 + (16 * 8));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[27], 224 + (16 * 9), 32 + (16 * 8));
-    /*Row 10*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[28], 224, 32 + (16 * 9));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[29], 224 + (16 * 4), 32 + (16 * 9));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[30], 224 + (16 * 5), 32 + (16 * 9));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[31], 224 + (16 * 9), 32 + (16 * 9));
-    /*Row 11*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[32], 224 + 16, 32 + (16 * 10));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[33], 224 + (16 * 4), 32 + (16 * 10));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[34], 224 + (16 * 5), 32 + (16 * 10));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[35], 224 + (16 * 8), 32 + (16 * 10));
-    /*Row 12*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[36], 224 + (16 * 2), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[37], 224 + (16 * 3), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[38], 224 + (16 * 4), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[39], 224 + (16 * 5), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[40], 224 + (16 * 6), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[41], 224 + (16 * 7), 32 + (16 * 11));
-    /*Row 13*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[42], 224, 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[43], 224 + (16 * 2), 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[44], 224 + (16 * 7), 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[45], 224 + (16 * 9), 32 + (16 * 12));
-    /*Row 14*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[46], 224 + 16, 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[47], 224 + (16 * 2), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[48], 224 + (16 * 4), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[49], 224 + (16 * 5), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[50], 224 + (16 * 7), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[51], 224 + (16 * 8), 32 + (16 * 13));
-    /*Row 15*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[52], 224 + (16 * 2), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[53], 224 + (16 * 3), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[54], 224 + (16 * 6), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[55], 224 + (16 * 7), 32 + (16 * 14));
-    /*Row 16*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[56], 224, 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[57], 224 + 16, 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[58], 224 + (16 * 2), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[59], 224 + (16 * 7), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[60], 224 + (16 * 8), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[61], 224 + (16 * 9), 32 + (16 * 15));
-    /*Row 17*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[62], 224 + 16, 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[63], 224 + (16 * 3), 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[64], 224 + (16 * 6), 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[65], 224 + (16 * 8), 32 + (16 * 16));
-    /*Row 18*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[66], 224, 32 + (16 * 17));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[67], 224 + (16 * 4), 32 + (16 * 17));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[68], 224 + (16 * 5), 32 + (16 * 17));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[69], 224 + (16 * 9), 32 + (16 * 17));
-    /*Row 19*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[70], 224 + (16 * 2), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[71], 224 + (16 * 3), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[72], 224 + (16 * 6), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[73], 224 + (16 * 7), 32 + (16 * 18));
-    /*Row 20*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[74], 224 + 16, 32 + (16 * 19));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[75], 224 + (16 * 4), 32 + (16 * 19));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[76], 224 + (16 * 5), 32 + (16 * 19));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[77], 224 + (16 * 8), 32 + (16 * 19));
-
     render(model, base_32, base_16, base_8);
     Cnecin();
     clear_screen(base_32);
 }
 
+/*
+----- FUNCTION: snapshot_2 -----
+Purpose:
+    - Captures a different state of the game with an altered tower layout and different pieces initialized.
+
+Details:
+    - This snapshot uses a different tower layout (`test_layout_2`).
+    - Tetrominoes are positioned and initialized differently.
+
+Parameters:
+    - None.
+
+Limitations:
+    - Assumes proper initialization of global variables and game data structures.
+
+*/
 void snapshot_2()
 {
     Model create_model;
@@ -158,40 +168,18 @@ void snapshot_2()
     UINT8 *base_8 = (UINT8 *)Physbase();
     clear_screen(base_32);
 
-    initialize_tetromino(&model->active_piece, 224, 32, 16, 64, I_PIECE);
+    initialize_tetromino(&model->active_piece, 288, 32, 16, 64, J_PIECE);
     initialize_field(&model->playing_field, 224, 32, 160, 320);
-    initialize_tower(&model->playing_field, &model->tower, 14);
+    initialize_tower(&model->tower, &test_layout_2);
     initialize_counter(&model->counter, &model->tower, 224 + 160 + 16, 32);
 
-    initialize_tetromino(&model->player_pieces[0], 288, 32, 16, 64, I_PIECE);
-    initialize_tetromino(&model->player_pieces[1], 288, 32, 32, 46, J_PIECE);
-    initialize_tetromino(&model->player_pieces[2], 288, 32, 32, 46, L_PIECE);
-    initialize_tetromino(&model->player_pieces[3], 288, 32, 32, 32, O_PIECE);
-    initialize_tetromino(&model->player_pieces[4], 288, 32, 46, 32, S_PIECE);
-    initialize_tetromino(&model->player_pieces[5], 288, 32, 46, 32, T_PIECE);
-    initialize_tetromino(&model->player_pieces[6], 288, 32, 46, 32, Z_PIECE);
-
-    /*Row 17*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[0], 224 + (16 * 3), 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[1], 224 + (16 * 4), 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[2], 224 + (16 * 5), 32 + (16 * 16));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[3], 224 + (16 * 6), 32 + (16 * 16));
-
-    /*Row 18*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[4], 224 + (16 * 7), 32 + (16 * 17));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[5], 224 + (16 * 8), 32 + (16 * 17));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[6], 224 + (16 * 9), 32 + (16 * 17));
-
-    /*Row 19*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[7], 224 + (16 * 2), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[8], 224 + (16 * 3), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[9], 224 + (16 * 4), 32 + (16 * 18));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[10], 224 + (16 * 5), 32 + (16 * 18));
-
-    /*Row 20*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[11], 224 + (16 * 1), 32 + (16 * 19));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[12], 224 + (16 * 2), 32 + (16 * 19));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[13], 224 + (16 * 6), 32 + (16 * 19));
+    initialize_tetromino(&model->player_pieces[0], 288, 32, 16, 64, L_PIECE);
+    initialize_tetromino(&model->player_pieces[1], 288, 32, 32, 46, Z_PIECE);
+    initialize_tetromino(&model->player_pieces[2], 288, 32, 32, 46, T_PIECE);
+    initialize_tetromino(&model->player_pieces[3], 288, 32, 32, 32, I_PIECE);
+    initialize_tetromino(&model->player_pieces[4], 288, 32, 48, 32, S_PIECE);
+    initialize_tetromino(&model->player_pieces[5], 288, 32, 48, 32, J_PIECE);
+    initialize_tetromino(&model->player_pieces[6], 288, 32, 48, 32, O_PIECE);
 
     render(model, base_32, base_16, base_8);
     Cnecin();
@@ -207,46 +195,18 @@ void snapshot_3()
     UINT8 *base_8 = (UINT8 *)Physbase();
     clear_screen(base_32);
 
-    initialize_tetromino(&model->active_piece, 288, 32, 16, 64, I_PIECE);
+    initialize_tetromino(&model->active_piece, 288, 32, 16, 64, J_PIECE);
     initialize_field(&model->playing_field, 224, 32, 160, 320);
-    initialize_tower(&model->playing_field, &model->tower, 20);
+    initialize_tower(&model->tower, &test_layout_3);
     initialize_counter(&model->counter, &model->tower, 224 + 160 + 16, 32);
 
-    initialize_tetromino(&model->player_pieces[0], 288, 32, 16, 64, I_PIECE);
-    initialize_tetromino(&model->player_pieces[1], 288, 32, 32, 46, J_PIECE);
-    initialize_tetromino(&model->player_pieces[2], 288, 32, 32, 46, L_PIECE);
-    initialize_tetromino(&model->player_pieces[3], 288, 32, 32, 32, O_PIECE);
-    initialize_tetromino(&model->player_pieces[4], 288, 32, 46, 32, S_PIECE);
-    initialize_tetromino(&model->player_pieces[5], 288, 32, 46, 32, T_PIECE);
-    initialize_tetromino(&model->player_pieces[6], 288, 32, 46, 32, Z_PIECE);
-
-    /*Row 12*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[0], 224 + (16 * 4), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[1], 224 + (16 * 5), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[2], 224 + (16 * 6), 32 + (16 * 11));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[3], 224 + (16 * 7), 32 + (16 * 11));
-    /*Row 13*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[4], 224 + (16 * 1), 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[5], 224 + (16 * 2), 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[6], 224 + (16 * 3), 32 + (16 * 12));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[7], 224 + (16 * 8), 32 + (16 * 12));
-    /*Row 14*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[8], 224 + (16 * 2), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[9], 224 + (16 * 3), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[10], 224 + (16 * 4), 32 + (16 * 13));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[11], 224 + (16 * 5), 32 + (16 * 13));
-
-    /*Row 15*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[12], 224 + (16 * 6), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[13], 224 + (16 * 7), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[14], 224 + (16 * 8), 32 + (16 * 14));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[15], 224 + (16 * 9), 32 + (16 * 14));
-
-    /*Row 16*/
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[16], 224 + (16 * 1), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[17], 224 + (16 * 2), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[18], 224 + (16 * 3), 32 + (16 * 15));
-    initialize_tile(&model->playing_field, &model->tower, &model->tower.tiles[19], 224 + (16 * 4), 32 + (16 * 15));
+    initialize_tetromino(&model->player_pieces[0], 288, 32, 16, 64, L_PIECE);
+    initialize_tetromino(&model->player_pieces[1], 288, 32, 32, 46, Z_PIECE);
+    initialize_tetromino(&model->player_pieces[2], 288, 32, 32, 46, T_PIECE);
+    initialize_tetromino(&model->player_pieces[3], 288, 32, 32, 32, I_PIECE);
+    initialize_tetromino(&model->player_pieces[4], 288, 32, 48, 32, S_PIECE);
+    initialize_tetromino(&model->player_pieces[5], 288, 32, 48, 32, J_PIECE);
+    initialize_tetromino(&model->player_pieces[6], 288, 32, 48, 32, O_PIECE);
 
     render(model, base_32, base_16, base_8);
     Cnecin();

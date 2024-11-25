@@ -50,7 +50,7 @@ typedef struct
 {
   unsigned int max_row;
   unsigned int tile_count;
-  bool is_row_full;
+  unsigned int is_row_full;
   int grid[GRID_HEIGHT][GRID_WIDTH];
 } Tower;
 
@@ -91,8 +91,10 @@ void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower);
 void update_counter(Counter *counter, Tower *tower);
 
 /*Collisions*/
+void check_row(Tower *tower, Tetromino *active_piece);
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
 bool tower_collision(Tetromino *active_piece, Tower *tower, Field *playing_field);
 bool fatal_tower_collision(Tower *tower);
+bool win_condition(Tower *tower);
 
 #endif
