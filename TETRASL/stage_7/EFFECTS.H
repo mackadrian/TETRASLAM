@@ -3,6 +3,7 @@
 
 #include "psg.h"
 
-/*TODO*/
+void play_drop_sound();
+void play_bounds_collision_sound();
 
 #endif

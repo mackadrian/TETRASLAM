@@ -11,7 +11,9 @@
 /*
 ----- FUNCTION: read_psg -----
 Purpose:
-    - Reads the value from a specified PSG (Programmable Sound Generator) register.
+    - Reads the value from YM2149 register.
+    - Consult with the YM2149 Application Manual as register address could differ with other
+      sound chips.
 
 Details:
     - The function interacts directly with the hardware registers of the PSG to retrieve the current value stored in the specified register.
@@ -30,8 +32,8 @@ Limitations:
 */
 UINT8 read_psg(int reg)
 {
-    volatile UINT8 *PSG_reg_select = 0xFF8800;
-    volatile UINT8 *PSG_reg_read = 0xFF8802;
+    volatile UINT8 *PSG_reg_select = PSG_REG_SELECT_ADDRESS;
+    volatile UINT8 *PSG_reg_read = PSG_REG_WRITE_ADDRESS;
     UINT32 old_ssp;
     UINT8 value = 0;
 
@@ -51,8 +53,9 @@ UINT8 read_psg(int reg)
 /*
 ----- FUNCTION: write_psg -----
 Purpose:
-    - Writes a value to a specified PSG (Programmable Sound Generator) register.
-
+    - Reads the value from YM2149 register.
+    - Consult with the YM2149 Application Manual as register address could differ with other
+      sound chips.
 Details:
     - The function interacts directly with the hardware registers of the PSG.
     - It ensures that the specified register is updated with the provided value while preserving the previous supervisor state.
@@ -68,8 +71,8 @@ Limitations:
 */
 void write_psg(int reg, UINT8 val)
 {
-    volatile UINT8 *PSG_reg_select = 0xFF8800;
-    volatile UINT8 *PSG_reg_write = 0xFF8802;
+    volatile UINT8 *PSG_reg_select = PSG_REG_SELECT_ADDRESS;
+    volatile UINT8 *PSG_reg_write = PSG_REG_WRITE_ADDRESS;
     UINT32 old_ssp;
 
     if (reg < 0 || reg > 15)
@@ -121,7 +124,9 @@ void set_tone(int channel, int tuning)
 /*
 ----- FUNCTION: set_volume -----
 Purpose:
-    - Configures the volume level for a specified PSG channel.
+    - Configures the volume level for the YM2149 sound chip.
+    - Consult with the YM2149 Application Manual as register address could differ with other
+      sound chips.
 
 Details:
     - The function writes the provided volume level to the volume register of the specified channel.
@@ -149,31 +154,33 @@ void set_volume(int channel, int volume)
 /*
 ----- FUNCTION: set_noise -----
 Purpose:
-    - Configures the PSG noise generator with the specified tuning.
+    - Configures the YM2149 noise generator with the specified tuning.
 
 Details:
     - This function writes the tuning value to the noise register of the PSG.
     - The tuning value determines the frequency of the noise output.
 
 Parameters:
-    - int tuning: The tuning value for the noise generator (valid range: 0-31).
+    - int tuning: The tuning value for the noise generator (valid range: 0x00 - 0x1F).
 
 Limitations:
     - Assumes the tuning value is within the valid range.
 */
 void set_noise(int tuning)
 {
-    if (tuning < 0 || tuning > 31)
+    if (tuning < 0x00 || tuning > 0x1F)
     {
         return;
     }
-    write_psg(6, tuning);
+    write_psg(NOISE_FREQ, tuning);
 }
 
 /*
 ----- FUNCTION: set_envelope -----
 Purpose:
-    - Configures the PSG envelope generator with the specified shape and sustain value.
+    - Configures the YM2149 envelope generator with the specified shape and sustain value.
+    - Consult with the YM2149 Application Manual as register address could differ with other
+      sound chips.
 
 Details:
     - This function sets the envelope shape and sustain time for amplitude modulation.
@@ -192,20 +199,22 @@ Limitations:
 */
 void set_envelope(int shape, unsigned int sustain)
 {
-    if (shape < 0 || shape > 15)
-    {
-        return;
-    }
+    UINT16 coarse_tuning, fine_tuning;
 
-    write_psg(13, shape & 0x0F);
-    write_psg(11, sustain & 0xFF);
-    write_psg(12, (sustain >> 8) & 0xFF);
+    coarse_tuning = (shape >> 8);
+    fine_tuning = shape & 0xFF;
+
+    write_psg(ENV_FREQ_FINE, (UINT8)fine_tuning);
+    write_psg(ENV_FREQ_COARSE, (UINT8)coarse_tuning);
+    write_psg(ENV_SHAPE, shape);
 }
 
 /*
 ----- FUNCTION: enable_channel -----
 Purpose:
-    - Configures the tone and noise signals for a specified PSG channel.
+    - Configures the tone and noise signals for a specified YM2149 channel.
+    - Consult with the YM2149 Application Manual as register address could differ with other
+      sound chips.
 
 Details:
     - The function modifies the PSG mixer control register to enable or disable tone and noise signals for the given channel.
@@ -223,34 +232,36 @@ Limitations:
 */
 void enable_channel(int channel, int tone_on, int noise_on)
 {
-    int mixer_register = 7;
-    UINT8 mixer_value;
+    UINT8 tone_bit, noise_bit, mixer_value;
 
     if (channel < 0 || channel > 2 || tone_on < 0 || tone_on > 1 || noise_on < 0 || noise_on > 1)
     {
         return;
     }
 
-    mixer_value = read_psg(mixer_register);
-    if (!tone_on)
+    tone_bit = 1 << channel;
+    noise_bit = 1 << (channel + 3);
+    mixer_value = read_psg(MIXER);
+
+    if (tone_on)
     {
-        mixer_value |= (1 << channel);
+        mixer_value &= ~tone_bit;
     }
     else
     {
-        mixer_value &= ~(1 << channel);
+        mixer_value |= tone_bit;
     }
 
-    if (!noise_on)
+    if (noise_on)
     {
-        mixer_value |= (1 << (channel + 3));
+        mixer_value &= ~noise_bit;
     }
     else
     {
-        mixer_value &= ~(1 << (channel + 3));
+        mixer_value |= noise_bit;
     }
 
-    write_psg(mixer_register, mixer_value);
+    write_psg(MIXER, mixer_value);
 }
 
 /*
@@ -267,15 +278,13 @@ Limitations:
 */
 void stop_sound()
 {
-    int channel;
-
-    write_psg(7, 0x3F);
-
-    for (channel = 0; channel < 3; channel++)
-    {
-        set_volume(channel, 0);
-    }
-
-    set_noise(0);
+    set_tone(CHANNEL_A, 0);
+    set_tone(CHANNEL_B, 0);
+    set_tone(CHANNEL_C, 0);
+    write_psg(NOISE_FREQ, 0);
+    write_psg(MIXER, 0xFF);
+    write_psg(A_LEVEL, 0);
+    write_psg(B_LEVEL, 0);
+    write_psg(C_LEVEL, 0);
     set_envelope(0, 0);
 }
