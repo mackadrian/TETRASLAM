@@ -202,8 +202,25 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 
     if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
     {
-        active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
-        active_piece->y = playing_field->y;
+        if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
+        {
+            active_piece->x -= active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x += 2 * active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
+            active_piece->y = playing_field->y;
+        }
     }
 }
 
@@ -232,21 +249,24 @@ void clear_completed_rows(Tower *tower)
 {
     int row, col;
 
-    while (tower->is_row_full != 0)
+    row = tower->max_row;
+
+    while (tower->is_row_full > 0)
     {
         for (col = 0; col < GRID_WIDTH; col++)
         {
-            tower->grid[tower->max_row][col] = 0;
+            tower->grid[row][col] = 0;
         }
 
-        for (row = tower->max_row - 1; row >= 0; row--)
-        {
-            for (col = 0; col < GRID_WIDTH; col++)
-            {
-                tower->grid[row + 1][col] = tower->grid[row][col];
-            }
-        }
+        row++;
         tower->is_row_full--;
-        tower->max_row--;
+    }
+
+    for (row = tower->max_row - 1; row >= 0; row--)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            tower->grid[row + 1][col] = tower->grid[row][col];
+        }
     }
 }

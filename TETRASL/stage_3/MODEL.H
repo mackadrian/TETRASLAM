@@ -27,12 +27,6 @@ typedef enum
 typedef struct
 {
   unsigned int x, y;
-  unsigned width, height;
-} Tile;
-
-typedef struct
-{
-  unsigned int x, y;
   unsigned int width, height;
   unsigned int tile_count, curr_index;
   int velocity_x, velocity_y;

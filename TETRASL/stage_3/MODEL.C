@@ -563,7 +563,7 @@ Returns:
 */
 bool win_condition(Tower *tower)
 {
-    if (tower->tile_count == 0)
+    if (tower->tile_count < GRID_WIDTH)
     {
         return TRUE;
     }
@@ -592,7 +592,7 @@ Limitations:
     - Only checks for completely filled rows and does not handle partially filled rows or invalid grid configurations.
     - The 'max_row' is updated only to the first fully completed row; this ensures that the game keeps track of the highest filled row for further processing.
 */
-void check_row(Tower *tower, Tetromino *active_piece)
+void check_rows(Tower *tower, Tetromino *active_piece)
 {
     int row, col;
     bool is_full = TRUE;

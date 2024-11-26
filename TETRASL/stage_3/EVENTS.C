@@ -249,23 +249,24 @@ void clear_completed_rows(Tower *tower)
 {
     int row, col;
 
-    while (tower->is_row_full != 0)
-    {
-        printf("Clearing row %d...\n", tower->max_row);
+    row = tower->max_row;
 
+    while (tower->is_row_full > 0)
+    {
         for (col = 0; col < GRID_WIDTH; col++)
         {
-            tower->grid[tower->max_row][col] = 0;
+            tower->grid[row][col] = 0;
         }
 
-        for (row = tower->max_row - 1; row >= 0; row--)
-        {
-            for (col = 0; col < GRID_WIDTH; col++)
-            {
-                tower->grid[row + 1][col] = tower->grid[row][col];
-            }
-        }
-        tower->max_row--;
+        row++;
         tower->is_row_full--;
+    }
+
+    for (row = tower->max_row - 1; row >= 0; row--)
+    {
+        for (col = 0; col < GRID_WIDTH; col++)
+        {
+            tower->grid[row + 1][col] = tower->grid[row][col];
+        }
     }
 }
