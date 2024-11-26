@@ -4,6 +4,8 @@
 #include "LAYOUT.H"
 #include "TYPES.H"
 
+#define TILE_WIDTH 14
+#define TILE_HEIGHT 14
 #define CONST_VELOCITY 16
 #define MAX_TILES_PER_TETROMINO 4
 #define MAX_TILES_PER_ROW 10
@@ -21,12 +23,6 @@ typedef enum
   T_PIECE,
   Z_PIECE
 } TetrominoType;
-
-typedef struct
-{
-  unsigned int x, y;
-  unsigned width, height;
-} Tile;
 
 typedef struct
 {

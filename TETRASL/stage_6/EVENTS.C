@@ -202,8 +202,25 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 
     if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
     {
-        active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
-        active_piece->y = playing_field->y;
+        if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
+        {
+            active_piece->x -= active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x += 2 * active_piece->velocity_x;
+
+            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+            {
+                return;
+            }
+
+            active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
+            active_piece->y = playing_field->y;
+        }
     }
 }
 
@@ -226,67 +243,30 @@ Parameters:
 Limitations:
     - Assumes proper initialization of the tower structure and its grid.
     - Does not handle game-over scenarios where the top row is filled.
+
 */
-void clear_completed_rows(Tower *tower, Tetromino *active_piece)
+void clear_completed_rows(Tower *tower)
 {
     int row, col;
-    bool row_cleared = TRUE;
 
-    while (row_cleared)
+    row = tower->max_row;
+
+    while (tower->is_row_full > 0)
     {
-        row_cleared = FALSE;
-        for (row = tower->max_row; row >= 0; row--)
+        for (col = 0; col < GRID_WIDTH; col++)
         {
-            if (is_row_full(tower, row))
-            {
-                clear_row(tower, row);
-                shift_rows_down(tower, row);
-                row_cleared = TRUE;
-                tower->is_row_full--;
-                tower->max_row--;
-                break;
-            }
+            tower->grid[row][col] = 0;
         }
+
+        row++;
+        tower->is_row_full--;
     }
-}
 
-int is_row_full(Tower *tower, int row)
-{
-    int col;
-
-    for (col = 0; col < GRID_WIDTH; col++)
-    {
-        if (tower->grid[row][col] == 0)
-        {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-void clear_row(Tower *tower, int row)
-{
-    int col;
-
-    for (col = 0; col < GRID_WIDTH; col++)
-    {
-        tower->grid[row][col] = 0;
-    }
-}
-
-void shift_rows_down(Tower *tower, int cleared_row)
-{
-    int row, col;
-    for (row = cleared_row - 1; row >= 0; row--)
+    for (row = tower->max_row - 1; row >= 0; row--)
     {
         for (col = 0; col < GRID_WIDTH; col++)
         {
             tower->grid[row + 1][col] = tower->grid[row][col];
-        }
-
-        for (col = 0; col < GRID_WIDTH; col++)
-        {
-            tower->grid[0][col] = 0;
         }
     }
 }

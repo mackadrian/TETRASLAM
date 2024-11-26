@@ -259,7 +259,7 @@ void process_sync_events(Model *model)
 {
     if (model->tower.is_row_full > 0)
     {
-        clear_completed_rows(&model->tower, &model->active_piece);
+        clear_completed_rows(&model->tower);
     }
     update_counter(&model->counter, &model->tower);
 }

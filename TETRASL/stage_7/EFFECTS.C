@@ -38,7 +38,7 @@ Limitations:
 */
 void play_bounds_collision_sound()
 {
-    set_tone(CHANNEL_C, G1);
+    set_tone(CHANNEL_C, G4);
     set_noise(0x05);
     set_volume(CHANNEL_C, 0x10);
     set_envelope(0x1800, 0x08);

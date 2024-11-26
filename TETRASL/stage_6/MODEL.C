@@ -563,7 +563,7 @@ Returns:
 */
 bool win_condition(Tower *tower)
 {
-    if (tower->tile_count == 0)
+    if (tower->tile_count < GRID_WIDTH)
     {
         return TRUE;
     }
@@ -574,7 +574,7 @@ bool win_condition(Tower *tower)
 }
 
 /*
------ FUNCTION: check_rows -----
+----- FUNCTION: check_row -----
 Purpose:
     - Checks if the specified rows in the tower are completely filled with tiles and updates relevant variables accordingly.
 

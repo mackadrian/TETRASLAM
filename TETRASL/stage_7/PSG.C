@@ -138,7 +138,7 @@ Parameters:
     - int volume:     The volume level (valid range: 0-15).
 
 Limitations:
-    - Assumes the hardware registers are accessible via the `write_psg` function.
+    - Assumes the hardware registers are accessible via the 'write_psg' function.
     - If the channel or volume level is out of range, the function does nothing.
 */
 void set_volume(int channel, int volume)
@@ -227,7 +227,7 @@ Parameters:
     - int noise_on:   Enables (1) or disables (0) the noise signal for the channel.
 
 Limitations:
-    - Assumes the hardware registers are accessible via the `write_psg` and `read_psg` functions.
+    - Assumes the hardware registers are accessible via the 'write_psg' and 'read_psg' functions.
     - If the channel or control flags are out of range, the function does nothing.
 */
 void enable_channel(int channel, int tone_on, int noise_on)
@@ -274,7 +274,7 @@ Details:
     - It also sets the volume of all channels (A, B, C) to 0.
 
 Limitations:
-    - Assumes the hardware registers are accessible via the `write_psg` function.
+    - Assumes the hardware registers are accessible via the 'write_psg' function.
 */
 void stop_sound()
 {
