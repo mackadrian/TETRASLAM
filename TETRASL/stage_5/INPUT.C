@@ -10,38 +10,59 @@
 /*
 ----- FUNCTION: user_input -----
 Purpose:
-    - Changes the character pointer passed if a valid key is pressed. Valid keys are space, escape,
-      uppercase 'C', lowercase 'c', left arrow, and right arrow.
+    - Updates the character pointer passed to the function if a valid key is pressed.
+      Valid keys include space, escape, uppercase 'C', lowercase 'c', left and right arrow keys.
+
 Details:
-    - The function checks if a key is pressed, and if it is a valid key from the predefined set,
-      it updates the character pointer with the pressed key.
+    - The function checks if a key is pressed using the 'Cconis()' library function.
+    - It reads the key as a long word to identify extended keys, specifically the left and right arrow keys.
+    - Since the ASCII code is stored in the least significant byte (LSByte) of the long word,
+      the function checks for this value and, if needed, extracts the extended key from the most significant byte (MSByte).
+    - If the key is recognized, it updates the character pointer with the corresponding key.
 
 Parameters:
     - char *input:     A pointer to a character variable that will be updated with the pressed key.
 
 Limitations:
-    - All of the keyboard inputs will be used inside the table.
-    - The function does not handle invalid or unrecognized keys.
+    - Assumes the use of 'Cconis()' and 'Cnecin()' for input handling.
+    - Handles only predefined keys and scancodes; unrecognized keys are ignored.
+    - The function does not support simultaneous key presses or modifier keys.
 */
 void user_input(char *input)
 {
-    char ch;
+    char ch, extended_key;
+    long key_code;
+
     if (!Cconis())
     {
         return;
     }
 
-    ch = (char)Cnecin();
+    key_code = Cnecin();
+    ch = (char)key_code;
+
+    if (ch == 0x00)
+    {
+        extended_key = (char)(key_code >> 16);
+
+        switch (extended_key)
+        {
+        case KEY_LEFT_ARROW:
+        case KEY_RIGHT_ARROW:
+            *input = extended_key;
+            break;
+        default:
+            break;
+        }
+        return;
+    }
+
     switch (ch)
     {
     case KEY_SPACE:
     case KEY_ESC:
     case KEY_UPPER_C:
     case KEY_LOWER_C:
-    case KEY_UPPER_M:
-    case KEY_LOWER_M:
-    case KEY_UPPER_N:
-    case KEY_LOWER_N:
         *input = ch;
         break;
     default:

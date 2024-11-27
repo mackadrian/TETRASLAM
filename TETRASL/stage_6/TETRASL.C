@@ -218,12 +218,10 @@ void process_async_events(Model *model, char ch)
 {
     switch (ch)
     {
-    case KEY_UPPER_N:
-    case KEY_LOWER_N:
+    case KEY_LEFT_ARROW:
         move_left_request(&model->active_piece, &model->playing_field, &model->tower);
         break;
-    case KEY_UPPER_M:
-    case KEY_LOWER_M:
+    case KEY_RIGHT_ARROW:
         move_right_request(&model->active_piece, &model->playing_field, &model->tower);
         break;
     case KEY_SPACE:

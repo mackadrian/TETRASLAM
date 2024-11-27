@@ -236,9 +236,7 @@ Details:
     - Updates the tower's tile positions and count to match the modified grid.
 
 Parameters:
-    - Field *playing_field: Pointer to the playing field structure (unused here).
     - Tower *tower:         Pointer to the tower structure.
-    - Tetromino *active_piece: Pointer to the active piece structure.
 
 Limitations:
     - Assumes proper initialization of the tower structure and its grid.
@@ -247,10 +245,11 @@ Limitations:
 */
 void clear_completed_rows(Tower *tower)
 {
-    int row, col;
+    int row, col, is_full, filled;
 
     row = tower->max_row;
 
+    /* Clear all full rows in the current pass */
     while (tower->is_row_full > 0)
     {
         for (col = 0; col < GRID_WIDTH; col++)
@@ -262,6 +261,7 @@ void clear_completed_rows(Tower *tower)
         tower->is_row_full--;
     }
 
+    /* Shift remaining rows downward */
     for (row = tower->max_row - 1; row >= 0; row--)
     {
         for (col = 0; col < GRID_WIDTH; col++)
@@ -269,4 +269,68 @@ void clear_completed_rows(Tower *tower)
             tower->grid[row + 1][col] = tower->grid[row][col];
         }
     }
+
+    if (recheck_full_rows(tower))
+    {
+        clear_completed_rows(tower);
+    }
+}
+
+/*
+----- FUNCTION: recheck_full_rows -----
+Purpose:
+    - Rechecks the tower grid after rows have been shifted to identify and update any newly
+      completed rows that may have been created by the shift.
+
+Details:
+    - Starts from the row directly below the previous 'max_row' and scans upward.
+    - Identifies rows that are fully occupied and updates the tower's 'is_row_full' counter
+      and 'max_row' to reflect the highest full row.
+    - Returns a flag indicating whether any new full rows were found.
+
+Parameters:
+    - Tower *tower: Pointer to the tower structure containing the grid
+      (e.g., 'is_row_full', 'max_row').
+
+Return:
+    - int: Returns 1 if new full rows were found, 0 otherwise.
+
+Limitations:
+    - Assumes the 'tower' structure and its grid are properly initialized.
+    - Does not directly modify the grid, only updates metadata related to row completion.
+
+*/
+int recheck_full_rows(Tower *tower)
+{
+    int row, col;
+    int is_full = 0;
+    int filled;
+
+    tower->max_row--;
+
+    if (tower->max_row >= 0)
+    {
+        for (row = tower->max_row; row >= 0; row--)
+        {
+            filled = 1;
+
+            for (col = 0; col < GRID_WIDTH; col++)
+            {
+                if (tower->grid[row][col] == 0)
+                {
+                    filled = 0;
+                    break;
+                }
+            }
+
+            if (filled)
+            {
+                is_full = 1;
+                tower->is_row_full++;
+                tower->max_row = row;
+            }
+        }
+    }
+
+    return is_full;
 }
