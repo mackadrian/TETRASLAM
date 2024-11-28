@@ -13,25 +13,18 @@ typedef struct
 } Note;
 
 Note melody[] = {
-    {C5, 70},  /* C5, short note (eighth note) */
-    {C5, 70},  /* C5, short note */
-    {D5, 140}, /* D5, longer note (quarter note) */
-    {E5, 70},  /* E5, short note */
-    {C5, 70},  /* C5, short note */
-    {F5, 140}, /* F5, longer note */
-    {E5, 70},  /* E5, short note */
-    {D5, 70},  /* D5, short note */
-    {C5, 140}, /* C5, longer note */
-    {B4, 70},  /* B4, short note */
-    {C5, 140}, /* C5, longer note */
-    {A4, 70},  /* A4, short note */
-    {B4, 70},  /* B4, short note */
-    {A4, 140}, /* A4, longer note */
-    {F5, 70},  /* F5, short note */
-    {G5, 140}, /* G5, longer note */
-    {A4, 70},  /* A4, short note */
-    {B4, 70},  /* B4, short note */
-    {C5, 280}  /* C5, very long note (half note) */
+    {E6, 45},
+    {0, 45 * 3},
+    {B5, 45}, 
+    {C6, 45}, 
+    {D6, 45},
+    {E6, 45},
+    {D6, 45},
+    {C6, 45},
+    {B5, 45},
+    {A5, 45},
+    {0, 45 * 3},
+    {A5, 45}
 };
 
 /*FUNCTION DECLARATIONS*/
