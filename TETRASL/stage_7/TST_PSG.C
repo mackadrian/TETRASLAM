@@ -1,42 +1,21 @@
 #include "psg.h"
 #include "effects.h"
+#include "music.h"
 #include <osbind.h>
 #include <stdio.h>
 
-#define MELODY_LENGTH (sizeof(melody) / sizeof(melody[0]))
-#define NOTE_DURATION 70
-
-typedef struct
-{
-    int pitch;
-    int duration;
-} Note;
-
-Note melody[] = {
-    {E6, 45},
-    {0, 45 * 3},
-    {B5, 45}, 
-    {C6, 45}, 
-    {D6, 45},
-    {E6, 45},
-    {D6, 45},
-    {C6, 45},
-    {B5, 45},
-    {A5, 45},
-    {0, 45 * 3},
-    {A5, 45}
-};
+#define MELODY_LENGTH (sizeof(tetris_melody) / sizeof(tetris_melody[0]))
 
 /*FUNCTION DECLARATIONS*/
 void delay(int ms);
 void play_note(int channel, int tuning, int volume, int duration_ms);
 void test_notes();
 void test_effects();
-void play_tetris_theme();
+void test_music();
 
 int main()
 {
-    play_tetris_theme();
+    test_music();
     /*test_notes();
     test_effects();*/
 
@@ -154,7 +133,7 @@ void test_effects()
     stop_sound();
 }
 
-void play_tetris_theme()
+void test_music()
 {
     char key;
     int i;
@@ -169,12 +148,12 @@ void play_tetris_theme()
         /* Loop through all notes in the melody */
         for (i = 0; i < MELODY_LENGTH; i++)
         {
-            Note current_note = melody[i];
+            Note current_note = tetris_melody[i];
 
             /* If the note has a valid pitch, play the note */
-            if (current_note.pitch > 0)
+            if (current_note.note > 0)
             {
-                play_note(CHANNEL_A, current_note.pitch, 10, current_note.duration);
+                play_note(CHANNEL_A, current_note.note, 10, current_note.duration);
             }
 
             /* Start counting ticks for the note duration */

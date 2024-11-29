@@ -4,7 +4,7 @@
 #include "types.h"
 #include <osbind.h>
 
-/* YM2149 REGISTER VALUES
+/*----- YM2149 REGISTER VALUES -----
 Refer to the YM2149 Application Manual.
 */
 #define PSG_REG_SELECT_ADDRESS 0xFF8800
@@ -34,12 +34,16 @@ Refer to the YM2149 Application Manual.
 #define TONE_OFF 0
 #define NOISE_OFF 0
 
-/*-----Pitches-----
+/*----- PITCHES -----
 Refer to table (pg. 34) of the YM2149 Application Manual.
 */
+
+#define NOTE_PAUSE 0
+
 #define A3 0x1FC
 #define A4 0x0FE
 #define A5 0X07F
+#define A6 0x040
 
 #define B4 0x0E2
 #define B5 0x071
@@ -63,6 +67,13 @@ Refer to table (pg. 34) of the YM2149 Application Manual.
 #define G4 0x11D
 #define G4_SHARP 0x10D
 #define G5 0x08F
+#define G6 0x047
+
+/*----- NOTE TIMING -----*/
+#define FULL_NOTE 120
+#define HALF_NOTE 60
+#define QUARTER_NOTE 30
+#define EIGHTH_NOTE 15
 
 UINT8 read_psg(int reg);
 void write_psg(int reg, UINT8 val);

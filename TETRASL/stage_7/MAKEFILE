@@ -1,5 +1,5 @@
-tst_psg: tst_psg.o psg.o effects.o
-	cc68x -g tst_psg.o psg.o effects.o -o tst_psg
+tst_psg: tst_psg.o psg.o effects.o music.o
+	cc68x -g tst_psg.o psg.o effects.o music.o -o tst_psg
 
 tst_psg.o: tst_psg.c psg.h
 	cc68x -g -c tst_psg.c
@@ -9,6 +9,9 @@ psg.o: psg.c psg.h
 
 effects.o: effects.c psg.h
 	cc68x -g -c effects.c
+
+music.o: music.c psg.h
+	cc68x -g -c music.c
 
 
 clean:
