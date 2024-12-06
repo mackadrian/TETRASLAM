@@ -74,7 +74,8 @@ void initialize_grid(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH])
 
 /*
 ----- FUNCTION: initialize_layout -----
-Purpose: initializes the tetromino layout based on its type.
+Purpose: initializes the tetromino layout based on its type and is called by
+         initialized_tetromino.
 
 Details:
     - Assigns a predefined layout (e.g., I_PIECE_LAYOUT) to the new tetromino based on its type.
@@ -91,7 +92,6 @@ Limitations:
 void initialize_layout(Tetromino *new_tetromino, TetrominoType type)
 {
     unsigned int i, j;
-    const int(*layout)[PIECE_SIZE] = NULL;
 
     switch (type)
     {

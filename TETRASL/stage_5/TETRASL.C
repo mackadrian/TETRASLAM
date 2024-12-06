@@ -12,31 +12,8 @@
 #include <osbind.h>
 
 void init_starting_model(Model *model);
-void process_async_events(Model *model, char ch);
-void process_sync_events(Model *model);
+bool process_events(Model *model, char *input);
 UINT32 get_time();
-
-int level_1[GRID_HEIGHT][GRID_WIDTH] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
-    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
-    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
-    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
-    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
-    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
-    {1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-    {0, 1, 1, 0, 1, 1, 0, 1, 1, 0},
-    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
-    {1, 1, 1, 0, 0, 0, 0, 1, 1, 1},
-    {0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
-    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
-    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
-    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0}};
 
 /*
 ----- FUNCTION: main -----
@@ -51,51 +28,42 @@ Details:
 Limitations:
     - Requires proper hardware/OS to handle the graphics and input events.
 */
-main()
+int main()
 {
     Model model;
     UINT32 time_then, time_now, time_elapsed;
-    UINT32 *base_32 = (UINT32 *)Physbase();
-    UINT16 *base_16 = (UINT16 *)Physbase();
-    UINT8 *base_8 = (UINT8 *)Physbase();
+    UINT32 *frame_buffer = Physbase();
 
     char ch = KEY_NULL;
     bool user_quit = FALSE;
+    bool game_ended = FALSE;
 
-    clear_screen(base_32);
+    clear_screen(frame_buffer);
     init_starting_model(&model);
 
-    render(&model, base_32, base_16, base_8);
+    render(&model, frame_buffer, (UINT16 *)frame_buffer, (UINT8 *)frame_buffer);
 
     time_then = get_time();
+
     while (!user_quit)
     {
         user_input(&ch);
-        process_async_events(&model, ch);
 
         time_now = get_time();
         time_elapsed = time_now - time_then;
 
         if (time_elapsed > 1)
         {
-            process_sync_events(&model);
-
-            clear_screen(base_32);
-            render(&model, base_32, base_16, base_8);
-
-            if (fatal_tower_collision(&model.tower) || win_condition(&model.tower))
+            exit_request(&ch, &user_quit);
+            game_ended = process_events(&model, &ch);
+            if (game_ended)
             {
                 break;
             }
 
+            clear_screen(frame_buffer);
+            render(&model, frame_buffer, (UINT16 *)frame_buffer, (UINT8 *)frame_buffer);
             time_then = time_now;
-        }
-
-        ch = KEY_NULL;
-        user_input(&ch);
-        if (ch == KEY_ESC)
-        {
-            user_quit = TRUE;
         }
     }
 
@@ -103,69 +71,40 @@ main()
 }
 
 /*
------ FUNCTION: process_async_events -----
+----- FUNCTION: process_events -----
 Purpose:
-    - Processes the asynchronous events based on keyboard inputs.
+    - Processes the synchronized events to update the model and check for collision or win conditions.
 
 Details:
-    - The function takes the user input and processes the corresponding asynchronous events, such as moving the active piece
-      or cycling through different pieces based on key presses.
+    - Checks if the active piece has merged with the tower, resets the active piece, clears completed rows, and updates the counter.
+    - Checks if a tower collision or win condition is met and returns a flag to indicate whether the game should end.
 
 Parameters:
-    - Model *model:    Pointer to initialized game model.
-    - char ch:        Keyboard input from user.
-
-Limitations:
-    - Only handles input events for moving, dropping, and cycling pieces.
+    - RequestQueue *queue: Pointer to the queue containing the player's requests.
+    - Model *model: Pointer to the game model that holds the tower state and other necessary data.
 */
-void process_async_events(Model *model, char ch)
+bool process_events(Model *model, char *input)
 {
-    switch (ch)
+    bool game_ended = FALSE;
+
+    if (input != KEY_NULL)
     {
-    case KEY_UPPER_N:
-    case KEY_LOWER_N:
-        move_left_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_UPPER_M:
-    case KEY_LOWER_M:
-        move_right_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_SPACE:
-        drop_request(&model->active_piece, &model->playing_field, &model->tower);
-        check_row(&model->tower, &model->active_piece);
-        reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    case KEY_UPPER_C:
-    case KEY_LOWER_C:
-        cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    default:
-        break;
+        handle_requests(model, input);
     }
-}
 
-/*
------ FUNCTION: process_sync_events -----
-Purpose:
-    - Processes the synchronized events to update the model.
-
-Details:
-    - The function checks if the active piece has merged with the tower, and if so, resets the active piece. It also clears
-      completed rows after the active piece has merged.
-
-Parameters:
-    - Model *model:     Pointer to initialized game model.
-
-Limitations:
-    - Assumes the active piece will always be merged once it reaches the tower.
-*/
-void process_sync_events(Model *model)
-{
     if (model->tower.is_row_full > 0)
     {
         clear_completed_rows(&model->tower);
     }
+
     update_counter(&model->counter, &model->tower);
+
+    if (fatal_tower_collision(&model->tower) || win_condition(&model->tower))
+    {
+        game_ended = TRUE;
+    }
+
+    return game_ended;
 }
 
 /*

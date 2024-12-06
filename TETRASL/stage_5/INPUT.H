@@ -12,6 +12,8 @@
 #define KEY_LEFT_ARROW 0x4B
 #define KEY_RIGHT_ARROW 0x4D
 
+int check_input_ready();
+char get_input();
 void user_input(char *input);
 
 #endif

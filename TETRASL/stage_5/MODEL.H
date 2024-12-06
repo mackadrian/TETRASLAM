@@ -85,7 +85,7 @@ void update_tower(Field *playing_field, Tetromino *active_piece, Tower *tower);
 void update_counter(Counter *counter, Tower *tower);
 
 /*Collisions*/
-void check_row(Tower *tower, Tetromino *active_piece);
+void check_rows(Tower *tower, Tetromino *active_piece);
 bool player_bounds_collision(Tetromino *active_piece, Field *playing_field);
 bool tower_collision(Tetromino *active_piece, Tower *tower, Field *playing_field);
 bool fatal_tower_collision(Tower *tower);
