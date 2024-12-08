@@ -12,5 +12,6 @@ const extern int O_PIECE_LAYOUT[PIECE_SIZE][PIECE_SIZE];
 const extern int S_PIECE_LAYOUT[PIECE_SIZE][PIECE_SIZE];
 const extern int T_PIECE_LAYOUT[PIECE_SIZE][PIECE_SIZE];
 const extern int Z_PIECE_LAYOUT[PIECE_SIZE][PIECE_SIZE];
+extern int level_1[GRID_HEIGHT][GRID_WIDTH];
 
 #endif

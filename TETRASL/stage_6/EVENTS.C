@@ -5,7 +5,72 @@
  */
 
 #include "events.h"
+#include "input.h"
 #include <stdio.h>
+
+/*
+----- FUNCTION: handle_requests -----
+Purpose:
+    - Processes a single request (keyboard input) and updates the game model accordingly.
+
+Details:
+    - Decodes the given input character and invokes the corresponding action on the game model.
+    - Handles movement, dropping, and cycling of pieces based on the keyboard input.
+
+Parameters:
+    - Model *model: Pointer to the game model that holds the current game state, including the active piece, playing field, and tower.
+    - char input: The keyboard input character that represents the player's request (e.g., key presses for movement or actions).
+
+Limitations:
+    - Assumes that the game model is properly initialized.
+    - Only handles recognized keyboard inputs. Unrecognized inputs are ignored.
+*/
+void handle_requests(Model *model, char *input)
+{
+    switch (*input)
+    {
+    case KEY_LEFT_ARROW:
+        move_left_request(&model->active_piece, &model->playing_field, &model->tower);
+        break;
+    case KEY_RIGHT_ARROW:
+        move_right_request(&model->active_piece, &model->playing_field, &model->tower);
+        break;
+    case KEY_SPACE:
+        drop_request(&model->active_piece, &model->playing_field, &model->tower);
+        check_rows(&model->tower, &model->active_piece);
+        reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+        break;
+    case KEY_UPPER_C:
+    case KEY_LOWER_C:
+        cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
+        break;
+    default:
+        break;
+    }
+
+    *input = KEY_NULL;
+}
+
+/*
+----- FUNCTION: exit_request -----
+Purpose:
+    - Handles the request to exit the game when the user presses the ESC key.
+
+Details:
+    - Checks if the ESC key is pressed and sets the `user_quit` flag to true, which will terminate the game loop.
+
+Parameters:
+    - char input: The user input to check for the exit key (ESC).
+    - bool *user_quit: A pointer to the user_quit flag, which is set to TRUE when the exit request is made.
+*/
+void exit_request(char *input, bool *user_quit)
+{
+    if (*input == KEY_ESC)
+    {
+        *user_quit = TRUE;
+        *input = KEY_NULL;
+    }
+}
 
 /*
 ----- FUNCTION: move_left_request -----
@@ -293,42 +358,37 @@ Parameters:
       (e.g., 'is_row_full', 'max_row').
 
 Return:
-    - int: Returns 1 if new full rows were found, 0 otherwise.
+    - bool: Returns TRUE if new full rows were found, 0 otherwise.
 
 Limitations:
     - Assumes the 'tower' structure and its grid are properly initialized.
     - Does not directly modify the grid, only updates metadata related to row completion.
 
 */
-int recheck_full_rows(Tower *tower)
+bool recheck_full_rows(Tower *tower)
 {
     int row, col;
-    int is_full = 0;
-    int filled;
+    bool is_full = FALSE;
+    bool filled;
 
-    tower->max_row--;
-
-    if (tower->max_row >= 0)
+    for (row = tower->max_row; row >= 0; row--)
     {
-        for (row = tower->max_row; row >= 0; row--)
+        filled = TRUE;
+
+        for (col = 0; col < GRID_WIDTH; col++)
         {
-            filled = 1;
-
-            for (col = 0; col < GRID_WIDTH; col++)
+            if (tower->grid[row][col] == 0)
             {
-                if (tower->grid[row][col] == 0)
-                {
-                    filled = 0;
-                    break;
-                }
+                filled = FALSE;
+                break;
             }
+        }
 
-            if (filled)
-            {
-                is_full = 1;
-                tower->is_row_full++;
-                tower->max_row = row;
-            }
+        if (filled)
+        {
+            is_full = TRUE;
+            tower->is_row_full++;
+            tower->max_row = row;
         }
     }
 

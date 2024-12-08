@@ -12,34 +12,11 @@
 #include <osbind.h>
 
 void init_starting_model(Model *model);
-void process_async_events(Model *model, char ch);
-void process_sync_events(Model *model);
+bool process_events(Model *model, char *input);
 void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[]);
 
 UINT32 get_time();
 UINT8 allocated_buffer[32260];
-
-int level_1[GRID_HEIGHT][GRID_WIDTH] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
-    {0, 0, 0, 1, 1, 1, 1, 0, 0, 0},
-    {0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
-    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1},
-    {1, 0, 1, 1, 0, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
-    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0},
-    {0, 0, 1, 1, 1, 1, 1, 1, 0, 0},
-    {1, 0, 1, 0, 0, 0, 0, 1, 0, 1},
-    {0, 1, 1, 0, 1, 1, 0, 1, 1, 0},
-    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
-    {1, 1, 1, 0, 0, 0, 0, 1, 1, 1},
-    {0, 1, 0, 1, 0, 0, 1, 0, 1, 0},
-    {1, 0, 0, 0, 1, 1, 0, 0, 0, 1},
-    {0, 0, 1, 1, 0, 0, 1, 1, 0, 0},
-    {0, 1, 0, 0, 1, 1, 0, 0, 1, 0}};
 
 /*
 ----- FUNCTION: main -----
@@ -62,6 +39,7 @@ int main()
     bool user_quit = FALSE;
     bool is_curr_front_buffer = TRUE;
     bool needs_render = TRUE;
+    bool game_ended = FALSE;
 
     init_starting_model(&model);
 
@@ -71,21 +49,29 @@ int main()
     while (!user_quit)
     {
         user_input(&ch);
-        process_async_events(&model, ch);
 
         time_now = get_time();
         time_elapsed = time_now - time_then;
 
         if (time_elapsed > 1)
         {
-            process_sync_events(&model);
+            exit_request(&ch, &user_quit);
+            game_ended = process_events(&model, &ch);
+
+            if (game_ended)
+            {
+                break;
+            }
+
+            needs_render = TRUE;
 
             if (needs_render)
             {
-                if (is_curr_front_buffer == TRUE)
+                if (is_curr_front_buffer)
                 {
                     render(&model, back_buffer, (UINT16 *)back_buffer, (UINT8 *)back_buffer);
                     Setscreen(-1, back_buffer, -1);
+                    Vsync();
                     clear_screen(front_buffer);
                     is_curr_front_buffer = FALSE;
                 }
@@ -93,6 +79,7 @@ int main()
                 {
                     render(&model, front_buffer, (UINT16 *)front_buffer, (UINT8 *)front_buffer);
                     Setscreen(-1, front_buffer, -1);
+                    Vsync();
                     clear_screen(back_buffer);
                     is_curr_front_buffer = TRUE;
                 }
@@ -100,70 +87,41 @@ int main()
                 needs_render = FALSE;
             }
 
-            if (fatal_tower_collision(&model.tower) || win_condition(&model.tower))
-            {
-                break;
-            }
-
-            Vsync();
             time_then = time_now;
-        }
-
-        ch = KEY_NULL;
-        user_input(&ch);
-        if (ch == KEY_ESC)
-        {
-            user_quit = TRUE;
-        }
-
-        if (ch != KEY_NULL)
-        {
-            needs_render = TRUE;
         }
     }
 
     Setscreen(-1, original_buffer, -1);
+    Vsync();
 
     return 0;
 }
 
 /*
 ----- FUNCTION: set_buffers -----
-D. Suyal, "set_buffers function," [Online]. Available: [https://github.com/Kevinmru737/COMP-2659-Project/tree/main]. [Accessed: Nov. 2024].
-Author: Depanshu Suyal
-
 Purpose:
-    - Initializes the back and front buffer pointers for double buffering
+    - Initializes the back and front buffer pointers for double buffering.
 
 Details:
-    -  The back buffer pointer is set to a 256-byte aligned address within the global back_buffer_array.
-       front buffer pointer is set to point to the original buffer.
+    - Aligns the back buffer pointer to the nearest 256-byte boundary within the provided back_buffer_array.
+    - Sets the front buffer pointer to point to the original buffer.
 
 Parameters:
-    - Back buffer, front buffer and the original true buffer
+    - back_buffer (UINT32**): Pointer to the back buffer pointer to be initialized.
+    - front_buffer (UINT32**): Pointer to the front buffer pointer to be initialized.
+    - orig_buffer (UINT32*): Pointer to the original buffer.
+    - back_buffer_array (UINT8[]): Array used for alignment and back buffer initialization.
 
 Return:
-    - Modifies the back buffer to point to a 256 byte aligned address in back_buffer_array and
-      changes the address stored at front buffer to orig_buffer.
+    - Modifies the back buffer pointer to a 256-byte aligned address within back_buffer_array.
+    - Updates the front buffer pointer to point to orig_buffer.
 */
 void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[])
 {
+    UINT32 address = (UINT32)back_buffer_array;
+    address = (address + 0xFF) & ~0xFF;
+    *back_buffer = (UINT32 *)address;
 
-    UINT32 address;
-    UINT8 *temp = back_buffer_array;
-
-    while (1)
-    {
-        address = (UINT32)temp;
-        address &= 0xff;
-        if (address == 0)
-        {
-            break;
-        }
-        temp++;
-    }
-
-    *back_buffer = (UINT32 *)temp;
     *front_buffer = orig_buffer;
 }
 
@@ -199,67 +157,40 @@ UINT32 get_time()
 }
 
 /*
------ FUNCTION: process_async_events -----
+----- FUNCTION: process_events -----
 Purpose:
-    - Processes the asynchronous events based on keyboard inputs.
+    - Processes the synchronized events to update the model and check for collision or win conditions.
 
 Details:
-    - The function takes the user input and processes the corresponding asynchronous events, such as moving the active piece
-      or cycling through different pieces based on key presses.
+    - Checks if the active piece has merged with the tower, resets the active piece, clears completed rows, and updates the counter.
+    - Checks if a tower collision or win condition is met and returns a flag to indicate whether the game should end.
 
 Parameters:
-    - Model *model:    Pointer to initialized game model.
-    - char ch:        Keyboard input from user.
-
-Limitations:
-    - Only handles input events for moving, dropping, and cycling pieces.
+    - RequestQueue *queue: Pointer to the queue containing the player's requests.
+    - Model *model: Pointer to the game model that holds the tower state and other necessary data.
 */
-void process_async_events(Model *model, char ch)
+bool process_events(Model *model, char *input)
 {
-    switch (ch)
+    bool game_ended = FALSE;
+
+    if (input != KEY_NULL)
     {
-    case KEY_LEFT_ARROW:
-        move_left_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_RIGHT_ARROW:
-        move_right_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_SPACE:
-        drop_request(&model->active_piece, &model->playing_field, &model->tower);
-        check_rows(&model->tower, &model->active_piece);
-        reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    case KEY_UPPER_C:
-    case KEY_LOWER_C:
-        cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    default:
-        break;
+        handle_requests(model, input);
     }
-}
 
-/*
------ FUNCTION: process_sync_events -----
-Purpose:
-    - Processes the synchronized events to update the model.
-
-Details:
-    - The function checks if the active piece has merged with the tower, and if so, resets the active piece. It also clears
-      completed rows after the active piece has merged.
-
-Parameters:
-    - Model *model:     Pointer to initialized game model.
-
-Limitations:
-    - Assumes the active piece will always be merged once it reaches the tower.
-*/
-void process_sync_events(Model *model)
-{
     if (model->tower.is_row_full > 0)
     {
         clear_completed_rows(&model->tower);
     }
+
     update_counter(&model->counter, &model->tower);
+
+    if (fatal_tower_collision(&model->tower) || win_condition(&model->tower))
+    {
+        game_ended = TRUE;
+    }
+
+    return game_ended;
 }
 
 /*
