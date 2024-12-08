@@ -36,20 +36,24 @@ int main()
 {
     UINT16 *curr_buffer = (UINT16 *)get_video_base();
     char ch = KEY_NULL;
-    bool user_quit = TRUE;
+    bool user_quit = FALSE;
+    clear_screen((UINT32 *)curr_buffer);
     render_main_menu(curr_buffer);
-    while (user_quit == TRUE)
+    while (!user_quit)
     {
+        user_input(&ch);
         if (ch == KEY_SPACE)
         {
             main_game_loop();
-            render_main_menu(curr_buffer);
         }
+
         ch = KEY_NULL;
         user_input(&ch);
         if (ch == KEY_ESC)
         {
-            user_quit == FALSE;
+            user_quit == TRUE;
+            clear_screen((UINT32 *)curr_buffer);
+            render_main_menu(curr_buffer);
             break;
         }
     }
@@ -86,7 +90,7 @@ void main_game_loop()
 
     curr_buffer = back_buffer;
 
-    while (!fatal_tower_collision(&model.tower) || !win_condition(&model.tower))
+    while (!user_quit)
     {
         user_input(&ch);
         process_async_events(&model, ch);
@@ -104,7 +108,6 @@ void main_game_loop()
                 {
                     render(&model, back_buffer, (UINT16 *)back_buffer, (UINT8 *)back_buffer);
                     set_video_base(back_buffer);
-                    Vsync();
                     clear_screen(front_buffer);
                     is_curr_front_buffer = FALSE;
                 }
@@ -112,14 +115,28 @@ void main_game_loop()
                 {
                     render(&model, front_buffer, (UINT16 *)front_buffer, (UINT8 *)front_buffer);
                     set_video_base(front_buffer);
-                    Vsync();
                     clear_screen(back_buffer);
                     is_curr_front_buffer = TRUE;
                 }
 
                 needs_render = FALSE;
             }
+
+            if (fatal_tower_collision(&model.tower) || win_condition(&model.tower))
+            {
+                break;
+            }
+
+            Vsync();
             time_then = time_now;
+        }
+
+        ch = KEY_NULL;
+        user_input(&ch);
+        if (ch == KEY_ESC)
+        {
+            user_quit = TRUE;
+            break;
         }
 
         if (ch != KEY_NULL)

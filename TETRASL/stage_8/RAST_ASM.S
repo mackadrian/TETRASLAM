@@ -17,21 +17,23 @@ GEMDOS				equ 1
 ; [Accessed: Dec. 2024].
 
 _get_video_base:
-	link 	a6,#0
-	movem.l d3/a0,-(sp)
+		link	a6,#0
+		movem.l	d3/a0,-(sp)
 
-	bsr 	_enter_super
+		bsr _enter_super
 
-	clr.l 	d3
-	move.l	#video_base_address,a0
-	movep.w	(a0),d3
-	lsl.l	#8,d3
+		clr.l 	d3
+		move.l  #video_base_address,a0
+		movep.w (a0),d3
+		lsl.l   #8,d3
 
-	bsr 	_exit_super
-
-	movem.l	(sp)+,d3/d0
-	unlk	a6
-	rts
+		bsr _exit_super
+		
+		move.l d3,d0
+		
+		movem.l	(sp)+,d3/a0
+		unlk	a6
+		rts
 	
 
 
@@ -53,7 +55,7 @@ _set_video_base:
 		clr.l 	d0
 		move.l	NEW_VIDEO_BASE_OFFSET(a6),d0
 		lsr.l   #8,d0
-		move.l 	#video_base_address,a0
+		move.l  #video_base_address,a0
 		movep.w d0,(a0)
 		
 		bsr		_exit_super
@@ -71,16 +73,16 @@ _set_video_base:
 ; [Accessed: Dec. 2024].
 
 _enter_super:
+		movem.l	d0,-(sp)
 
-	movem.l	d0,-(sp)
-
-	clr.l	-(sp)
-	move.w	#320,-(sp)
-	trap	#GEMDOS
-	addq.l	#6,sp
-	movem.l	(sp)+,d0
-
-	rts
+		clr.l	-(sp)		; enter supervisor mode with user stack
+		move.w	#$20,-(sp)
+		trap	#GEMDOS
+		addq.l	#6,sp
+		move.l	d0,old_ssp	; save old system stack pointer
+		
+		movem.l	(sp)+,d0
+		rts
 
 
 ;----- SUBROUTINE: void exit_super(); -----
@@ -92,14 +94,14 @@ _enter_super:
 
 
 _exit_super:
-	movem.l	d0,-(sp)
+		movem.l	d0,-(sp)
 
-	move.l	old_ssp(pc),-(sp)
-	move.w	#$20,-(sp)
-	trap 	#GEMDOS
-	addq.l	#6,sp
-
-	movem.l	(sp)+,d0
-	rts
+		move.l	old_ssp(pc),-(sp)	; return to user mode, restoring
+		move.w	#$20,-(sp)			; system stack pointer
+		trap	#GEMDOS
+		addq.l	#6,sp
+		
+		movem.l	(sp)+,d0
+		rts
 
 old_ssp		ds.l	1
