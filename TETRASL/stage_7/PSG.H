@@ -60,6 +60,7 @@ Refer to table (pg. 34) of the YM2149 Application Manual.
 #define E6 0x055
 
 #define F5 0x0A0
+#define F6 0x050
 
 #define G1 0x8EB
 #define G2 0x475
@@ -75,13 +76,13 @@ Refer to table (pg. 34) of the YM2149 Application Manual.
 #define QUARTER_NOTE 30
 #define EIGHTH_NOTE 15
 
-UINT8 read_psg(int reg);
-void write_psg(int reg, UINT8 val);
-void set_tone(int channel, int tuning);
-void set_volume(int channel, int volume);
-void set_noise(int tuning);
-void set_envelope(int shape, unsigned int sustain);
-void enable_channel(int channel, int tone_on, int noise_on);
+UINT8 read_psg(UINT8 reg);
+void write_psg(UINT8 reg, UINT8 val);
+void set_tone(UINT8 channel, UINT16 tuning);
+void set_volume(UINT8 channel, UINT8 volume);
+void set_noise(UINT16 tuning);
+void set_envelope(UINT8 shape, UINT16 sustain);
+void enable_channel(UINT8 channel, UINT8 tone_on, UINT8 noise_on);
 void stop_sound();
 
 #endif

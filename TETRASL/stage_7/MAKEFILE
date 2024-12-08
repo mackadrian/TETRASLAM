@@ -1,8 +1,32 @@
-tst_psg: tst_psg.o psg.o effects.o music.o
-	cc68x -g tst_psg.o psg.o effects.o music.o -o tst_psg
+tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o effects.o music.o psg.o
+	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o effects.o music.o psg.o -o tetrasl
 
-tst_psg.o: tst_psg.c psg.h
-	cc68x -g -c tst_psg.c
+raster.o: raster.c raster.h
+	cc68x -g -c raster.c
+
+font.o: font.c font.h
+	cc68x -g -c font.c
+
+bitmaps.o: bitmaps.c bitmaps.h
+	cc68x -g -c bitmaps.c
+
+model.o: model.c model.h
+	cc68x -g -c model.c
+
+layout.o: layout.c layout.h
+	cc68x -g -c layout.c
+
+events.o: events.c events.h
+	cc68x -g -c events.c
+
+render.o: render.c render.h
+	cc68x -g -c render.c
+
+tetrasl.o: tetrasl.c
+	cc68x -g -c tetrasl.c
+
+input.o: input.c input.h
+	cc68x -g -c input.c
 
 psg.o: psg.c psg.h
 	cc68x -g -c psg.c
@@ -12,7 +36,6 @@ effects.o: effects.c psg.h
 
 music.o: music.c psg.h
 	cc68x -g -c music.c
-
 
 clean:
 	$(RM) *.o *.tos

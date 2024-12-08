@@ -15,11 +15,10 @@ Limitations:
 */
 void play_drop_sound()
 {
-    set_tone(CHANNEL_C, G4_SHARP);
-    set_noise(0x05);
+    set_tone(CHANNEL_C, G3);
     set_volume(CHANNEL_C, 0x10);
-    set_envelope(0x1800, 0x08);
     enable_channel(CHANNEL_C, TONE_ON, NOISE_OFF);
+    set_envelope(0x01, 0x00E0);
 }
 
 /*
@@ -38,9 +37,31 @@ Limitations:
 */
 void play_bounds_collision_sound()
 {
-    set_tone(CHANNEL_C, G4);
-    set_noise(0x05);
+    set_tone(CHANNEL_C, G4_SHARP);
     set_volume(CHANNEL_C, 0x10);
-    set_envelope(0x1800, 0x08);
     enable_channel(CHANNEL_C, TONE_ON, NOISE_OFF);
+    set_envelope(0x01, 0x00E0);
+}
+
+/*
+----- FUNCTION: play_bounds_collision_sound -----
+Purpose:
+    - Plays the "clear row" sound effect using Channel C.
+    - Indicates a row clearance occurs.
+
+Details:
+    - Utilizes the PSG library to configure Channel C for the effect.
+    - Produces a distinct, short "beep" sound.
+
+Limitations:
+    - Assumes Channel C is reserved for sound effects.
+    - The sound duration is tied to the envelope settings and cannot be manually adjusted.
+*/
+void play_clear_row_sound()
+{
+    set_tone(CHANNEL_C, A3);
+    set_noise(0x0A);
+    set_volume(CHANNEL_C, 0x10);
+    enable_channel(CHANNEL_C, TONE_ON, NOISE_ON);
+    set_envelope(0x01, 0x00F0);
 }

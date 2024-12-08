@@ -15,9 +15,9 @@ void test_music();
 
 int main()
 {
-    test_music();
-    /*test_notes();
-    test_effects();*/
+    /*test_music();*/
+    /*test_notes();*/
+    test_effects();
 
     return 0;
 }

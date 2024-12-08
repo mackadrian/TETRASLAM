@@ -30,10 +30,9 @@ Limitations:
     - Assumes the hardware registers are accessible at memory addresses 0xFF8800 and 0xFF8802.
     - If the register index is out of range, the function returns 0 without attempting to read from the hardware.
 */
-UINT8 read_psg(int reg)
+UINT8 read_psg(UINT8 reg)
 {
-    volatile UINT8 *PSG_reg_select = PSG_REG_SELECT_ADDRESS;
-    volatile UINT8 *PSG_reg_read = PSG_REG_WRITE_ADDRESS;
+    volatile UINT8 *PSG_reg_read = PSG_REG_SELECT_ADDRESS;
     UINT32 old_ssp;
     UINT8 value = 0;
 
@@ -43,7 +42,6 @@ UINT8 read_psg(int reg)
     }
 
     old_ssp = Super(0);
-    *PSG_reg_select = reg;
     value = *PSG_reg_read;
     Super(old_ssp);
 
@@ -69,7 +67,7 @@ Limitations:
     - Assumes the hardware registers are accessible at memory addresses 0xFF8800 and 0xFF8802.
     - Does not provide feedback if the register index is out of range; invalid indices are ignored.
 */
-void write_psg(int reg, UINT8 val)
+void write_psg(UINT8 reg, UINT8 val)
 {
     volatile UINT8 *PSG_reg_select = PSG_REG_SELECT_ADDRESS;
     volatile UINT8 *PSG_reg_write = PSG_REG_WRITE_ADDRESS;
@@ -106,7 +104,7 @@ Limitations:
     - Assumes the hardware registers are accessible at memory addresses 0xFF8800 and 0xFF8802.
     - If the channel or tuning value is out of range, the function does nothing.
 */
-void set_tone(int channel, int tuning)
+void set_tone(UINT8 channel, UINT16 tuning)
 {
     int fine_tuning, coarse_tuning;
     if (channel < 0 || channel > 2 || tuning < 0 || tuning > 0xFFF)
@@ -141,7 +139,7 @@ Limitations:
     - Assumes the hardware registers are accessible via the 'write_psg' function.
     - If the channel or volume level is out of range, the function does nothing.
 */
-void set_volume(int channel, int volume)
+void set_volume(UINT8 channel, UINT8 volume)
 {
     if (channel < 0 || channel > 2 || volume < 0 || volume > 0x1F)
     {
@@ -166,7 +164,7 @@ Parameters:
 Limitations:
     - Assumes the tuning value is within the valid range.
 */
-void set_noise(int tuning)
+void set_noise(UINT16 tuning)
 {
     if (tuning < 0x00 || tuning > 0x1F)
     {
@@ -197,12 +195,12 @@ Limitations:
     - Assumes the sustain value is within the valid range. If the value exceeds
       the valid range, only the lower 16 bits will be used.
 */
-void set_envelope(int shape, unsigned int sustain)
+void set_envelope(UINT8 shape, UINT16 sustain)
 {
     UINT16 coarse_tuning, fine_tuning;
 
-    coarse_tuning = (shape >> 8);
-    fine_tuning = shape & 0xFF;
+    coarse_tuning = (sustain >> 8);
+    fine_tuning = sustain & 0xFF;
 
     write_psg(ENV_FREQ_FINE, (UINT8)fine_tuning);
     write_psg(ENV_FREQ_COARSE, (UINT8)coarse_tuning);
@@ -230,7 +228,7 @@ Limitations:
     - Assumes the hardware registers are accessible via the 'write_psg' and 'read_psg' functions.
     - If the channel or control flags are out of range, the function does nothing.
 */
-void enable_channel(int channel, int tone_on, int noise_on)
+void enable_channel(UINT8 channel, UINT8 tone_on, UINT8 noise_on)
 {
     UINT8 tone_bit, noise_bit, mixer_value;
 
