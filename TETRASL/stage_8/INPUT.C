@@ -8,64 +8,92 @@
 #include <stdio.h>
 
 /*
------ FUNCTION: user_input -----
+----- FUNCTION: check_input_ready -----
 Purpose:
-    - Updates the character pointer passed to the function if a valid key is pressed.
-      Valid keys include space, escape, uppercase 'C', lowercase 'c', left and right arrow keys.
+    - Checks if there is a key press available for reading.
 
 Details:
-    - The function checks if a key is pressed using the 'Cconis()' library function.
-    - It reads the key as a long word to identify extended keys, specifically the left and right arrow keys.
-    - Since the ASCII code is stored in the least significant byte (LSByte) of the long word,
-      the function checks for this value and, if needed, extracts the extended key from the most significant byte (MSByte).
-    - If the key is recognized, it updates the character pointer with the corresponding key.
+    - Uses the 'Cconis()' function to determine if there is any input ready to be processed.
 
-Parameters:
-    - char *input:     A pointer to a character variable that will be updated with the pressed key.
-
-Limitations:
-    - Assumes the use of 'Cconis()' and 'Cnecin()' for input handling.
-    - Handles only predefined keys and scancodes; unrecognized keys are ignored.
-    - The function does not support simultaneous key presses or modifier keys.
+Returns:
+    - Returns 1 if a key is ready, 0 otherwise.
 */
-void user_input(char *input)
+int check_input_ready()
 {
-    char ch, extended_key;
-    long key_code;
+    return Cconis();
+}
 
-    if (!Cconis())
-    {
-        return;
-    }
+/*
+----- FUNCTION: get_input -----
+Purpose:
+    - Retrieves the pressed key, including handling extended keys (e.g., arrow keys).
 
-    key_code = Cnecin();
-    ch = (char)key_code;
+Details:
+    - Uses 'Cnecin()' to get the key code.
+    - If the key code represents an extended key (e.g., left or right arrow), it extracts the key from the most significant byte (MSByte).
+    - If the key is a regular ASCII character, it returns it directly.
+
+Returns:
+    - Returns the ASCII value of the pressed key (or extended key value).
+*/
+char get_input()
+{
+    long key_code = Cnecin();
+    char ch = (char)key_code;
 
     if (ch == 0x00)
     {
-        extended_key = (char)(key_code >> 16);
-
+        char extended_key = (char)(key_code >> 16);
         switch (extended_key)
         {
         case KEY_LEFT_ARROW:
         case KEY_RIGHT_ARROW:
-            *input = extended_key;
-            break;
+            return extended_key;
         default:
             break;
         }
-        return;
     }
 
     switch (ch)
     {
     case KEY_SPACE:
     case KEY_ESC:
+    case KEY_ENTER:
     case KEY_UPPER_C:
     case KEY_LOWER_C:
-        *input = ch;
+        return ch;
         break;
     default:
         break;
+    }
+}
+
+/*
+----- FUNCTION: user_input -----
+Purpose:
+    - Updates the character pointer with the pressed key if a valid key is detected.
+
+Details:
+    - Checks if input is available using 'check_input_ready'.
+    - Retrieves the key code using 'get_input', and updates the input character pointer.
+
+Parameters:
+    - char *input: Pointer to the character variable that will hold the pressed key.
+
+Limitations:
+    - Assumes input handling functions 'check_input_ready' and 'get_input' are available.
+    - Only processes predefined keys and scancodes; unrecognized keys are ignored.
+*/
+void user_input(char *input)
+{
+    char key;
+
+    if (check_input_ready())
+    {
+        key = get_input();
+        if (key != KEY_NULL)
+        {
+            *input = key;
+        }
     }
 }

@@ -3,9 +3,6 @@
 
 #include "types.h"
 
-#define VB_HIGH_ADDRESS 0xFF8201
-#define VB_MID_ADDRESS 0xFF8203
-
 void clear_screen(UINT32 *base);
 
 void plot_bitmap_16(UINT16 *base, int x, int y,

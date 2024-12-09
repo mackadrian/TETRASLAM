@@ -96,7 +96,7 @@ void render_playing_field(Model *model, UINT16 *base_16)
 /*
 ----- FUNCTION: render_tower -----
 Purpose:
-    - Renders all the tiles in the tower by reading the 'model->tower->grid' and rendering the tiles accordingly.
+    - Renders all the tiles in the tower by reading the `model->tower->grid` and rendering the tiles accordingly.
 
 Parameters:
     - const Model *model:    Model address containing tower data (specifically the tower's grid).
@@ -134,7 +134,7 @@ Parameters:
     - UINT8 *base_8:        Byte-sized frame buffer pointer.
 
 Limitations:
-    - Assumes the font data is initialized and compatible with 'plot_text'.
+    - Assumes the font data is initialized and compatible with `plot_text`.
     - The counter's rendering logic is dependent on the tile count being within [0, 200].
 */
 void render_counter(Model *model, UINT8 *base_8)
@@ -155,7 +155,7 @@ void render_counter(Model *model, UINT8 *base_8)
 }
 
 /*
------ FUNCTION: render_counter -----
+----- FUNCTION: render_main_menu -----
 Purpose:
     - Renders main menu.
 

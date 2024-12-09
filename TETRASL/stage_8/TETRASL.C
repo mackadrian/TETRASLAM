@@ -10,12 +10,13 @@
 #include "types.h"
 #include "layout.h"
 #include "rast_asm.h"
+#include "effects.h"
+#include "music.h"
 #include <osbind.h>
 
 void init_starting_model(Model *model);
-void process_async_events(Model *model, char ch);
-void process_sync_events(Model *model);
-void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT8 back_buffer_array[]);
+void process_events(Model *model, char *input, bool *needs_render, bool *game_ended);
+void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[]);
 void main_game_loop();
 
 UINT32 get_time();
@@ -28,32 +29,36 @@ Purpose:
 
 Details:
     - The function initializes the game by rendering the main menu and processing user inputs.
-    - It contains a loop that waits for user input to start the game (SPACE key) or quit (ESC key).
+    - It contains a loop that waits for user input to start the game (ENTER/RETURN key) or quit (ESC key).
     - If the game is started, the main game loop is executed, and control returns to the menu once the loop ends.
     - The loop terminates when the user chooses to quit the game.
 */
 int main()
 {
-    UINT16 *curr_buffer = (UINT16 *)get_video_base();
+    UINT32 *curr_buffer = get_video_base();
     char ch = KEY_NULL;
     bool user_quit = FALSE;
-    clear_screen((UINT32 *)curr_buffer);
-    render_main_menu(curr_buffer);
+
+    clear_screen(curr_buffer);
+    render_main_menu((UINT16 *)curr_buffer);
+
     while (!user_quit)
     {
         user_input(&ch);
-        if (ch == KEY_SPACE)
+
+        if (ch == KEY_ENTER)
         {
             main_game_loop();
+            clear_screen(curr_buffer);
+            render_main_menu((UINT16 *)curr_buffer);
         }
 
         ch = KEY_NULL;
         user_input(&ch);
         if (ch == KEY_ESC)
         {
-            user_quit == TRUE;
-            clear_screen((UINT32 *)curr_buffer);
-            render_main_menu(curr_buffer);
+            user_quit = TRUE;
+            render_main_menu((UINT16 *)curr_buffer);
             break;
         }
     }
@@ -75,39 +80,43 @@ void main_game_loop()
 {
     Model model;
     UINT32 time_then, time_now, time_elapsed;
-    UINT32 *curr_buffer, *front_buffer, *back_buffer;
+    UINT32 *front_buffer, *back_buffer;
+    UINT32 *original_buffer = get_video_base();
+    UINT32 melody_time_elapsed = 0;
 
     char ch = KEY_NULL;
     bool user_quit = FALSE;
     bool is_curr_front_buffer = TRUE;
     bool needs_render = TRUE;
+    bool game_ended = FALSE;
 
+    stop_sound();
     init_starting_model(&model);
+    start_music();
 
     time_then = get_time();
+    set_buffers(&back_buffer, &front_buffer, original_buffer, allocated_buffer);
 
-    set_buffers(&back_buffer, &front_buffer, allocated_buffer);
-
-    curr_buffer = back_buffer;
-
-    while (!user_quit)
+    while ((!user_quit) && (!game_ended))
     {
-        user_input(&ch);
-        process_async_events(&model, ch);
+        user_input(&ch); /*create asynchronous requests*/
 
         time_now = get_time();
         time_elapsed = time_now - time_then;
 
         if (time_elapsed > 1)
         {
-            process_sync_events(&model);
+            /*processing requests*/
+            exit_request(&ch, &user_quit, &game_ended, &needs_render);
+            process_events(&model, &ch, &needs_render, &game_ended);
 
-            if (needs_render)
+            if (&needs_render)
             {
                 if (is_curr_front_buffer)
                 {
                     render(&model, back_buffer, (UINT16 *)back_buffer, (UINT8 *)back_buffer);
                     set_video_base(back_buffer);
+                    Vsync();
                     clear_screen(front_buffer);
                     is_curr_front_buffer = FALSE;
                 }
@@ -115,69 +124,52 @@ void main_game_loop()
                 {
                     render(&model, front_buffer, (UINT16 *)front_buffer, (UINT8 *)front_buffer);
                     set_video_base(front_buffer);
+                    Vsync();
                     clear_screen(back_buffer);
                     is_curr_front_buffer = TRUE;
                 }
-
-                needs_render = FALSE;
             }
 
-            if (fatal_tower_collision(&model.tower) || win_condition(&model.tower))
-            {
-                break;
-            }
-
-            Vsync();
+            melody_time_elapsed += time_elapsed;
+            update_music(&melody_time_elapsed);
             time_then = time_now;
-        }
-
-        ch = KEY_NULL;
-        user_input(&ch);
-        if (ch == KEY_ESC)
-        {
-            user_quit = TRUE;
-            break;
-        }
-
-        if (ch != KEY_NULL)
-        {
-            needs_render = TRUE;
         }
     }
 
-    set_video_base(curr_buffer);
+    stop_sound();
+    set_video_base(original_buffer);
+    Vsync();
 }
 
 /*
 ----- FUNCTION: set_buffers -----
-D. Suyal, "set_buffers function," [Online]. Available: [https://github.com/Kevinmru737/COMP-2659-Project/tree/main]. [Accessed: Nov. 2024].
-Author: Depanshu Suyal
-
 Purpose:
-    - Initializes the back and front buffer pointers for double buffering
+    - Aligns and sets up the front and back buffers for double buffering during rendering.
 
 Details:
-    -  The back buffer pointer is set to a 256-byte aligned address within the global back_buffer_array.
-       front buffer pointer is set to point to the original buffer.
+    - Aligns the back buffer's memory address to the nearest 256-byte boundary for optimal performance.
+    - Assigns the original screen buffer to the front buffer to maintain the current display.
 
 Parameters:
-    - Back buffer, front buffer and the original true buffer
+    - UINT32 **back_buffer: Pointer to a pointer where the aligned back buffer address will be stored.
+    - UINT32 **front_buffer: Pointer to a pointer where the original front buffer address will be stored.
+    - UINT32 *orig_buffer: Pointer to the original buffer used for screen rendering.
+    - UINT8 back_buffer_array[]: Array for the back buffer memory that will be aligned.
 
-Return:
-    - Modifies the back buffer to point to a 256 byte aligned address in back_buffer_array and
-      changes the address stored at front buffer to orig_buffer.
+Returns:
+    - Updates the pointers to the aligned back buffer and original front buffer.
+
+Limitations:
+    - Assumes the `back_buffer_array` is large enough for rendering and alignment.
+    - The alignment logic relies on specific memory boundary requirements (256-byte alignment).
 */
-void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT8 back_buffer_array[])
+void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[])
 {
-    UINT8 *temp = back_buffer_array;
+    UINT32 address = (UINT32)back_buffer_array;
+    address = (address + 0xFF) & ~0xFF;
+    *back_buffer = (UINT32 *)address;
 
-    while (((UINT32)temp & 0xFF) != 0)
-    {
-        temp++;
-    }
-
-    *back_buffer = (UINT32 *)temp;
-    *front_buffer = get_video_base();
+    *front_buffer = orig_buffer;
 }
 
 /*
@@ -212,67 +204,41 @@ UINT32 get_time()
 }
 
 /*
------ FUNCTION: process_async_events -----
+----- FUNCTION: process_events -----
 Purpose:
-    - Processes the asynchronous events based on keyboard inputs.
+    - Processes the synchronized events to update the model and check for collision or win conditions.
 
 Details:
-    - The function takes the user input and processes the corresponding asynchronous events, such as moving the active piece
-      or cycling through different pieces based on key presses.
+    - Checks if the active piece has merged with the tower, resets the active piece, clears completed rows, and updates the counter.
+    - Checks if a tower collision or win condition is met and returns a flag to indicate whether the game should end.
 
 Parameters:
-    - Model *model:    Pointer to initialized game model.
-    - char ch:        Keyboard input from user.
-
-Limitations:
-    - Only handles input events for moving, dropping, and cycling pieces.
+    - RequestQueue *queue: Pointer to the queue containing the player's requests.
+    - Model *model: Pointer to the game model that holds the tower state and other necessary data.
 */
-void process_async_events(Model *model, char ch)
+void process_events(Model *model, char *input, bool *needs_render, bool *game_ended)
 {
-    switch (ch)
+    *game_ended = FALSE;
+    *needs_render = FALSE;
+
+    if (input != KEY_NULL)
     {
-    case KEY_LEFT_ARROW:
-        move_left_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_RIGHT_ARROW:
-        move_right_request(&model->active_piece, &model->playing_field, &model->tower);
-        break;
-    case KEY_SPACE:
-        drop_request(&model->active_piece, &model->playing_field, &model->tower);
-        check_rows(&model->tower, &model->active_piece);
-        reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    case KEY_UPPER_C:
-    case KEY_LOWER_C:
-        cycle_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
-        break;
-    default:
-        break;
+        *needs_render = TRUE;
+        handle_requests(model, input);
     }
-}
 
-/*
------ FUNCTION: process_sync_events -----
-Purpose:
-    - Processes the synchronized events to update the model.
-
-Details:
-    - The function checks if the active piece has merged with the tower, and if so, resets the active piece. It also clears
-      completed rows after the active piece has merged.
-
-Parameters:
-    - Model *model:     Pointer to initialized game model.
-
-Limitations:
-    - Assumes the active piece will always be merged once it reaches the tower.
-*/
-void process_sync_events(Model *model)
-{
     if (model->tower.is_row_full > 0)
     {
+        play_clear_row_sound();
         clear_completed_rows(&model->tower);
     }
+
     update_counter(&model->counter, &model->tower);
+
+    if (fatal_tower_collision(&model->tower) || win_condition(&model->tower))
+    {
+        *game_ended = TRUE;
+    }
 }
 
 /*

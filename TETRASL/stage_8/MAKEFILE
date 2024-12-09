@@ -1,5 +1,5 @@
-tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o rast_asm.o
-	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o rast_asm.o -o tetrasl
+tetrasl: tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o psg.o effects.o music.o rast_asm.o
+	cc68x -g tetrasl.o render.o raster.o model.o layout.o bitmaps.o font.o events.o input.o psg.o effects.o music.o rast_asm.o -o tetrasl
 
 raster.o: raster.c raster.h
 	cc68x -g -c raster.c
@@ -27,6 +27,15 @@ tetrasl.o: tetrasl.c
 
 input.o: input.c input.h
 	cc68x -g -c input.c
+
+psg.o: psg.c psg.h
+	cc68x -g -c psg.c
+
+effects.o: effects.c psg.h
+	cc68x -g -c effects.c
+
+music.o: music.c psg.h
+	cc68x -g -c music.c
 
 rast_asm.o: rast_asm.s
 	gen -D -L2 rast_asm.s

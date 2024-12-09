@@ -5,7 +5,6 @@
  */
 
 #include "raster.h"
-#include "osbind.h"
 
 #define PIXELS_PER_SCREEN 256000
 #define SCREEN_WIDTH 640
