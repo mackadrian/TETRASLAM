@@ -59,18 +59,22 @@ Purpose:
     - Handles the request to exit the game when the user presses the ESC key.
 
 Details:
-    - Checks if the ESC key is pressed and sets the `user_quit` flag to true, which will terminate the game loop.
+    - Checks if the ESC key is pressed and sets the `user_quit` and `game_ended` flags to TRUE, signaling termination of the game loop.
+    - Also disables rendering by setting the `needs_render` flag to FALSE.
 
 Parameters:
-    - char input: The user input to check for the exit key (ESC).
-    - bool *user_quit: A pointer to the user_quit flag, which is set to TRUE when the exit request is made.
+    - char *input: A pointer to the user input, which is checked for the ESC key.
+    - bool *user_quit: A pointer to the `user_quit` flag, set to TRUE when an exit request is made.
+    - bool *game_ended: A pointer to the `game_ended` flag, set to TRUE when the game should end.
+    - bool *needs_render: A pointer to the `needs_render` flag, set to FALSE to prevent further rendering.
 */
-void exit_request(char *input, bool *user_quit)
+void exit_request(char *input, bool *user_quit, bool *game_ended, bool *needs_render)
 {
     if (*input == KEY_ESC)
     {
+        *needs_render = FALSE;
         *user_quit = TRUE;
-        *input = KEY_NULL;
+        *game_ended = TRUE;
     }
 }
 

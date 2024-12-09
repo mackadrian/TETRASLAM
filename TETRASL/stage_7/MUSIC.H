@@ -3,7 +3,7 @@
 
 #include "psg.h"
 
-#define NUM_MELODY_NOTES 126
+#define NUM_MELODY_NOTES 124
 
 typedef struct
 {
@@ -12,14 +12,11 @@ typedef struct
 } Note;
 
 /*----- MUSIC: Tetris Theme A -----
-Reference: https://onlinesequencer.net/25593
 Details: - Stores each pitch read from the online sequencer.
 */
-Note tetris_melody[NUM_MELODY_NOTES] = {
+extern Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {E6, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
@@ -29,7 +26,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {D6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
-    {E6, QUARTER_NOTE},
+    {E6, HALF_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
     {D6, QUARTER_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
@@ -43,7 +40,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {A5, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
-    {C6, FULL_NOTE},
+    {C6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {E6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
@@ -57,7 +54,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
-    {B5, QUARTER_NOTE},
+    {B5, HALF_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
     {B5, QUARTER_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
@@ -67,7 +64,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
-    {E6, FULL_NOTE},
+    {E6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
@@ -80,10 +77,9 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {A5, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
-    {NOTE_PAUSE, HALF_NOTE},
+    {NOTE_PAUSE, FULL_NOTE},
+    {NOTE_PAUSE, FULL_NOTE},
+    {NOTE_PAUSE, FULL_NOTE},
     {D6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
@@ -91,6 +87,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {D6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {E6, HALF_NOTE},
+    {NOTE_PAUSE, HALF_NOTE},
     {A6, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
@@ -119,7 +116,7 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
     {NOTE_PAUSE, HALF_NOTE},
-    {B5, QUARTER_NOTE},
+    {B5, HALF_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
     {B5, QUARTER_NOTE},
     {NOTE_PAUSE, QUARTER_NOTE},
@@ -144,6 +141,6 @@ Note tetris_melody[NUM_MELODY_NOTES] = {
     {A5, HALF_NOTE}};
 
 void start_music();
-void update_music(UINT32 time_elapsed);
+void update_music(UINT32 *time_elapsed);
 
 #endif

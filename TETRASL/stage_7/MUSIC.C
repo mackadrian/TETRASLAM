@@ -1,9 +1,9 @@
 #include "music.h"
-#include <stdio.h.>
+#include <stdio.h>
 
 /*GLOBAL VARIABLES*/
 UINT32 melody_timing;
-UINT16 melody_tracking;
+UINT16 current_note;
 
 /*
 ----- FUNCTION: start_music -----
@@ -16,7 +16,7 @@ Details:
         - Sets the tone and envelope for the specified channel.
         - Enables the channel for tone playback without noise.
         - Configures the volume for the channel.
-    - Increments 'melody_tracking' to advance to the next note in the melody sequence.
+    - Increments 'current_note' to advance to the next note in the melody sequence.
     - Adjusts the 'melody_timing' variable to reflect the duration of the current note, ensuring proper timing.
 
 Limitations:
@@ -26,32 +26,65 @@ Limitations:
 */
 void start_music()
 {
-    melody_tracking = 0;
-    melody_timing = tetris_melody[melody_tracking].duration;
+    current_note = 0;
+    melody_timing = tetris_melody[current_note].duration;
 
-    set_tone(CHANNEL_A, tetris_melody[melody_tracking].note);
-    set_envelope(0x03, 0x1000);
+    set_tone(CHANNEL_A, tetris_melody[current_note].note);
+    set_volume(CHANNEL_A, 0x08);
     enable_channel(CHANNEL_A, TONE_ON, NOISE_OFF);
-    set_volume(CHANNEL_A, 0x10);
+    set_envelope(0x03, 0x1000);
 }
 
-void update_music(UINT32 time_elapsed)
-{
-    if (time_elapsed >= melody_timing)
-    {
-        time_elapsed -= melody_timing;
+/*
+----- FUNCTION: update_music -----
+Purpose:
+    - Updates the current note of the melody based on the elapsed time, ensuring the appropriate
+      note is played or paused.
+    - Advances to the next note in the sequence if the duration of the current note has elapsed.
 
-        melody_tracking++;
-        if (melody_tracking >= NUM_MELODY_NOTES)
+Details:
+    - The function checks if the elapsed time ('melody_time_elapsed') exceeds the duration of the
+      current note ('melody_timing'). If true, it transitions to the next note.
+    - If the note is not a pause ('NOTE_PAUSE'), the function sets the tone for 'CHANNEL_A' and
+      enables the audio channel. If it is a pause, the tone is disabled.
+    - If the end of the melody is reached, the melody loops back to the beginning.
+
+Parameters:
+    - UINT32 *melody_time_elapsed: A pointer to the elapsed time counter, representing the total
+      time passed since the start of the current melody.
+
+Global Variables:
+    - tetris_melody: An array of 'Note' structures containing the melody's notes and durations.
+    - current_note: An index tracking the current note in the melody.
+    - melody_timing: The duration of the current note, updated when transitioning to a new note.
+
+Limitations:
+    - Assumes that 'melody_timing' and 'current_note' are initialized correctly before calling the function.
+    - The function does not handle scenarios where 'melody_time_elapsed' overflows.
+    - It relies on the global 'tetris_melody' array being appropriately sized and defined.
+
+*/
+void update_music(UINT32 *melody_time_elapsed)
+{
+
+    if (*(melody_time_elapsed) > melody_timing)
+    {
+        melody_timing = tetris_melody[current_note].duration;
+
+        if (tetris_melody[current_note].note != NOTE_PAUSE)
         {
-            melody_tracking = 0;
+            set_tone(CHANNEL_A, tetris_melody[current_note].note);
+            enable_channel(CHANNEL_A, TONE_ON, NOISE_OFF);
+        }
+        else
+        {
+            enable_channel(CHANNEL_A, TONE_OFF, NOISE_OFF);
         }
 
-        set_tone(CHANNEL_A, tetris_melody[melody_tracking].note);
-        set_envelope(0x03, 0x1000);
-        enable_channel(CHANNEL_A, TONE_ON, NOISE_OFF);
-        set_volume(CHANNEL_A, 0x10);
-
-        melody_timing = tetris_melody[melody_tracking].duration;
+        current_note++;
+        if (current_note > NUM_MELODY_NOTES)
+        {
+            current_note = 0;
+        }
     }
 }

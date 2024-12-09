@@ -60,8 +60,7 @@ Limitations:
 void play_clear_row_sound()
 {
     set_tone(CHANNEL_C, A3);
-    set_noise(0x0A);
     set_volume(CHANNEL_C, 0x10);
-    enable_channel(CHANNEL_C, TONE_ON, NOISE_ON);
+    enable_channel(CHANNEL_C, TONE_ON, NOISE_OFF);
     set_envelope(0x01, 0x00F0);
 }

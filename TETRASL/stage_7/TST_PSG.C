@@ -12,12 +12,13 @@ void play_note(int channel, int tuning, int volume, int duration_ms);
 void test_notes();
 void test_effects();
 void test_music();
+UINT32 get_time();
 
 int main()
 {
-    /*test_music();*/
-    /*test_notes();*/
-    test_effects();
+    test_music();
+    /*test_notes();
+    test_effects();*/
 
     return 0;
 }
@@ -133,42 +134,87 @@ void test_effects()
     stop_sound();
 }
 
+/*
+----- FUNCTION: test_music -----
+Purpose:
+    - Tests the Tetris theme music playback until the spacebar is pressed.
+
+Details:
+    - This function simulates the playback of the Tetris theme melody.
+    - The melody is played by calling `start_music` to initialize the first note and `update_music` to update and transition between notes based on the elapsed time.
+    - The function listens for a spacebar keypress using `Cnecin()`, which stops the playback of the theme by calling `stop_sound()`.
+
+Limitations:
+    - Assumes that `Cnecin()` correctly detects the spacebar press to stop the melody.
+    - The time is incremented manually (using a simple counter) instead of relying on a system timer or clock.
+*/
 void test_music()
 {
-    char key;
-    int i;
-    unsigned int ticks = 0;
+    UINT32 time_then, time_now, time_elapsed;
+    UINT32 melody_time_elapsed = 0;
+    char key = 0;
 
-    /* Print the start message */
     printf("Playing Tetris Theme...\n");
 
-    while (1)
+    start_music();
+    time_then = get_time();
+
+    while (key != ' ')
     {
-        key = Cnecin();
-        /* Loop through all notes in the melody */
-        for (i = 0; i < MELODY_LENGTH; i++)
+        if (Cconis())
         {
-            Note current_note = tetris_melody[i];
-
-            /* If the note has a valid pitch, play the note */
-            if (current_note.note > 0)
+            key = Cnecin();
+            if (key == ' ')
             {
-                play_note(CHANNEL_A, current_note.note, 10, current_note.duration);
-            }
-
-            /* Start counting ticks for the note duration */
-            ticks = 0;
-            while (ticks < current_note.duration)
-            {
-                /* Check if spacebar is pressed to stop the melody */
-                if (key == ' ') /* User pressed space */
-                {
-                    printf("Spacebar pressed, stopping the Tetris theme.\n");
-                    stop_sound(); /* Stop playing sound */
-                    return;       /* Exit the function */
-                }
-                ticks++; /* Wait for the duration of the note */
+                printf("Spacebar pressed, stopping the Tetris theme.\n");
+                stop_sound();
+                return;
             }
         }
+
+        time_now = get_time();
+
+        time_elapsed = time_now - time_then;
+
+        if (time_elapsed > 1)
+        {
+            time_then = time_now;
+            melody_time_elapsed++;
+            update_music(&melody_time_elapsed);
+        }
     }
+
+    stop_sound();
+    printf("Tetris Theme completed.\n");
+}
+
+/*
+----- FUNCTION: get_time -----
+P. Pospisil, "get_time function," lab material, COMP2659 Computing Machinery II , Mount Royal University, Nov. 2024.
+Author: Paul Pospisil
+
+Purpose:
+    - Retrieves the current time from the CPU clock through supervisor access.
+
+Details:
+    - This function accesses the system timer, which is automatically incremented 70 times per second, and retrieves
+      the current value of the timer.
+
+Return:
+    - UINT32:     The current system time.
+
+Limitations:
+    - Supervisor mode must be exited after usage.
+*/
+UINT32 get_time()
+{
+    UINT32 time_now;
+    UINT32 old_ssp;
+    UINT32 *timer = (UINT32 *)0x462; /*address of a long word that is auto incremented 70 times per second */
+
+    old_ssp = Super(0); /* enter privileged mode */
+    time_now = *timer;
+    Super(old_ssp); /* exit privileged mode */
+
+    return time_now;
 }

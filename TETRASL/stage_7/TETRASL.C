@@ -14,7 +14,7 @@
 #include <osbind.h>
 
 void init_starting_model(Model *model);
-bool process_events(Model *model, char *input);
+void process_events(Model *model, char *input, bool *needs_render, bool *game_ended);
 void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[]);
 
 UINT32 get_time();
@@ -28,12 +28,14 @@ Purpose:
 Details:
     - The function starts the game, initializing the game model, rendering the screen, and processing user inputs.
     - It contains a loop that listens for keypresses, processes the game events asynchronously and synchronously,
-      and updates the screen accordingly. The game will continue until the user chooses to quit (presses ESC).
+      and updates the screen accordingly.
+    - The game will continue until the user chooses to quit (presses ESC) or game_ended flag has been triggered.
 */
 int main()
 {
     Model model;
     UINT32 time_then, time_now, time_elapsed;
+    UINT32 melody_time_elapsed = 0;
     UINT32 *front_buffer, *back_buffer;
     UINT32 *original_buffer = (UINT32 *)Physbase();
 
@@ -43,13 +45,14 @@ int main()
     bool needs_render = TRUE;
     bool game_ended = FALSE;
 
+    stop_sound();
     init_starting_model(&model);
     start_music();
 
     time_then = get_time();
     set_buffers(&back_buffer, &front_buffer, original_buffer, allocated_buffer);
 
-    while (!user_quit)
+    while ((!user_quit) && (!game_ended))
     {
         user_input(&ch); /*create asynchronous requests*/
 
@@ -59,17 +62,10 @@ int main()
         if (time_elapsed > 1)
         {
             /*processing requests*/
-            exit_request(&ch, &user_quit);
-            game_ended = process_events(&model, &ch);
+            exit_request(&ch, &user_quit, &game_ended, &needs_render);
+            process_events(&model, &ch, &needs_render, &game_ended);
 
-            if (game_ended)
-            {
-                break;
-            }
-
-            needs_render = TRUE;
-
-            if (needs_render)
+            if (&needs_render)
             {
                 if (is_curr_front_buffer)
                 {
@@ -87,15 +83,15 @@ int main()
                     clear_screen(back_buffer);
                     is_curr_front_buffer = TRUE;
                 }
-
-                needs_render = FALSE;
             }
 
-            update_music(time_elapsed);
             time_then = time_now;
+            melody_time_elapsed++;
+            update_music(&melody_time_elapsed);
         }
     }
 
+    stop_sound();
     Setscreen(-1, original_buffer, -1);
     Vsync();
 
@@ -103,23 +99,28 @@ int main()
 }
 
 /*
------ FUNCTION: set_buffers -----
+----- FUNCTION: process_events -----
 Purpose:
-    - Initializes the back and front buffer pointers for double buffering.
+    - Processes asynchronous and synchronous game events, including handling player actions and win/loss conditions.
 
 Details:
-    - Aligns the back buffer pointer to the nearest 256-byte boundary within the provided back_buffer_array.
-    - Sets the front buffer pointer to point to the original buffer.
+    - Handles player input by calling the appropriate request functions (e.g., movement, drop, cycle piece).
+    - Checks for game-ending conditions, such as the win condition or user quit request.
+    - Sets the `needs_render` flag to TRUE when an action modifies the game state requiring an updated render.
+    - Ends the game by setting the `game_ended` flag when the win condition is met.
 
 Parameters:
-    - back_buffer (UINT32**): Pointer to the back buffer pointer to be initialized.
-    - front_buffer (UINT32**): Pointer to the front buffer pointer to be initialized.
-    - orig_buffer (UINT32*): Pointer to the original buffer.
-    - back_buffer_array (UINT8[]): Array used for alignment and back buffer initialization.
+    - Model *model: Pointer to the game model containing the current game state.
+    - char *input: Pointer to the current user input character.
+    - bool *needs_render: Pointer to the render flag, set to TRUE if the game state changes.
+    - bool *game_ended: Pointer to the flag indicating whether the game has ended.
 
 Return:
-    - Modifies the back buffer pointer to a 256-byte aligned address within back_buffer_array.
-    - Updates the front buffer pointer to point to orig_buffer.
+    - Modifies the game model and updates the flags based on the processed events.
+
+Limitations:
+    - Assumes that the model is properly initialized and valid inputs are passed.
+    - Relies on the `tile_counter` field to determine the win condition.
 */
 void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[])
 {
@@ -174,12 +175,14 @@ Parameters:
     - RequestQueue *queue: Pointer to the queue containing the player's requests.
     - Model *model: Pointer to the game model that holds the tower state and other necessary data.
 */
-bool process_events(Model *model, char *input)
+void process_events(Model *model, char *input, bool *needs_render, bool *game_ended)
 {
-    bool game_ended = FALSE;
+    *game_ended = FALSE;
+    *needs_render = FALSE;
 
     if (input != KEY_NULL)
     {
+        *needs_render = TRUE;
         handle_requests(model, input);
     }
 
@@ -193,10 +196,8 @@ bool process_events(Model *model, char *input)
 
     if (fatal_tower_collision(&model->tower) || win_condition(&model->tower))
     {
-        game_ended = TRUE;
+        *game_ended = TRUE;
     }
-
-    return game_ended;
 }
 
 /*
