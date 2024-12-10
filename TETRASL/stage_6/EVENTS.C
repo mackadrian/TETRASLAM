@@ -6,6 +6,7 @@
 
 #include "events.h"
 #include "input.h"
+#include "effects.h"
 #include <stdio.h>
 
 /*
@@ -36,6 +37,7 @@ void handle_requests(Model *model, char *input)
         move_right_request(&model->active_piece, &model->playing_field, &model->tower);
         break;
     case KEY_SPACE:
+        play_drop_sound();
         drop_request(&model->active_piece, &model->playing_field, &model->tower);
         check_rows(&model->tower, &model->active_piece);
         reset_active_piece(&model->active_piece, &model->player_pieces, &model->playing_field, &model->tower);
@@ -57,18 +59,22 @@ Purpose:
     - Handles the request to exit the game when the user presses the ESC key.
 
 Details:
-    - Checks if the ESC key is pressed and sets the `user_quit` flag to true, which will terminate the game loop.
+    - Checks if the ESC key is pressed and sets the `user_quit` and `game_ended` flags to TRUE, signaling termination of the game loop.
+    - Also disables rendering by setting the `needs_render` flag to FALSE.
 
 Parameters:
-    - char input: The user input to check for the exit key (ESC).
-    - bool *user_quit: A pointer to the user_quit flag, which is set to TRUE when the exit request is made.
+    - char *input: A pointer to the user input, which is checked for the ESC key.
+    - bool *user_quit: A pointer to the `user_quit` flag, set to TRUE when an exit request is made.
+    - bool *game_ended: A pointer to the `game_ended` flag, set to TRUE when the game should end.
+    - bool *needs_render: A pointer to the `needs_render` flag, set to FALSE to prevent further rendering.
 */
-void exit_request(char *input, bool *user_quit)
+void exit_request(char *input, bool *user_quit, bool *game_ended, bool *needs_render)
 {
     if (*input == KEY_ESC)
     {
+        *needs_render = FALSE;
         *user_quit = TRUE;
-        *input = KEY_NULL;
+        *game_ended = TRUE;
     }
 }
 
@@ -99,6 +105,7 @@ void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tow
 
     if (player_bounds_collision(active_piece, playing_field))
     {
+        play_bounds_collision_sound();
         active_piece->x = curr_x;
     }
 }
@@ -130,6 +137,7 @@ void move_right_request(Tetromino *active_piece, Field *playing_field, Tower *to
 
     if (player_bounds_collision(active_piece, playing_field))
     {
+        play_bounds_collision_sound();
         active_piece->x = curr_x;
     }
 }
@@ -267,25 +275,22 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 
     if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
     {
-        if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
+        active_piece->x -= active_piece->velocity_x;
+
+        if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
         {
-            active_piece->x -= active_piece->velocity_x;
-
-            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
-            {
-                return;
-            }
-
-            active_piece->x += 2 * active_piece->velocity_x;
-
-            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
-            {
-                return;
-            }
-
-            active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
-            active_piece->y = playing_field->y;
+            return;
         }
+
+        active_piece->x += 2 * active_piece->velocity_x;
+
+        if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+        {
+            return;
+        }
+
+        active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
+        active_piece->y = playing_field->y;
     }
 }
 

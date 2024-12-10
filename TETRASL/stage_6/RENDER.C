@@ -153,3 +153,16 @@ void render_counter(Model *model, UINT8 *base_8)
     plot_text(base_8, model->counter.x + 16, model->counter.y + 16, font, buffer);
     plot_text(base_8, model->counter.x + 64, model->counter.y + 16, font, "  /  2 0 0    ");
 }
+
+/*
+----- FUNCTION: render_main_menu -----
+Purpose:
+    - Renders main menu.
+
+Parameters:
+    - UINT8 *base_16:        Word-sized frame buffer pointer.
+*/
+void render_main_menu(UINT16 *base_16)
+{
+    plot_bitmap_16(base_16, 0, 0, menu, 400, 40);
+}

@@ -1,6 +1,6 @@
 /**
  * @file MODEL.C
- * @brief contains all of TETRASLAM's object behaviour functions.
+ * @brief contains all of TETRASLAMs object behaviour functions.
  * @author Mack Bautista
  */
 
@@ -17,12 +17,9 @@ Parameters:
     - Tower *new_tower: Pointer to the tower structure to initialize.
 
 Limitations:
-    - Assumes tiles and grid layout (e.g., 'GRID_LAYOUT') are predefined and available.
+    - Assumes tiles and grid layout (e.g., GRID_LAYOUT) are predefined and available.
     - Positions of tiles are set to default values and may require further adjustment based on gameplay mechanics (e.g., piece placement, collisions).
-    - The 'max_row' will reflect the highest occupied row in the grid, which is relevant for piece placement and collision detection.
-
-Returns:
-    - None. The function directly modifies the 'new_tower' structure.
+    - The max_row will reflect the highest occupied row in the grid, which is relevant for piece placement and collision detection.
 */
 void initialize_tower(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH])
 {
@@ -54,11 +51,8 @@ Parameters:
     - const int layout[GRID_HEIGHT][GRID_WIDTH]: A 2D array representing the desired grid layout to initialize the tower grid.
 
 Limitations:
-    - Assumes the provided 'layout' array is valid and matches the size of the tower grid.
+    - Assumes the provided layout array is valid and matches the size of the tower grid.
     - The layout array must be defined before calling this function.
-
-Returns:
-    - None. The function directly modifies the 'model->tower.grid' based on the given layout.
 */
 void initialize_grid(Tower *new_tower, int layout[GRID_HEIGHT][GRID_WIDTH])
 {
@@ -127,7 +121,7 @@ Purpose: initializes a tetromino by setting its properties and assigning its lay
 
 Details:
     - Sets the initial position, dimensions, velocities, and state flags of the tetromino.
-    - Assigns a predefined layout based on the tetromino's type using the initialize_layout function.
+    - Assigns a predefined layout based on the tetrominos type using the initialize_layout function.
 
 Parameters:
     - Tetromino *new_tetromino: pointer to the tetromino being initialized.
@@ -198,15 +192,15 @@ void initialize_counter(Counter *new_counter, Tower *tower, unsigned int x, unsi
 
 /*
 ----- FUNCTION: cycle_piece_layout -----
-Purpose: returns the layout corresponding to the current piece's index.
+Purpose: returns the layout corresponding to the current pieces index.
 
 Details:
-    - The function maps a piece's index (0-6) to its corresponding predefined layout.
+    - The function maps a pieces index (0-6) to its corresponding predefined layout.
     - Each piece has a unique layout defined as a 2D array with size PIECE_SIZE x PIECE_SIZE.
     - If an invalid index is passed, the function returns NULL.
 
 Parameters:
-    - int curr_index: the current piece's index, ranging from 0 to 6, corresponding to specific tetrominoes:
+    - int curr_index: the current pieces index, ranging from 0 to 6, corresponding to specific tetrominoes:
         0 -> I_PIECE_LAYOUT
         1 -> J_PIECE_LAYOUT
         2 -> L_PIECE_LAYOUT
@@ -286,13 +280,13 @@ Purpose:
 
 Details:
     - This function decreases the x-coordinate of the active tetromino by its velocity in the x-direction.
-    - The amount by which the tetromino moves is determined by the value of 'velocity_x', which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves is determined by the value of velocity_x, which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
 
 Limitations:
-    - Assumes that the 'velocity_x' value has been properly initialized for the active tetromino.
+    - Assumes that the velocity_x value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions; those must be handled separately.
 */
 void move_active_piece_left(Tetromino *active_piece)
@@ -307,13 +301,13 @@ Purpose:
 
 Details:
     - This function increases the x-coordinate of the active tetromino by its velocity in the x-direction.
-    - The amount by which the tetromino moves is determined by the value of 'velocity_x', which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves is determined by the value of velocity_x, which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the x-coordinate and velocity.
 
 Limitations:
-    - Assumes that the 'velocity_x' value has been properly initialized for the active tetromino.
+    - Assumes that the velocity_x value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions; those must be handled separately.
 */
 void move_active_piece_right(Tetromino *active_piece)
@@ -328,13 +322,13 @@ Purpose:
 
 Details:
     - This function increases the y-coordinate of the active tetromino by its velocity in the y-direction.
-    - The amount by which the tetromino moves downward is determined by the value of 'velocity_y', which can be adjusted for different movement speeds.
+    - The amount by which the tetromino moves downward is determined by the value of velocity_y, which can be adjusted for different movement speeds.
 
 Parameters:
     - Tetromino *active_piece: Pointer to the active tetromino structure, which contains the y-coordinate and velocity.
 
 Limitations:
-    - Assumes that the 'velocity_y' value has been properly initialized for the active tetromino.
+    - Assumes that the velocity_y value has been properly initialized for the active tetromino.
     - Does not check for boundary conditions or collisions with the bottom of the playing field or other pieces; those must be handled separately.
 */
 void drop_active_piece(Tetromino *active_piece)
@@ -345,10 +339,10 @@ void drop_active_piece(Tetromino *active_piece)
 /*
 ----- FUNCTION: update_tower -----
 Purpose:
-    - Updates the tower by merging the active piece into the tower and adjusting the tower's state.
+    - Updates the tower by merging the active piece into the tower and adjusting the towers state.
 
 Details:
-    - Merges the active piece's layout into the tower grid and tile array.
+    - Merges the active pieces layout into the tower grid and tile array.
     - Adjusts the merged state of the active piece to indicate it is no longer active.
 
 Parameters:
@@ -392,7 +386,7 @@ Purpose:
     - Updates the counter to reflect the current tile count from the tower.
 
 Details:
-    - Sets the 'tile_count' of the 'counter' to match the 'tile_count' of the 'tower'.
+    - Sets the tile_count of the counter to match the tile_count of the tower.
     - This ensures the counter displays the correct number of tiles in the tower at any given moment.
 
 Parameters:
@@ -400,8 +394,8 @@ Parameters:
     - Tower *tower: Pointer to the tower structure containing the current tile count.
 
 Limitations:
-    - Assumes the 'counter' and 'tower' structures are initialized and valid.
-    - Only updates the 'tile_count' field of the 'counter'; no other tower-related state is modified.
+    - Assumes the counter and tower structures are initialized and valid.
+    - Only updates the tile_count field of the counter; no other tower-related state is modified.
 */
 void update_counter(Counter *counter, Tower *tower)
 {
@@ -429,7 +423,7 @@ Purpose:
     - Checks if the active piece has moved outside the playing field boundaries.
 
 Details:
-    - Compares the active piece's coordinates with the playing field's dimensions.
+    - Compares the active pieces coordinates with the playing fields dimensions.
     - Identifies out-of-bounds movement and one can only be checked one at a time.
     - Player cannot move the active piece once it is dropped.
 
@@ -468,7 +462,7 @@ Purpose:
     - Checks if the active piece has collided with any tiles in the tower.
 
 Details:
-    - Efficiently checks only the filled blocks of the active piece's layout.
+    - Efficiently checks only the filled blocks of the active pieces layout.
     - Reduces the number of comparisons by checking against only relevant tiles.
 
 Parameters:
@@ -526,7 +520,7 @@ Return:
     - bool: TRUE if a collision with the top row occurs, FALSE otherwise.
 
 Limitations:
-    - Assumes the grid's top row is accessible.
+    - Assumes the grids top row is accessible.
     - Does not account for partial rows beyond the visible grid.
 */
 bool fatal_tower_collision(Tower *tower)
@@ -547,10 +541,10 @@ bool fatal_tower_collision(Tower *tower)
 /*
 ----- FUNCTION: win_condition -----
 Purpose:
-    - Checks if the tower's tile count meets a specific threshold to determine a win condition.
+    - Checks if the towers tile count meets a specific threshold to determine a win condition.
 
 Details:
-    - Compares the tower's current tile count to a defined winning threshold.
+    - Compares the towers current tile count to a defined winning threshold.
     - Returns TRUE if the current tile count meets or exceeds the threshold.
     - Returns FALSE if the tile count does not meet the threshold.
 
@@ -558,7 +552,7 @@ Parameters:
     - Tower *tower: Pointer to the tower structure that contains the tile count.
 
 Returns:
-    - TRUE if the tower's tile count meets or exceeds the threshold.
+    - TRUE if the towers tile count meets or exceeds the threshold.
     - FALSE otherwise.
 */
 bool win_condition(Tower *tower)
@@ -579,18 +573,18 @@ Purpose:
     - Checks if the specified rows in the tower are completely filled with tiles and updates relevant variables accordingly.
 
 Details:
-    - Scans the rows in the tower grid from 'max_row' down to 'min_row' (calculated based on the height of the active piece) to determine if all columns in a row are occupied.
-    - If a row is full, the 'is_row_full' counter is incremented and 'max_row' is updated to the first fully completed row.
-    - The function checks each row's columns and determines if all cells are filled. If any empty space is found in the row, it moves to the next row without updating the counter or 'max_row'.
+    - Scans the rows in the tower grid from max_row down to min_row (calculated based on the height of the active piece) to determine if all columns in a row are occupied.
+    - If a row is full, the is_row_full counter is incremented and max_row is updated to the first fully completed row.
+    - The function checks each rows columns and determines if all cells are filled. If any empty space is found in the row, it moves to the next row without updating the counter or max_row.
 
 Parameters:
-    - Tower *tower: Pointer to the tower structure containing the grid, 'max_row', and 'is_row_full' counter.
+    - Tower *tower: Pointer to the tower structure containing the grid, max_row, and is_row_full counter.
     - Tetromino *active_piece: Pointer to the active piece being dropped, which helps in determining the row range to check based on its height.
 
 Limitations:
     - Assumes the row index is within valid bounds of the tower grid (i.e., 0 <= row < GRID_HEIGHT).
     - Only checks for completely filled rows and does not handle partially filled rows or invalid grid configurations.
-    - The 'max_row' is updated only to the first fully completed row; this ensures that the game keeps track of the highest filled row for further processing.
+    - The max_row is updated only to the first fully completed row; this ensures that the game keeps track of the highest filled row for further processing.
 */
 void check_rows(Tower *tower, Tetromino *active_piece)
 {

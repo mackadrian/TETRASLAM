@@ -5,7 +5,7 @@
 #include "types.h"
 
 void handle_requests(Model *model, char *input);
-void exit_request(char *input, bool *user_quit);
+void exit_request(char *input, bool *user_quit, bool *game_ended, bool *needs_render);
 
 /*Asynchronous Events*/
 void move_left_request(Tetromino *active_piece, Field *playing_field, Tower *tower);
