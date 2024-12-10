@@ -5,19 +5,20 @@
 
 
 
-video_base_address	equ	$FFFF8201
+VIDEO_BASE_ADDRESS	equ	$FFFF8201
 GEMDOS				equ 1
+NEW_VIDEO_BASE_OFFSET 	equ     	8
 
 
 ;----- SUBROUTINE: UINT32 *get_video_base(); ------
 ; PURPOSE: Returns the address stored at the video base register
 ; DETAILS: 
-;		- This function transitions the CPU into supervisor mode to safely access the hardware register.
-;		- It reads the 24-bit video base address stored at $FFFF8201 into a 32-bit value,
-;			performing a left shift to align the address properly.
-;		- The function then exits supervisor mode and returns the address.
+;	- This function transitions the CPU into supervisor mode to safely access the hardware register.
+;	- It reads the 24-bit video base address stored at $FFFF8201 into a 32-bit value,
+;		performing a left shift to align the address properly.
+;	- The function then exits supervisor mode and returns the address.
 ; RETURN:
-;		- UINT32 (D0): The 24-bit base address of the video memory, zero-extended to 32 bits.
+;	- UINT32 (D0): The 24-bit base address of the video memory, zero-extended to 32 bits.
 
 _get_video_base:
 		link	a6,#0
@@ -26,7 +27,7 @@ _get_video_base:
 		bsr _enter_super
 
 		clr.l 	d3
-		move.l  #video_base_address,a0
+		move.l  #VIDEO_BASE_ADDRESS,a0
 		movep.w (a0),d3
 		lsl.l   #8,d3
 
@@ -43,14 +44,12 @@ _get_video_base:
 ;----- SUBROUTINE: void set_video_base(UINT32 *); ------
 ; PURPOSE: Sets the video base register to a new address provided as input.
 ; DETAILS: 
-;		- The function takes a 32-bit address, converts it to a 24-bit format by shifting it 8 bits to the right, 
-;			and stores it in the video base register at $FFFF8201.
-;		- Supervisor mode is entered for safe register access and exited after the update.
+;	- The function takes a 32-bit address, converts it to a 24-bit format by shifting it 8 bits to the right, 
+;		and stores it in the video base register at $FFFF8201.
+;	- Supervisor mode is entered for safe register access and exited after the update.
 ; PARAMETERS:
-;		- UINT32 * (D0): Pointer to the new 24-bit video base address (zero-extended to 32 bits)
-;			that will replace the current address in the register.
-
-NEW_VIDEO_BASE_OFFSET 	equ     	8
+;	- UINT32 * (D0): Pointer to the new 24-bit video base address (zero-extended to 32 bits)
+;		that will replace the current address in the register.
 
 _set_video_base:
 		link	a6,#0
@@ -61,7 +60,7 @@ _set_video_base:
 		clr.l 	d0
 		move.l	NEW_VIDEO_BASE_OFFSET(a6),d0
 		lsr.l   #8,d0
-		move.l  #video_base_address,a0
+		move.l  #VIDEO_BASE_ADDRESS,a0
 		movep.w d0,(a0)
 		
 		bsr		_exit_super

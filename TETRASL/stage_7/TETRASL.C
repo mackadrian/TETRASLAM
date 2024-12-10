@@ -85,9 +85,9 @@ int main()
                 }
             }
 
-            time_then = time_now;
-            melody_time_elapsed++;
+            melody_time_elapsed += time_elapsed;
             update_music(&melody_time_elapsed);
+            time_then = time_now;
         }
     }
 
@@ -99,28 +99,26 @@ int main()
 }
 
 /*
------ FUNCTION: process_events -----
+----- FUNCTION: set_buffers -----
 Purpose:
-    - Processes asynchronous and synchronous game events, including handling player actions and win/loss conditions.
+    - Aligns and sets up the front and back buffers for double buffering during rendering.
 
 Details:
-    - Handles player input by calling the appropriate request functions (e.g., movement, drop, cycle piece).
-    - Checks for game-ending conditions, such as the win condition or user quit request.
-    - Sets the `needs_render` flag to TRUE when an action modifies the game state requiring an updated render.
-    - Ends the game by setting the `game_ended` flag when the win condition is met.
+    - Aligns the back buffer's memory address to the nearest 256-byte boundary for optimal performance.
+    - Assigns the original screen buffer to the front buffer to maintain the current display.
 
 Parameters:
-    - Model *model: Pointer to the game model containing the current game state.
-    - char *input: Pointer to the current user input character.
-    - bool *needs_render: Pointer to the render flag, set to TRUE if the game state changes.
-    - bool *game_ended: Pointer to the flag indicating whether the game has ended.
+    - UINT32 **back_buffer: Pointer to a pointer where the aligned back buffer address will be stored.
+    - UINT32 **front_buffer: Pointer to a pointer where the original front buffer address will be stored.
+    - UINT32 *orig_buffer: Pointer to the original buffer used for screen rendering.
+    - UINT8 back_buffer_array[]: Array for the back buffer memory that will be aligned.
 
-Return:
-    - Modifies the game model and updates the flags based on the processed events.
+Returns:
+    - Updates the pointers to the aligned back buffer and original front buffer.
 
 Limitations:
-    - Assumes that the model is properly initialized and valid inputs are passed.
-    - Relies on the `tile_counter` field to determine the win condition.
+    - Assumes the `back_buffer_array` is large enough for rendering and alignment.
+    - The alignment logic relies on specific memory boundary requirements (256-byte alignment).
 */
 void set_buffers(UINT32 **back_buffer, UINT32 **front_buffer, UINT32 *orig_buffer, UINT8 back_buffer_array[])
 {

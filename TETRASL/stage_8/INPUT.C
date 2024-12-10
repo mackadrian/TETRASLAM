@@ -13,7 +13,7 @@ Purpose:
     - Checks if there is a key press available for reading.
 
 Details:
-    - Uses the 'Cconis()' function to determine if there is any input ready to be processed.
+    - Uses the Cconis() function to determine if there is any input ready to be processed.
 
 Returns:
     - Returns 1 if a key is ready, 0 otherwise.
@@ -29,7 +29,7 @@ Purpose:
     - Retrieves the pressed key, including handling extended keys (e.g., arrow keys).
 
 Details:
-    - Uses 'Cnecin()' to get the key code.
+    - Uses Cnecin() to get the key code.
     - If the key code represents an extended key (e.g., left or right arrow), it extracts the key from the most significant byte (MSByte).
     - If the key is a regular ASCII character, it returns it directly.
 
@@ -74,14 +74,14 @@ Purpose:
     - Updates the character pointer with the pressed key if a valid key is detected.
 
 Details:
-    - Checks if input is available using 'check_input_ready'.
-    - Retrieves the key code using 'get_input', and updates the input character pointer.
+    - Checks if input is available using check_input_ready.
+    - Retrieves the key code using get_input, and updates the input character pointer.
 
 Parameters:
     - char *input: Pointer to the character variable that will hold the pressed key.
 
 Limitations:
-    - Assumes input handling functions 'check_input_ready' and 'get_input' are available.
+    - Assumes input handling functions check_input_ready and get_input are available.
     - Only processes predefined keys and scancodes; unrecognized keys are ignored.
 */
 void user_input(char *input)

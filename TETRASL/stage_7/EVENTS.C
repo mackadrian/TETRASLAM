@@ -275,25 +275,22 @@ void cycle_active_piece(Tetromino *active_piece, Tetromino player_pieces[], Fiel
 
     if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
     {
-        if (player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field))
+        active_piece->x -= active_piece->velocity_x;
+
+        if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
         {
-            active_piece->x -= active_piece->velocity_x;
-
-            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
-            {
-                return;
-            }
-
-            active_piece->x += 2 * active_piece->velocity_x;
-
-            if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
-            {
-                return;
-            }
-
-            active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
-            active_piece->y = playing_field->y;
+            return;
         }
+
+        active_piece->x += 2 * active_piece->velocity_x;
+
+        if (!(player_bounds_collision(active_piece, playing_field) || tower_collision(active_piece, tower, playing_field)))
+        {
+            return;
+        }
+
+        active_piece->x = (playing_field->width >> 1) + (playing_field->x - active_piece->velocity_x);
+        active_piece->y = playing_field->y;
     }
 }
 

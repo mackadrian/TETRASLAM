@@ -44,7 +44,7 @@ void play_bounds_collision_sound()
 }
 
 /*
------ FUNCTION: play_bounds_collision_sound -----
+----- FUNCTION: play_clear_row_sound -----
 Purpose:
     - Plays the "clear row" sound effect using Channel C.
     - Indicates a row clearance occurs.
