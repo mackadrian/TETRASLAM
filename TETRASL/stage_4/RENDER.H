@@ -12,5 +12,6 @@ void render_active_piece(Model *model, UINT16 *base_16);
 void render_playing_field(Model *model, UINT16 *base_16);
 void render_tower(const Model *model, UINT16 *base_16);
 void render_counter(Model *model, UINT8 *base_8);
+void render_main_menu(UINT16 *base_16);
 
 #endif
